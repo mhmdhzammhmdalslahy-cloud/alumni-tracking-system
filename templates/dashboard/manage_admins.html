@@ -1,0 +1,62 @@
+{% extends 'dashboard/base_admin.html' %}
+
+{% block title %}إدارة المشرفين{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">إدارة المشرفين</h1>
+    <a href="{% url 'dashboard:add_admin' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> مشرف جديد
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>الاسم</th>
+                        <th>البريد</th>
+                        <th>المستوى</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ admin.user.get_full_name|default:admin.user.username }}</td>
+                        <td>{{ admin.user.email }}</td>
+                        <td>{{ admin.get_admin_level_display }}</td>
+                        <td>
+                            {% if admin.is_active %}
+                            <span class="badge bg-success">نشط</span>
+                            {% else %}
+                            <span class="badge bg-danger">غير نشط</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ admin.created_at|date:"Y-m-d" }}</td>
+                        <td>
+                            <a href="{% url 'dashboard:edit_admin' admin.id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'dashboard:delete_admin' admin.id %}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">لا توجد بيانات</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

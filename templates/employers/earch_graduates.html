@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>البحث عن خريجين - نظام متابعة الخريجين</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-light">
+<div class="container my-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4><i class="fas fa-search"></i> البحث عن خريجين</h4>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4"><input type="text" name="name" class="form-control" placeholder="🔍 الاسم"></div>
+                <div class="col-md-4"><input type="text" name="major" class="form-control" placeholder="🎓 التخصص"></div>
+                <div class="col-md-4"><input type="text" name="skill" class="form-control" placeholder="🏷️ المهارة"></div>
+                <div class="col-md-3"><select name="city" class="form-select"><option>جميع المدن</option><option>مأرب</option><option>صنعاء</option><option>عدن</option></select></div>
+                <div class="col-md-3"><select name="year" class="form-select"><option>جميع السنوات</option><option>2025</option><option>2024</option><option>2023</option></select></div>
+                <div class="col-md-3"><select name="gpa" class="form-select"><option>جميع المعدلات</option><option>3.5 فأكثر</option><option>3.0-3.5</option><option>2.5-3.0</option></select></div>
+                <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">بحث <i class="fas fa-arrow-left"></i></button></div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        {% for graduate in graduates %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" style="width: 80px; height: 80px; border-radius: 50%;">
+                    <h5 class="mt-2">{{ graduate.user.get_full_name }}</h5>
+                    <p class="text-muted">{{ graduate.major }} - {{ graduate.graduation_year }}</p>
+                    <a href="{% url 'graduate_profile' graduate.pk %}" class="btn btn-sm btn-outline-primary">عرض الملف</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center"><div class="alert alert-info">لا توجد نتائج</div></div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

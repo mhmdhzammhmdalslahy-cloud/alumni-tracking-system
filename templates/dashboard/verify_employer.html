@@ -1,0 +1,73 @@
+{% extends 'dashboard/base_admin.html' %}
+
+{% block title %}توثيق الشركة{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">مراجعة طلب توثيق الشركة</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <p><strong>اسم الشركة:</strong> {{ employer.company_name }}</p>
+                <p><strong>البريد:</strong> {{ employer.email|default:"-" }}</p>
+                <p><strong>الهاتف:</strong> {{ employer.phone|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>القطاع:</strong> {{ employer.get_industry_display }}</p>
+                <p><strong>المقر:</strong> {{ employer.headquarters }}</p>
+                <p><strong>تاريخ التسجيل:</strong> {{ employer.created_at|date:"Y-m-d" }}</p>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <h6>الوثائق المرفقة:</h6>
+            {% if verification.commercial_registration_file %}
+            <a href="{{ verification.commercial_registration_file.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                <i class="fas fa-file-pdf"></i> السجل التجاري
+            </a>
+            {% endif %}
+            {% if verification.tax_certificate %}
+            <a href="{{ verification.tax_certificate.url }}" target="_blank" class="btn btn-outline-primary">
+                <i class="fas fa-file-pdf"></i> شهادة الضريبة
+            </a>
+            {% endif %}
+            {% if not verification.commercial_registration_file and not verification.tax_certificate %}
+            <p class="text-muted">لا توجد وثائق مرفقة</p>
+            {% endif %}
+        </div>
+        
+        <hr>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">الإجراء</label>
+                    {{ form.action }}
+                </div>
+                <div class="col-md-6 mb-3" id="rejectionReasonDiv" style="display: none;">
+                    <label class="form-label">سبب الرفض</label>
+                    {{ form.rejection_reason }}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'dashboard:manage_employers' %}" class="btn btn-secondary">إلغاء</a>
+                <button type="submit" class="btn btn-primary">تأكيد</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelector('select[name="action"]').addEventListener('change', function() {
+        const reasonDiv = document.getElementById('rejectionReasonDiv');
+        if (this.value === 'reject') {
+            reasonDiv.style.display = 'block';
+        } else {
+            reasonDiv.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

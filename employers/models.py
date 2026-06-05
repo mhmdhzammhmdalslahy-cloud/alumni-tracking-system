@@ -83,3 +83,15 @@ class EmployerVerificationRequest(models.Model):
     
     def __str__(self):
         return f"{self.employer.company_name} - {self.status}"
+
+
+# ✅ النموذج الصحيح لتقييم الشركة (بدون is_live هنا)
+class CompanyReview(models.Model):
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='reviews')
+    graduate = models.ForeignKey('graduates.Graduate', on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('employer', 'graduate')

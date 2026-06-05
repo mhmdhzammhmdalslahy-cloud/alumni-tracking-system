@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}الاستبيانات{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-chart-line"></i> الاستبيانات المتاحة</h4>
+                </div>
+                <div class="card-body">
+                    {% if surveys %}
+                        {% for survey in surveys %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5>{{ survey.title }}</h5>
+                                <p>{{ survey.description|default:"لا يوجد وصف" }}</p>
+                                <small class="text-muted">نوع الاستبيان: {{ survey.get_timing_display }}</small>
+                                <br>
+                                <a href="{% url 'take_survey' survey.id %}" class="btn btn-primary btn-sm mt-2">
+                                    <i class="fas fa-edit"></i> ابدأ الاستبيان
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">لا توجد استبيانات متاحة حالياً</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

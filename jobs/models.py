@@ -40,6 +40,10 @@ class Job(models.Model):
     created_at = models.DateTimeField("تاريخ النشر", auto_now_add=True)
     updated_at = models.DateTimeField("آخر تحديث", auto_now=True)
     
+    # ✅ الحقول الجديدة للبث المباشر
+    is_live = models.BooleanField("بث مباشر", default=False)
+    live_link = models.URLField("رابط البث المباشر", blank=True, null=True)
+    
     def __str__(self):
         return f"{self.title} at {self.employer.company_name}"
     

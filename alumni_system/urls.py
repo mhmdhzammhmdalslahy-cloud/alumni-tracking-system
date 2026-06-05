@@ -3,10 +3,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('', TemplateView.as_view(template_name='landing.html'), name='landing'),
+    path('home/', login_required(TemplateView.as_view(template_name='index.html')), name='home'),
     path('graduates/', include('graduates.urls')),
     path('accounts/', include('accounts.urls')),
     path('employers/', include('employers.urls')),

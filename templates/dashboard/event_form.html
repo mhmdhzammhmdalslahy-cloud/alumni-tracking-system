@@ -1,0 +1,64 @@
+{% extends 'dashboard/base_admin.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">{{ title }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">عنوان الفعالية</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">نوع الفعالية</label>
+                    {{ form.event_type }}
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">الوصف</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">تاريخ الفعالية</label>
+                    {{ form.date }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">الموقع</label>
+                    {{ form.location }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-check-label ms-2">فعالية افتراضية</label>
+                    {{ form.is_virtual }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">رابط الفعالية (للافتراضية)</label>
+                    {{ form.meeting_link }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">الحد الأقصى للحضور</label>
+                    {{ form.max_attendees }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">صورة الفعالية</label>
+                    {{ form.image }}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-check-label ms-2">نشطة</label>
+                    {{ form.is_active }}
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <a href="{% url 'dashboard:manage_events' %}" class="btn btn-secondary">إلغاء</a>
+                <button type="submit" class="btn btn-primary">حفظ</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

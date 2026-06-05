@@ -12,70 +12,191 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
+        /* تصميم جذاب للوظائف */
         .job-card {
             background: white;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 24px;
+            padding: 0;
+            margin-bottom: 25px;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            cursor: pointer;
-            border-right: 4px solid #F39C12;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
         }
         .job-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
         body.dark-mode .job-card {
             background: #1e2a3a;
+            border-color: #2c3e50;
         }
+        
+        /* الشريط العلوي للبطاقة */
+        .job-card-header {
+            padding: 20px 25px 0 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        /* شعار الشركة */
+        .company-badge {
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        /* نوع الوظيفة */
+        .job-type {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .type-full_time { background: #27ae60; color: white; }
+        .type-part_time { background: #f39c12; color: white; }
+        .type-remote { background: #3498db; color: white; }
+        .type-hybrid { background: #9b59b6; color: white; }
+        .type-internship { background: #e74c3c; color: white; }
+        
+        /* المحتوى الرئيسي */
+        .job-card-body {
+            padding: 15px 25px;
+        }
+        
         .job-title {
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 800;
+            color: #1A5F7A;
+            margin-bottom: 5px;
+        }
+        
+        .company-name {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .company-name i {
+            margin-left: 5px;
+            color: #F39C12;
+        }
+        
+        /* المهارات */
+        .skill-tag {
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin: 3px;
+        }
+        body.dark-mode .skill-tag {
+            background: #2c3e50;
+            color: #eee;
+        }
+        
+        /* معلومات إضافية */
+        .job-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+        body.dark-mode .job-info {
+            border-top-color: #2c3e50;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .info-item i {
+            width: 25px;
             color: #1A5F7A;
         }
-        .company-name {
-            color: #6c757d;
-            font-size: 0.9rem;
+        
+        /* السعر */
+        .salary {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #27ae60;
         }
-        .job-type-badge {
-            background: #27ae60;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
+        .salary small {
             font-size: 0.7rem;
+            font-weight: normal;
         }
-        .job-location {
-            color: #6c757d;
+        
+        /* زر التفاصيل */
+        .btn-details {
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
             font-size: 0.8rem;
+            transition: 0.3s;
         }
-        .salary-range {
-            background: #e9ecef;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+        .btn-details:hover {
+            background: linear-gradient(135deg, #F39C12, #e67e22);
+            color: #1A5F7A;
+            transform: scale(1.02);
         }
-        .deadline-badge {
-            background: #e74c3c;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-        }
-        .filter-sidebar {
+        
+        /* شريط البحث */
+        .search-bar-custom {
             background: white;
-            border-radius: 20px;
-            padding: 20px;
-            position: sticky;
-            top: 90px;
+            border-radius: 60px;
+            padding: 8px 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
-        body.dark-mode .filter-sidebar {
+        body.dark-mode .search-bar-custom {
             background: #1e2a3a;
         }
-        .filter-title {
-            font-weight: 700;
-            color: #1A5F7A;
-            margin-bottom: 15px;
+        .search-bar-custom input, .search-bar-custom select {
+            border: none;
+            background: transparent;
+            padding: 10px;
+        }
+        .search-bar-custom input:focus, .search-bar-custom select:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        /* إحصائيات */
+        .stat-circle {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            border-radius: 20px;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .job-card-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .job-info {
+                justify-content: center;
+            }
+            .btn-details {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -113,39 +234,38 @@
         
         <div class="col-lg-9">
             <!-- الهيدر -->
-            <div class="profile-header" style="background: linear-gradient(135deg, #1A5F7A, #0d3b4f); border-radius: 20px; padding: 25px; color: white; margin-bottom: 25px;">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h2><i class="fas fa-briefcase"></i> فرص عمل مميزة</h2>
-                        <p>{{ total_jobs }} وظيفة متاحة حالياً لخريجينا</p>
-                    </div>
-                    {% if user.is_authenticated and user.employer_profile %}
-                    <div class="col-md-4 text-center">
-                        <a href="{% url 'job_create' %}" class="btn btn-warning">
-                            <i class="fas fa-plus"></i> نشر وظيفة
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="stat-circle mb-4">
+                <h2><i class="fas fa-briefcase"></i> فرص عمل مميزة</h2>
+                <p>{{ total_jobs }} وظيفة متاحة حالياً</p>
             </div>
             
             <!-- شريط البحث -->
-            <div class="filter-sidebar mb-4">
+            <div class="search-bar-custom mb-4">
                 <div class="row">
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-5">
                         <input type="text" class="form-control" placeholder="🔍 ابحث عن وظيفة..." id="searchJob">
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4">
                         <select class="form-select" id="typeFilter">
                             <option value="">جميع أنواع الوظائف</option>
                             <option value="full_time">دوام كامل</option>
                             <option value="part_time">دوام جزئي</option>
                             <option value="remote">عن بعد</option>
+                            <option value="hybrid">هجين</option>
                             <option value="internship">تدريب</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <input type="text" class="form-control" placeholder="📍 المدينة" id="locationFilter">
+                    <div class="col-md-3">
+                        <select class="form-select" id="locationFilter">
+                            <option value="">جميع المدن</option>
+                            <option>مأرب</option>
+                            <option>صنعاء</option>
+                            <option>عدن</option>
+                            <option>الحديدة</option>
+                            <option>تعز</option>
+                            <option>حضرموت</option>
+                            <option>عن بعد</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -153,24 +273,52 @@
             <!-- قائمة الوظائف -->
             <div id="jobsContainer">
                 {% for job in jobs %}
-                <div class="job-card" onclick="location.href='{% url 'job_detail' job.pk %}'">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h5 class="job-title">{{ job.title }}</h5>
-                            <p class="company-name"><i class="fas fa-building"></i> {{ job.employer.company_name }}</p>
-                            <p class="job-location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
-                            <div class="mt-2">
-                                <span class="job-type-badge">{{ job.get_job_type_display }}</span>
-                                <span class="salary-range"><i class="fas fa-money-bill"></i> 
-                                    {% if job.is_salary_negotiable %}قابل للتفاوض
-                                    {% else %}{{ job.salary_min|default:"-" }} - {{ job.salary_max|default:"-" }} ريال{% endif %}
-                                </span>
+                <div class="job-card" data-job-type="{{ job.job_type }}" data-location="{{ job.location }}">
+                    <div class="job-card-header">
+                        <div class="d-flex gap-3">
+                            <div class="company-badge">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <h5 class="job-title">{{ job.title }}</h5>
+                                <p class="company-name"><i class="fas fa-building"></i> {{ job.employer.company_name }}</p>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center">
-                            <span class="deadline-badge"><i class="fas fa-clock"></i> ينتهي: {{ job.deadline|date:"Y-m-d" }}</span>
-                            <div class="mt-2">
-                                <small class="text-muted"><i class="fas fa-eye"></i> {{ job.views_count }} مشاهدة</small>
+                        <span class="job-type type-{{ job.job_type }}">
+                            {% if job.job_type == 'full_time' %}دوام كامل
+                            {% elif job.job_type == 'part_time' %}دوام جزئي
+                            {% elif job.job_type == 'remote' %}عن بعد
+                            {% elif job.job_type == 'hybrid' %}هجين
+                            {% else %}تدريب{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="job-card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    {% for skill in job.required_skills.split|slice:":3" %}
+                                    <span class="skill-tag">{{ skill|truncatechars:15 }}</span>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="job-info">
+                                    <div class="info-item"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</div>
+                                    <div class="info-item"><i class="fas fa-calendar-alt"></i> ينتهي: {{ job.deadline|date:"Y-m-d" }}</div>
+                                    <div class="info-item"><i class="fas fa-eye"></i> {{ job.views_count }} مشاهدة</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="salary mb-2">
+                                    {% if job.is_salary_negotiable %}
+                                    قابل للتفاوض
+                                    {% else %}
+                                    {{ job.salary_min|floatformat:0 }} - {{ job.salary_max|floatformat:0 }} ريال
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'job_detail' job.pk %}" class="btn btn-details">
+                                    تفاصيل الوظيفة <i class="fas fa-arrow-left"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -212,17 +360,17 @@
     function filterJobs() {
         let search = document.getElementById('searchJob').value.toLowerCase();
         let type = document.getElementById('typeFilter').value;
-        let location = document.getElementById('locationFilter').value.toLowerCase();
+        let location = document.getElementById('locationFilter').value;
         let jobs = document.querySelectorAll('.job-card');
         
         jobs.forEach(job => {
             let title = job.querySelector('.job-title').innerText.toLowerCase();
             let company = job.querySelector('.company-name').innerText.toLowerCase();
-            let jobType = job.querySelector('.job-type-badge').innerText;
-            let jobLocation = job.querySelector('.job-location').innerText.toLowerCase();
+            let jobType = job.getAttribute('data-job-type');
+            let jobLocation = job.getAttribute('data-location');
             
             let show = title.includes(search) || company.includes(search);
-            if (type && !jobType.includes(type)) show = false;
+            if (type && jobType !== type) show = false;
             if (location && !jobLocation.includes(location)) show = false;
             
             job.style.display = show ? 'block' : 'none';
@@ -231,7 +379,7 @@
     
     document.getElementById('searchJob').addEventListener('keyup', filterJobs);
     document.getElementById('typeFilter').addEventListener('change', filterJobs);
-    document.getElementById('locationFilter').addEventListener('keyup', filterJobs);
+    document.getElementById('locationFilter').addEventListener('change', filterJobs);
 </script>
 </body>
 </html>

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ survey.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-edit"></i> {{ survey.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ survey.description|default:"الرجاء الإجابة على الأسئلة التالية" }}</p>
+                    <hr>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for question in survey.questions %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ forloop.counter }}. {{ question.text }}</label>
+                            
+                            {% if question.type == 'text' %}
+                                <textarea name="question_{{ forloop.counter0 }}" class="form-control" rows="3"></textarea>
+                            
+                            {% elif question.type == 'choice' %}
+                                {% for option in question.options %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="question_{{ forloop.parentloop.counter0 }}" value="{{ option }}" id="q{{ forloop.parentloop.counter0 }}_{{ forloop.counter }}">
+                                    <label class="form-check-label" for="q{{ forloop.parentloop.counter0 }}_{{ forloop.counter }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            
+                            {% elif question.type == 'rating' %}
+                                <select name="question_{{ forloop.counter0 }}" class="form-select">
+                                    <option value="">اختر التقييم</option>
+                                    <option value="1">1 - ضعيف</option>
+                                    <option value="2">2 - مقبول</option>
+                                    <option value="3">3 - جيد</option>
+                                    <option value="4">4 - جيد جداً</option>
+                                    <option value="5">5 - ممتاز</option>
+                                </select>
+                            
+                            {% else %}
+                                <input type="text" name="question_{{ forloop.counter0 }}" class="form-control">
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'survey_list' %}" class="btn btn-secondary">إلغاء</a>
+                            <button type="submit" class="btn btn-success">إرسال الإجابات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

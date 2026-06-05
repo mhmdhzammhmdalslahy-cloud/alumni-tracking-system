@@ -1,0 +1,91 @@
+{% extends 'dashboard/base_admin.html' %}
+
+{% block title %}إدارة التخصصات الأكاديمية{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">إضافة تخصص جديد</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">اسم التخصص</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">رمز التخصص</label>
+                        {{ form.code }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">القسم</label>
+                        {{ form.department }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-check-label ms-2">نشط</label>
+                        {{ form.is_active }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">إضافة التخصص</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">قائمة التخصصات</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>الرمز</th>
+                                <th>اسم التخصص</th>
+                                <th>القسم</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for major in majors %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ major.code }}</td>
+                                <td>{{ major.name }}</td>
+                                <td>{{ major.department }}</td>
+                                <td>
+                                    {% if major.is_active %}
+                                    <span class="badge bg-success">نشط</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">غير نشط</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'dashboard:manage_majors' %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_id" value="{{ major.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">لا توجد تخصصات</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

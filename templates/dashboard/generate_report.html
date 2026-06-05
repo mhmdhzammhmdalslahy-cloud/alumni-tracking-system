@@ -1,0 +1,40 @@
+{% extends 'dashboard/base_admin.html' %}
+
+{% block title %}إنشاء تقرير جديد{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">إنشاء تقرير جديد</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">نوع التقرير</label>
+                    <select name="report_type" class="form-select" required>
+                        <option value="employment">تقرير التوظيف</option>
+                        <option value="skill_gap">تقرير فجوات المهارات</option>
+                        <option value="general">تقرير عام</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">تاريخ البداية</label>
+                    <input type="date" name="start_date" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">تاريخ النهاية</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <a href="{% url 'dashboard:reports' %}" class="btn btn-secondary">إلغاء</a>
+                <button type="submit" class="btn btn-primary">إنشاء التقرير</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام متابعة الخريجين</title>
     
-    <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Swiper JS (للـ Slider) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     
     {% load static %}
@@ -19,46 +15,46 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar">
     <div class="container">
-        <a class="navbar-brand" href="/">
-            <i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين
-        </a>
+        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
         
-        <form class="search-bar d-flex">
-            <input class="form-control" type="search" placeholder="ابحث عن خريج، تخصص، شركة...">
+        <form class="search-bar d-flex" action="{% url 'search_graduates' %}" method="get">
+            <input class="form-control" type="search" name="q" placeholder="ابحث عن خريج، تخصص، شركة...">
             <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
         </form>
         
         <div class="d-flex align-items-center gap-4">
-    <!-- أيقونة الإشعارات -->
-    <a href="#" class="notification-icon position-relative">
-        <i class="fas fa-bell fa-lg"></i>
-        <span class="notification-badge">3</span>
-    </a>
-    
-    <!-- أيقونة المستخدم / تسجيل الدخول -->
-    <div class="dropdown">
-        <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
-            <i class="fas fa-user-circle fa-lg"></i>
-            <span>حسابي</span>
-            <i class="fas fa-chevron-down fa-xs"></i>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-in-alt ms-2"></i> تسجيل دخول</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-user-plus ms-2"></i> إنشاء حساب</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> الوضع الداكن</a></li>
-        </ul>
-    </div>
-   </div>
+            <a href="#" class="notification-icon position-relative">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="notification-badge">{{ notifications_count|default:"0" }}</span>
+            </a>
+            
+            <div class="dropdown">
+                <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    <span>{{ user.first_name|default:user.username }}</span>
+                    <i class="fas fa-chevron-down fa-xs"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    {% if user.is_authenticated %}
+                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> ملفي الشخصي</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> تسجيل خروج</a></li>
+                    {% else %}
+                        <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> تسجيل دخول</a></li>
+                        <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> إنشاء حساب</a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> الوضع الداكن</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 </nav>
 
 <div class="container my-4">
     <div class="row">
-        <!-- ========== القائمة الجانبية ========== -->
         <div class="col-lg-3">
             <div class="sidebar">
                 <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
@@ -67,15 +63,14 @@
                     <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
                     <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
                     <a class="nav-link" href="{% url 'job_list' %}"><i class="fas fa-briefcase"></i> الوظائف</a>
-                    <a class="nav-link" href="/admin/"><i class="fas fa-crown"></i> لوحة الإدارة</a>
+                    <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> لوحة الإدارة</a>
                 </div>
             </div>
         </div>
         
-        <!-- ========== المحتوى الرئيسي ========== -->
         <div class="col-lg-9">
             
-            <!-- ========== Slider (بanner متحرك) ========== -->
+            <!-- Slider -->
             <div class="swiper mySwiper mb-4">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
@@ -87,14 +82,14 @@
                     </div>
                     <div class="swiper-slide">
                         <div class="ad-banner" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
-                            <h3><i class="fas fa-briefcase"></i> أكثر من 89 وظيفة متاحة</h3>
+                            <h3><i class="fas fa-briefcase"></i> أكثر من {{ total_jobs|default:"0" }} وظيفة متاحة</h3>
                             <p>قدم الآن على فرص العمل المناسبة لك</p>
-                            <a href="#" class="btn-ad">استعرض الوظائف <i class="fas fa-arrow-left"></i></a>
+                            <a href="{% url 'job_list' %}" class="btn-ad">استعرض الوظائف <i class="fas fa-arrow-left"></i></a>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="ad-banner" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
-                            <h3><i class="fas fa-chart-line"></i> نسبة التوظيف 78%</h3>
+                            <h3><i class="fas fa-chart-line"></i> نسبة التوظيف {{ employment_rate|default:"0" }}%</h3>
                             <p>خريجونا هم الأفضل في سوق العمل</p>
                             <a href="#" class="btn-ad">تعرف أكثر <i class="fas fa-arrow-left"></i></a>
                         </div>
@@ -105,7 +100,7 @@
                 <div class="swiper-button-prev"></div>
             </div>
             
-            <!-- ========== إحصائيات المنصة ========== -->
+            <!-- إحصائيات المنصة -->
             <div class="section-header mt-2">
                 <h5 class="section-title">📊 إحصائيات المنصة</h5>
             </div>
@@ -113,136 +108,96 @@
                 <div class="col-md-3 col-6">
                     <div class="stat-box text-center">
                         <i class="fas fa-user-graduate fa-2x"></i>
-                        <h3 class="mt-2">1,234</h3>
-                        <p class="text-muted">خريج</p>
+                        <h3>{{ total_graduates|default:"0" }}</h3>
+                        <p>خريج</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="stat-box text-center">
                         <i class="fas fa-building fa-2x"></i>
-                        <h3 class="mt-2">156</h3>
-                        <p class="text-muted">شركة</p>
+                        <h3>{{ total_employers|default:"0" }}</h3>
+                        <p>شركة</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="stat-box text-center">
                         <i class="fas fa-briefcase fa-2x"></i>
-                        <h3 class="mt-2">89</h3>
-                        <p class="text-muted">وظيفة</p>
+                        <h3>{{ total_jobs|default:"0" }}</h3>
+                        <p>وظيفة</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="stat-box text-center">
                         <i class="fas fa-chart-line fa-2x"></i>
-                        <h3 class="mt-2">78%</h3>
-                        <p class="text-muted">نسبة التوظيف</p>
+                        <h3>{{ employment_rate|default:"0" }}%</h3>
+                        <p>نسبة التوظيف</p>
                     </div>
                 </div>
             </div>
             
-            <!-- ========== أحدث الخريجين ========== -->
+            <!-- أحدث الخريجين - ديناميكي -->
             <div class="section-header mt-5">
                 <h5 class="section-title">🎓 أحدث الخريجين</h5>
-                <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                <a href="{% url 'graduate_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
             </div>
             <div class="row g-3">
-                <div class="col-md-4 col-6">
-                    <div class="graduate-card text-center">
+                {% for graduate in latest_graduates %}
+                <div class="col-md-4 col-6 mb-3">
+                    <div class="graduate-card text-center" onclick="location.href='{% url 'graduate_profile' graduate.id %}'">
                         <div class="graduate-image-wrapper">
-                            <img src="https://randomuser.me/api/portraits/men/1.jpg" class="graduate-avatar" alt="خريج">
+                            <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" class="graduate-avatar">
                             <i class="fas fa-graduation-cap graduate-icon"></i>
                         </div>
-                        <h6 class="mt-2">أحمد محمد</h6>
-                        <p class="text-muted small">هندسة برمجيات - 2025</p>
+                        <h6 class="mt-2">{{ graduate.user.get_full_name|default:graduate.user.username }}</h6>
+                        <p class="text-muted small">{{ graduate.major }} - {{ graduate.graduation_year }}</p>
+                        {% if graduate.is_verified %}
                         <span class="badge-verified"><i class="fas fa-check-circle"></i> موثق</span>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="col-md-4 col-6">
-                    <div class="graduate-card text-center">
-                        <div class="graduate-image-wrapper">
-                            <img src="https://randomuser.me/api/portraits/women/1.jpg" class="graduate-avatar" alt="خريجة">
-                            <i class="fas fa-graduation-cap graduate-icon"></i>
-                        </div>
-                        <h6 class="mt-2">سارة علي</h6>
-                        <p class="text-muted small">علوم حاسب - 2024</p>
-                        <span class="badge-verified"><i class="fas fa-check-circle"></i> موثقة</span>
-                    </div>
-                </div>
-                <div class="col-md-4 col-6">
-                    <div class="graduate-card text-center">
-                        <div class="graduate-image-wrapper">
-                            <img src="https://randomuser.me/api/portraits/men/2.jpg" class="graduate-avatar" alt="خريج">
-                            <i class="fas fa-graduation-cap graduate-icon"></i>
-                        </div>
-                        <h6 class="mt-2">محمد خالد</h6>
-                        <p class="text-muted small">هندسة مدنية - 2025</p>
-                        <span class="badge-verified"><i class="fas fa-check-circle"></i> موثق</span>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="col-12 text-center">لا يوجد خريجين</div>
+                {% endfor %}
             </div>
             
-            <!-- ========== قصص نجاح ========== -->
+            <!-- قصص نجاح - ديناميكي -->
             <div class="section-header mt-5">
                 <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
                 <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
             </div>
             <div class="row g-3">
-                <div class="col-md-4 col-6">
+                {% for story in success_stories %}
+                <div class="col-md-4 col-6 mb-3">
                     <div class="success-card text-center">
                         <i class="fas fa-quote-right fa-2x text-primary"></i>
-                        <p class="small mt-2">"بفضل هذه المنصة حصلت على وظيفة أحلامي"</p>
-                        <h6 class="mt-2">أحمد محمود</h6>
-                        <p class="text-muted small">مهندس برمجيات - شركة تقنية</p>
+                        <p class="small mt-2">"{{ story.content|truncatechars:80 }}"</p>
+                        <h6 class="mt-2">{{ story.graduate.user.get_full_name }}</h6>
+                        <p class="text-muted small">{{ story.graduate.major }}</p>
                     </div>
                 </div>
-                <div class="col-md-4 col-6">
-                    <div class="success-card text-center">
-                        <i class="fas fa-quote-right fa-2x text-primary"></i>
-                        <p class="small mt-2">"المنصة ساعدتني في بناء علاقات مهنية قوية"</p>
-                        <h6 class="mt-2">نورا سامي</h6>
-                        <p class="text-muted small">محللة بيانات - بنك الرياض</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-6">
-                    <div class="success-card text-center">
-                        <i class="fas fa-quote-right fa-2x text-primary"></i>
-                        <p class="small mt-2">"أفضل منصة لمتابعة الخريجين في اليمن"</p>
-                        <h6 class="mt-2">خالد العنسي</h6>
-                        <p class="text-muted small">مؤسس شركة ناشئة</p>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="col-12 text-center">لا توجد قصص نجاح</div>
+                {% endfor %}
             </div>
             
-            <!-- ========== آخر الوظائف ========== -->
+            <!-- آخر الوظائف - ديناميكي -->
             <div class="section-header mt-5">
                 <h5 class="section-title">💼 آخر الوظائف</h5>
-                <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                <a href="{% url 'job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
             </div>
             <div class="row g-3">
-                <div class="col-md-4 col-6">
-                    <div class="job-card text-center">
-                        <i class="fas fa-code fa-2x text-primary"></i>
-                        <h6 class="mt-2">مطور ويب</h6>
-                        <p class="text-muted small">شركة تقنية - الرياض</p>
-                        <span class="badge-job">دوام كامل</span>
+                {% for job in latest_jobs %}
+                <div class="col-md-4 col-6 mb-3">
+                    <div class="job-card text-center" onclick="location.href='{% url 'job_detail' job.id %}'">
+                        <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
+                        <h6 class="mt-2">{{ job.title }}</h6>
+                        <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
+                        <span class="badge-job">{{ job.get_job_type_display }}</span>
                     </div>
                 </div>
-                <div class="col-md-4 col-6">
-                    <div class="job-card text-center">
-                        <i class="fas fa-hard-hat fa-2x text-success"></i>
-                        <h6 class="mt-2">مهندس مدني</h6>
-                        <p class="text-muted small">شركة مقاولات - جدة</p>
-                        <span class="badge-job">دوام كامل</span>
-                    </div>
-                </div>
-                <div class="col-md-4 col-6">
-                    <div class="job-card text-center">
-                        <i class="fas fa-chart-line fa-2x text-warning"></i>
-                        <h6 class="mt-2">محلل بيانات</h6>
-                        <p class="text-muted small">بنك الرياض</p>
-                        <span class="badge-job">عن بعد</span>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="col-12 text-center">لا توجد وظائف حالياً</div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -266,36 +221,33 @@
             <div class="col-md-3 mb-3">
                 <h5>روابط سريعة</h5>
                 <ul class="list-unstyled small">
-                    <li><a href="#">الرئيسية</a></li>
-                    <li><a href="#">الخريجين</a></li>
-                    <li><a href="#">الشركات</a></li>
-                    <li><a href="#">لوحة الإدارة</a></li>
+                    <li><a href="/">الرئيسية</a></li>
+                    <li><a href="{% url 'graduate_list' %}">الخريجين</a></li>
+                    <li><a href="{% url 'employer_list' %}">الشركات</a></li>
+                    <li><a href="{% url 'dashboard:admin_dashboard' %}">لوحة الإدارة</a></li>
                 </ul>
             </div>
             <div class="col-md-4 mb-3">
                 <h5>تواصل معنا</h5>
-                <p class="small"><i class="fas fa-phone ms-2"></i> +967 123 456 789</p>
-                <p class="small"><i class="fas fa-envelope ms-2"></i> info@alumni.com</p>
-                <p class="small"><i class="fas fa-map-marker-alt ms-2"></i> اليمن - مأرب</p>
+                <p><i class="fas fa-phone ms-2"></i> +967 123 456 789</p>
+                <p><i class="fas fa-envelope ms-2"></i> info@alumni.com</p>
+                <p><i class="fas fa-map-marker-alt ms-2"></i> اليمن - مأرب</p>
             </div>
         </div>
         <hr>
-        <div class="text-center small">
+        <div class="text-center">
             <p>© 2026 نظام متابعة الخريجين - جميع الحقوق محفوظة</p>
         </div>
     </div>
 </footer>
 
-<!-- زر العودة للأعلى -->
 <div class="scroll-top" id="scrollTop">
     <i class="fas fa-arrow-up"></i>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // ========== تفعيل الـ Slider ==========
     var swiper = new Swiper('.mySwiper', {
         loop: true,
         autoplay: { delay: 5000, disableOnInteraction: false },
@@ -303,7 +255,6 @@
         navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
     });
     
-    // ========== الوضع الداكن ==========
     const darkModeToggle = document.getElementById('darkModeToggle');
     darkModeToggle?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -312,7 +263,6 @@
     });
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
-    // ========== زر العودة للأعلى ==========
     const scrollTop = document.getElementById('scrollTop');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 300) scrollTop.classList.add('show');
