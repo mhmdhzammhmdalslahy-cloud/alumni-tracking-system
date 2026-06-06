@@ -1,0 +1,609 @@
+/* ========================================
+   نظام متابعة الخريجين - Alumni Tracking System
+   التصميم بنفس نمط بنيان بلس
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cairo', 'Tahoma', sans-serif;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+/* ========== الوضع الداكن ========== */
+body.dark-mode {
+    background-color: #1a1a2e;
+    color: #eeeeee;
+}
+
+body.dark-mode .card,
+body.dark-mode .navbar,
+body.dark-mode footer,
+body.dark-mode .sidebar,
+body.dark-mode .graduate-card,
+body.dark-mode .job-card,
+body.dark-mode .stat-box,
+body.dark-mode .ad-banner {
+    background-color: #16213e !important;
+    color: #eeeeee !important;
+}
+
+/* ========== Navbar ========== */
+.navbar {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+    padding: 15px 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white !important;
+}
+
+.navbar-brand i {
+    color: #F39C12;
+    margin-left: 10px;
+}
+
+/* ========== Search Bar ========== */
+.search-bar {
+    max-width: 350px;
+    width: 100%;
+}
+
+.search-bar input {
+    border-radius: 50px;
+    padding: 8px 20px;
+    border: none;
+    outline: none;
+}
+
+.search-bar .btn-warning {
+    border-radius: 50px;
+}
+
+/* ========== Sidebar (القائمة الجانبية) ========== */
+.sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 90px;
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1A5F7A;
+    border-right: 3px solid #F39C12;
+    padding-right: 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar .nav-link {
+    color: #2C3E50;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+    color: white;
+}
+
+.sidebar .nav-link i {
+    margin-left: 10px;
+    width: 25px;
+}
+
+/* ========== Ad Banner ========== */
+.ad-banner {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+    border-radius: 15px;
+    padding: 25px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.ad-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: pulse 4s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+.ad-banner h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.btn-ad {
+    background-color: #F39C12;
+    color: #1A5F7A;
+    font-weight: bold;
+    padding: 6px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-ad:hover {
+    background-color: #e67e22;
+    transform: scale(1.05);
+}
+
+/* ========== Section Header ========== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1A5F7A;
+    border-right: 3px solid #F39C12;
+    padding-right: 10px;
+}
+
+.view-all {
+    font-size: 0.8rem;
+    color: #666;
+    text-decoration: none;
+}
+
+.view-all:hover {
+    color: #F39C12;
+}
+
+/* ========== Stat Box (الإحصائيات) ========== */
+.stat-box {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+}
+
+.stat-box i {
+    color: #1A5F7A;
+}
+
+.stat-box h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 5px 0 0;
+}
+
+.stat-box p {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* ========== Graduate Card (بطاقات الخريجين) ========== */
+.graduate-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+    text-align: center;
+}
+
+.graduate-card:hover {
+    transform: translateY(-5px);
+}
+
+.graduate-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.graduate-card h6 {
+    font-weight: 700;
+    margin: 5px 0;
+}
+
+.graduate-card p {
+    font-size: 0.75rem;
+    color: #666;
+    margin: 5px 0;
+}
+
+.badge-verified {
+    background: #4caf50;
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* ========== Job Card (بطاقات الوظائف) ========== */
+.job-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+    text-align: center;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+}
+
+.job-card i {
+    font-size: 2rem;
+}
+
+.job-card h6 {
+    font-weight: 700;
+    margin: 10px 0 5px;
+}
+
+.job-card p {
+    font-size: 0.75rem;
+    color: #666;
+    margin: 0;
+}
+
+.badge-job {
+    background: #1A5F7A;
+    color: white;
+    font-size: 0.7rem;
+    padding: 4px 14px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* ========== Footer ========== */
+footer {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+    color: white;
+    padding: 30px 0 20px;
+    margin-top: 40px;
+}
+
+footer h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    border-right: 3px solid #F39C12;
+    padding-right: 10px;
+}
+
+footer a {
+    color: #ddd;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+footer a:hover {
+    color: #F39C12;
+}
+
+footer .social-icons a {
+    color: white;
+    font-size: 1.2rem;
+    margin-left: 15px;
+}
+
+/* ========== Scroll Top ========== */
+.scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1A5F7A;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+.scroll-top.show {
+    opacity: 1;
+}
+
+.scroll-top:hover {
+    background: #F39C12;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 20px;
+    }
+    
+    .search-bar {
+        max-width: 100%;
+        margin: 10px 0;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .ad-banner h3 {
+        font-size: 1rem;
+    }
+    
+    .stat-box h3 {
+        font-size: 1.2rem;
+    }
+    
+    .graduate-avatar {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-6 {
+        width: 50%;
+    }
+    
+    .sidebar .nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .sidebar .nav-link {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+}
+/* ========== تحسينات إضافية ========== */
+
+/* تأثيرات حركية للبطاقات */
+.graduate-card, .job-card, .success-card, .stat-box {
+    transition: all 0.3s ease;
+}
+
+.graduate-card:hover, .job-card:hover, .success-card:hover, .stat-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* تحسين صورة الخريجين */
+.graduate-image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.graduate-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #F39C12;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.graduate-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #F39C12;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 12px;
+    border: 2px solid white;
+}
+
+/* قصص نجاح */
+.success-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.success-card i {
+    color: #1A5F7A;
+}
+
+.success-card:hover {
+    transform: translateY(-5px);
+}
+
+/* تحسين الفوتر */
+footer .social-icons a {
+    display: inline-block;
+    margin-left: 12px;
+    color: white;
+    transition: 0.3s;
+}
+
+footer .social-icons a:hover {
+    color: #F39C12;
+    transform: translateY(-3px);
+}
+
+/* تحسين زر العودة للأعلى */
+.scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1A5F7A;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+.scroll-top.show {
+    opacity: 1;
+}
+
+.scroll-top:hover {
+    background: #F39C12;
+    transform: scale(1.1);
+}
+
+/* تحسين البطاقات في الوضع الداكن */
+body.dark-mode .success-card {
+    background-color: #16213e;
+    color: #eee;
+}
+
+body.dark-mode .graduate-avatar {
+    border-color: #F39C12;
+}
+
+/* تحسين Slider */
+.swiper-button-next, .swiper-button-prev {
+    color: white;
+    background: rgba(0,0,0,0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.swiper-button-next:after, .swiper-button-prev:after {
+    font-size: 18px;
+}
+
+.swiper-pagination-bullet-active {
+    background: #F39C12;
+}
+/* ========== أيقونة الإشعارات ========== */
+.notification-icon {
+    color: white;
+    transition: 0.3s;
+    position: relative;
+}
+
+.notification-icon:hover {
+    color: #F39C12;
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #F39C12;
+    color: #1A5F7A;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+/* ========== أيقونة المستخدم ========== */
+.user-dropdown {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+.user-dropdown:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.user-dropdown span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ========== تحسين القائمة المنسدلة ========== */
+.dropdown-menu {
+    border-radius: 12px;
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    padding: 8px 20px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    padding-right: 25px;
+}
+
+.dropdown-item i {
+    width: 20px;
+    margin-left: 8px;
+    color: #1A5F7A;
+}
+
+/* ========== الوضع الداكن للقائمة ========== */
+body.dark-mode .dropdown-menu {
+    background-color: #1e2a3a;
+    border: 1px solid #2c3e50;
+}
+
+body.dark-mode .dropdown-item {
+    color: #eee;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #2c3e50;
+}
+
+body.dark-mode .dropdown-item i {
+    color: #F39C12;
+}
