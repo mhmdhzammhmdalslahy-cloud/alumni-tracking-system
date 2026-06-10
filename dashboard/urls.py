@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include  # ← أضفنا include
 from . import views
 
 app_name = 'dashboard'
@@ -27,4 +27,7 @@ urlpatterns = [
     path('audit-log/', views.audit_log, name='audit_log'),
     path('majors/', views.manage_majors, name='manage_majors'),
     path('skills/', views.manage_skills, name='manage_skills'),
+    # مسار الإشعارات (بدون استخدام notifications_urls منفصل مؤقتاً)
+    path('notifications/', views.notification_list, name='notification_list'),
+    path('notifications/mark-read/<int:pk>/', views.mark_notification_read, name='mark_notification_read'),
 ]

@@ -215,7 +215,7 @@ def search_graduates(request):
     if year and year != 'جميع السنوات':
         queryset = queryset.filter(graduation_year=year)
     
-    return render(request, 'employers/search_graduates.html', {'graduates': queryset})
+    return render(request, 'graduates/graduate_list.html', {'graduates': queryset})
 
 
 # إرسال إشعار واتساب (يتطلب API خارجي)

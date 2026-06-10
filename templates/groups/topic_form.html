@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>إضافة موضوع جديد في "{{ group.name }}"</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">عنوان الموضوع</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">محتوى الموضوع</label>
+                    <textarea name="content" class="form-control" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">نشر الموضوع</button>
+                <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-secondary">إلغاء</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

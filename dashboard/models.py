@@ -228,6 +228,8 @@ class BannedWord(models.Model):
     
     def __str__(self):
         return self.word
+
+
 class SuccessStory(models.Model):
     graduate = models.ForeignKey('graduates.Graduate', on_delete=models.CASCADE, related_name='success_stories')
     title = models.CharField("العنوان", max_length=200)
@@ -238,3 +240,28 @@ class SuccessStory(models.Model):
     
     def __str__(self):
         return self.title
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('new_graduate', 'خريج جديد'),
+        ('new_job', 'وظيفة جديدة'),
+        ('verification_approved', 'تم قبول التوثيق'),
+        ('verification_rejected', 'تم رفض التوثيق'),
+        ('welcome', 'ترحيب'),
+        ('system', 'إشعار نظام'),
+    )
+    
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    link = models.CharField(max_length=200, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.get_notification_type_display()} - {self.recipient.username}"

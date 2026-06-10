@@ -5,15 +5,177 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الخريجين - نظام متابعة الخريجين</title>
     
-    <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+
+        .btn-primary-custom.rounded-circle {
+    transition: 0.3s;
+}
+.btn-primary-custom.rounded-circle:hover {
+    transform: scale(1.05);
+    background: #F39C12;
+    color: #1A5F7A;
+}
+/* تنسيق قائمة الإشعارات - تصميم عصري ومربع (للتطبيق الفوري) */
+.dropdown-menu.notification-dropdown-menu {
+    position: absolute !important;
+    inset: auto 0 auto auto !important;
+    transform: none !important;
+    will-change: auto !important;
+    width: 320px;
+    max-width: 85vw;
+    background: #ffffff;
+    border-radius: 28px;
+    border: none;
+    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    margin-top: 12px !important;
+    text-align: right !important;
+    direction: rtl !important;
+}
+.notification-header {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f) !important;
+    padding: 18px 20px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+.notification-header h6 {
+    margin: 0 !important;
+    font-weight: 800 !important;
+    font-size: 1.05rem !important;
+    color: white !important;
+}
+.notification-header .badge {
+    background: #F39C12 !important;
+    color: #1A5F7A !important;
+    font-weight: 800 !important;
+    padding: 5px 14px !important;
+    border-radius: 60px !important;
+}
+.notification-list {
+    max-height: 420px !important;
+    overflow-y: auto !important;
+}
+.notification-item {
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #f0f2f5 !important;
+    display: flex !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+    text-decoration: none !important;
+    transition: 0.2s !important;
+}
+.notification-item:hover {
+    background-color: #fefcf5 !important;
+    transform: translateX(-3px) !important;
+}
+.notification-item.unread {
+    background-color: #fffaf0 !important;
+    border-right: 4px solid #F39C12 !important;
+}
+.notification-icon-circle {
+    width: 44px !important;
+    height: 44px !important;
+    background: linear-gradient(145deg, #eef2ff, #e6ecf5) !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1A5F7A !important;
+    font-size: 1.2rem !important;
+}
+.notification-item:hover .notification-icon-circle {
+    background: linear-gradient(145deg, #F39C12, #e67e22) !important;
+    color: white !important;
+}
+.notification-content {
+    flex: 1 !important;
+}
+.notification-title {
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 5px !important;
+    color: #1e2a3a !important;
+}
+.notification-message {
+    font-size: 0.75rem !important;
+    color: #5a6e7c !important;
+    margin-bottom: 5px !important;
+}
+.notification-time {
+    font-size: 0.65rem !important;
+    color: #98a6b3 !important;
+}
+.notification-dot {
+    width: 9px !important;
+    height: 9px !important;
+    background: #F39C12 !important;
+    border-radius: 50% !important;
+    margin-top: 10px !important;
+    animation: pulse 1.5s infinite !important;
+}
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+.notification-footer {
+    text-align: center !important;
+    padding: 14px !important;
+    background: #fafcff !important;
+    border-top: 1px solid #edf2f7 !important;
+}
+.notification-footer a {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: #1A5F7A !important;
+    text-decoration: none !important;
+}
+.notification-footer a:hover {
+    text-decoration: underline !important;
+}
+body.dark-mode .notification-dropdown-menu {
+    background: #1e293b !important;
+    border: 1px solid #2d3a4e !important;
+}
+body.dark-mode .notification-header {
+    background: linear-gradient(135deg, #0d3b4f, #0a2e3f) !important;
+}
+body.dark-mode .notification-item {
+    background: #1e293b !important;
+    border-bottom-color: #2d3a4e !important;
+}
+body.dark-mode .notification-item:hover {
+    background-color: #2a3a4e !important;
+}
+body.dark-mode .notification-item.unread {
+    background-color: #2a241a !important;
+}
+body.dark-mode .notification-icon-circle {
+    background: #0f172a !important;
+    color: #F39C12 !important;
+}
+body.dark-mode .notification-title {
+    color: #f1f5f9 !important;
+}
+body.dark-mode .notification-message {
+    color: #cbd5e1 !important;
+}
+body.dark-mode .notification-time {
+    color: #94a3b8 !important;
+}
+body.dark-mode .notification-footer {
+    background: #0f172a !important;
+    border-top-color: #2d3a4e !important;
+}
+</style>
 </head>
 <body>
 
@@ -24,16 +186,52 @@
             <i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين
         </a>
         
-        <form class="search-bar d-flex" id="searchForm">
-            <input class="form-control" type="search" placeholder="ابحث عن خريج، تخصص، مهارة..." id="searchInput">
+        <form class="search-bar d-flex" action="{% url 'graduate_list' %}" method="get">
+            <input class="form-control" type="search" name="search" placeholder="ابحث عن خريج، تخصص، مهارة..." value="{{ request.GET.search }}">
             <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
         </form>
         
         <div class="d-flex align-items-center gap-4">
-            <a href="#" class="notification-icon position-relative">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
+           <!-- أيقونة الإشعارات مع القائمة المنسدلة (نسخة محسنة) -->
+<div class="dropdown">
+<a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">        <i class="fas fa-bell fa-lg"></i>
+        {% if unread_notifications_count > 0 %}
+        <span class="notification-badge">{{ unread_notifications_count }}</span>
+        {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0" aria-labelledby="notificationBell">
+        <div class="notification-header">
+            <h6><i class="fas fa-bell me-2"></i> الإشعارات</h6>
+            <span class="badge">{{ unread_notifications_count }} غير مقروء</span>
+        </div>
+        <div class="notification-list">
+            {% for notif in recent_notifications %}
+            <a href="{{ notif.link }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
+                <div class="notification-icon-circle">
+                    <i class="fas fa-bell-slash"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">{{ notif.title }}</div>
+                    <div class="notification-message">{{ notif.message|truncatechars:60 }}</div>
+                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} مضى</div>
+                </div>
+                {% if not notif.is_read %}
+                <div class="notification-dot"></div>
+                {% endif %}
             </a>
+            {% empty %}
+            <div class="text-center py-4 px-3">
+                <i class="fas fa-bell-slash fa-2x text-muted mb-2 d-block"></i>
+                <span class="text-muted">لا توجد إشعارات حالياً</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="notification-footer">
+            <a href="{% url 'dashboard:notification_list' %}">عرض جميع الإشعارات <i class="fas fa-arrow-left ms-1"></i></a>
+        </div>
+    </div>
+</div>            <!-- نهاية الإشعارات -->
+            
             <div class="dropdown">
                 <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
                     <i class="fas fa-user-circle fa-lg"></i>
@@ -51,9 +249,9 @@
     </div>
 </nav>
 
+<!-- باقي محتوى الصفحة (كما هو دون تغيير) -->
 <div class="container my-4">
     <div class="row">
-        <!-- ========== القائمة الجانبية ========== -->
         <div class="col-lg-3">
             <div class="sidebar">
                 <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
@@ -67,63 +265,62 @@
             </div>
         </div>
         
-        <!-- ========== محتوى الخريجين ========== -->
-        <div class="col-lg-9">
-            
-            <!-- عنوان الصفحة -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="section-title">🎓 قائمة الخريجين</h4>
-                <a href="{% url 'graduate_create' %}" class="btn btn-primary-custom">
-                    <i class="fas fa-plus"></i> خريج جديد
-                </a>
-            </div>
-
-            <!-- رسائل التنبيه -->
-{% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
-        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+       <div class="col-lg-9">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="section-title">🎓 قائمة الخريجين</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'graduate_create' %}" class="btn btn-primary-custom rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" title="إضافة خريج جديد">
+                <i class="fas fa-user-plus fa-lg"></i>
+            </a>
+            <a href="{% url 'groups:group_list' %}" class="btn btn-primary-custom rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #6c757d;" title="المجموعات">
+                <i class="fas fa-users fa-lg"></i>
+            </a>
+        </div>
     </div>
-    {% endfor %}
-{% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
             
-            <!-- ========== شريط البحث والفلاتر ========== -->
-            <div class="card shadow-sm mb-4">
+            <form action="{% url 'graduate_list' %}" method="get" class="card shadow-sm mb-4">
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="🔍 بحث بالاسم أو التخصص" id="searchName">
+                            <input type="text" name="search" class="form-control" placeholder="🔍 بحث بالاسم أو التخصص" value="{{ request.GET.search }}">
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select" id="filterMajor">
+                            <select name="major" class="form-select">
                                 <option value="">جميع التخصصات</option>
-                                <option>هندسة برمجيات</option>
-                                <option>علوم حاسب</option>
-                                <option>هندسة مدنية</option>
-                                <option>هندسة كهربائية</option>
+                                <option value="هندسة برمجيات" {% if request.GET.major == "هندسة برمجيات" %}selected{% endif %}>هندسة برمجيات</option>
+                                <option value="علوم حاسب" {% if request.GET.major == "علوم حاسب" %}selected{% endif %}>علوم حاسب</option>
+                                <option value="هندسة مدنية" {% if request.GET.major == "هندسة مدنية" %}selected{% endif %}>هندسة مدنية</option>
+                                <option value="هندسة كهربائية" {% if request.GET.major == "هندسة كهربائية" %}selected{% endif %}>هندسة كهربائية</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select class="form-select" id="filterYear">
+                            <select name="year" class="form-select">
                                 <option value="">سنة التخرج</option>
-                                <option>2025</option>
-                                <option>2024</option>
-                                <option>2023</option>
-                                <option>2022</option>
+                                <option value="2025" {% if request.GET.year == "2025" %}selected{% endif %}>2025</option>
+                                <option value="2024" {% if request.GET.year == "2024" %}selected{% endif %}>2024</option>
+                                <option value="2023" {% if request.GET.year == "2023" %}selected{% endif %}>2023</option>
+                                <option value="2022" {% if request.GET.year == "2022" %}selected{% endif %}>2022</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-warning w-100" id="filterBtn">
+                            <button type="submit" class="btn btn-warning w-100">
                                 <i class="fas fa-filter"></i> فلترة
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
             
-            <!-- ========== إحصائيات سريعة ========== -->
             <div class="row g-3 mb-4">
                 <div class="col-md-3 col-6">
                     <div class="stat-box text-center">
@@ -155,7 +352,6 @@
                 </div>
             </div>
             
-            <!-- ========== بطاقات الخريجين ========== -->
             <div class="row g-4" id="graduatesContainer">
                 {% for graduate in graduates %}
                 <div class="col-md-4 col-6">
@@ -194,16 +390,15 @@
                 {% endfor %}
             </div>
             
-            <!-- ترقيم الصفحات -->
             {% if is_paginated %}
             <nav class="mt-4">
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">السابق</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">السابق</a></li>
                     {% endif %}
                     <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
                     {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">التالي</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">التالي</a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -212,7 +407,6 @@
     </div>
 </div>
 
-<!-- Footer -->
 <footer>
     <div class="container">
         <div class="row">
@@ -241,7 +435,6 @@
     </div>
 </footer>
 
-<!-- زر العودة للأعلى -->
 <div class="scroll-top" id="scrollTop">
     <i class="fas fa-arrow-up"></i>
 </div>
@@ -249,11 +442,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const darkModeToggle = document.getElementById('darkModeToggle');
-    darkModeToggle?.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    });
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+    }
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
     const scrollTop = document.getElementById('scrollTop');
@@ -261,7 +456,34 @@
         if (window.scrollY > 300) scrollTop.classList.add('show');
         else scrollTop.classList.remove('show');
     });
-    scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    if (scrollTop) {
+        scrollTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(reg => console.log('✅ Service Worker registered:', reg))
+                .catch(err => console.log('❌ Service Worker registration failed:', err));
+        });
+    }
+    
+    if ('Notification' in window) {
+        Notification.requestPermission().then(perm => {
+            if (perm === 'granted') console.log('✅ الإشعارات مفعلة');
+        });
+    }
+    
+    function showNotification(title, body) {
+        if (Notification.permission === 'granted') {
+            new Notification(title, { body: body, icon: '/static/favicon.ico' });
+        }
+    }
+    
+    setTimeout(() => {
+        showNotification('مرحباً بك', 'نتمنى لك تجربة ممتعة على منصة متابعة الخريجين');
+    }, 3000);
 </script>
+{% include 'includes/chat_widget.html' %}
 </body>
 </html>

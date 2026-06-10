@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإشعارات - نظام متابعة الخريجين</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* كل التنسيقات الجميلة كما هي (يمكنك إضافة التنسيقات السابقة هنا) */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(145deg, #f6f9fc 0%, #edf2f7 100%);
+            padding: 2rem 1rem;
+        }
+        .notifications-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .page-header {
+            background: white;
+            border-radius: 32px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+        .unread-badge {
+            background: #FFF3E0;
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: #F39C12;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notification-card {
+            background: white;
+            border-radius: 24px;
+            margin-bottom: 16px;
+            padding: 18px 24px;
+            transition: all 0.25s ease;
+            border: 1px solid #eef2f9;
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .notification-card:hover {
+            transform: translateX(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.12);
+        }
+        .notification-card.unread {
+            background: #fffaf5;
+            border-right: 5px solid #F39C12;
+        }
+        .icon-wrapper {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(145deg, #eef2ff, #e6ecf5);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-wrapper i {
+            font-size: 1.6rem;
+            color: #1A5F7A;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: #1e2a3e;
+        }
+        .notification-message {
+            font-size: 0.85rem;
+            color: #4a5b6e;
+            margin-bottom: 8px;
+        }
+        .notification-time {
+            font-size: 0.7rem;
+            color: #8ba0b2;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .new-dot {
+            width: 12px;
+            height: 12px;
+            background: #F39C12;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 8px;
+        }
+        .empty-state {
+            background: white;
+            border-radius: 32px;
+            padding: 3rem;
+            text-align: center;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            color: #1A5F7A;
+            margin-top: 20px;
+        }
+        @media (max-width: 640px) {
+            .page-header { padding: 1rem; }
+            .notification-card { padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="notifications-container">
+    <div class="page-header">
+        <h1><i class="fas fa-bell me-2"></i> مركز الإشعارات</h1>
+        <div class="unread-badge">
+            <i class="fas fa-circle"></i> {{ unread_count }} إشعار غير مقروء
+        </div>
+    </div>
+
+    {% if notifications %}
+        {% for notif in notifications %}
+        <a href="{{ notif.link }}" class="notification-card {% if not notif.is_read %}unread{% endif %}">
+            <div class="icon-wrapper">
+                <i class="fas fa-bell-slash"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">{{ notif.title }}</div>
+                <div class="notification-message">{{ notif.message }}</div>
+                <div class="notification-time">
+                    <i class="far fa-clock"></i> {{ notif.created_at|timesince }} مضى
+                </div>
+            </div>
+            {% if not notif.is_read %}
+            <div class="new-dot"></div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-bell-slash fa-3x mb-3"></i>
+            <h5>لا توجد إشعارات</h5>
+            <p class="text-muted small">ستظهر هنا الإشعارات الجديدة عند توفرها.</p>
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-right"></i> العودة إلى الصفحة الرئيسية
+        </a>
+    </div>
+</div>
+</body>
+</html>

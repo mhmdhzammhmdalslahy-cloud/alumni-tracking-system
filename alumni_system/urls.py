@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from graduates.views import home
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,6 +18,10 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='application/xml')),
+    path('search/', views.search_all, name='search_all'),
+    path('groups/', include('groups.urls')),   # <-- جديد
+    path('chatbot/', include('chatbot.urls')),
+    
 ]
 
 if settings.DEBUG:

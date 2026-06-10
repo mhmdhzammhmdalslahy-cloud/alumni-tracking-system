@@ -6,22 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>نظام متابعة الخريجين</title>
     
-    <!-- ========== PWA (تطبيق جوال) ========== -->
-    <!-- استبدل المسار الحالي بهذا -->
-<link rel="manifest" href="/static/manifest.json">
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1A5F7A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="متابعة الخريجين">
     <link rel="apple-touch-icon" href="{% static 'images/icons/apple-touch-icon.png' %}">
 
-    <!-- ========== SEO (محركات البحث) ========== -->
+    <!-- SEO -->
     <meta name="description" content="منصة متابعة الخريجين - تواصل مع خريجين الجامعة واكتشف فرص العمل. نظام متابعة الخريجين والتوظيف">
     <meta name="keywords" content="خريجين, توظيف, وظائف, شركات, جامعة, متابعة خريجين">
     <meta name="author" content="نظام متابعة الخريجين">
     <meta name="robots" content="index, follow">
 
-    <!-- Favicon للمتصفحات -->
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
@@ -34,319 +33,509 @@
     
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+/* تنسيق قائمة الإشعارات - تصميم عصري ومربع (للتطبيق الفوري) */
+.notification-dropdown-menu {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 320px !important;
+    max-width: 85vw !important;
+    background: #ffffff !important;
+    border-radius: 28px !important;
+    border: none !important;
+    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2) !important;
+    overflow: hidden !important;
+    margin-top: 12px !important;
+}
+.notification-header {
+    background: linear-gradient(135deg, #1A5F7A, #0d3b4f) !important;
+    padding: 18px 20px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+.notification-header h6 {
+    margin: 0 !important;
+    font-weight: 800 !important;
+    font-size: 1.05rem !important;
+    color: white !important;
+}
+.notification-header .badge {
+    background: #F39C12 !important;
+    color: #1A5F7A !important;
+    font-weight: 800 !important;
+    padding: 5px 14px !important;
+    border-radius: 60px !important;
+}
+.notification-list {
+    max-height: 420px !important;
+    overflow-y: auto !important;
+}
+.notification-item {
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #f0f2f5 !important;
+    display: flex !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+    text-decoration: none !important;
+    transition: 0.2s !important;
+}
+.notification-item:hover {
+    background-color: #fefcf5 !important;
+    transform: translateX(-3px) !important;
+}
+.notification-item.unread {
+    background-color: #fffaf0 !important;
+    border-right: 4px solid #F39C12 !important;
+}
+.notification-icon-circle {
+    width: 44px !important;
+    height: 44px !important;
+    background: linear-gradient(145deg, #eef2ff, #e6ecf5) !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1A5F7A !important;
+    font-size: 1.2rem !important;
+}
+.notification-item:hover .notification-icon-circle {
+    background: linear-gradient(145deg, #F39C12, #e67e22) !important;
+    color: white !important;
+}
+.notification-content {
+    flex: 1 !important;
+}
+.notification-title {
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 5px !important;
+    color: #1e2a3a !important;
+}
+.notification-message {
+    font-size: 0.75rem !important;
+    color: #5a6e7c !important;
+    margin-bottom: 5px !important;
+}
+.notification-time {
+    font-size: 0.65rem !important;
+    color: #98a6b3 !important;
+}
+.notification-dot {
+    width: 9px !important;
+    height: 9px !important;
+    background: #F39C12 !important;
+    border-radius: 50% !important;
+    margin-top: 10px !important;
+    animation: pulse 1.5s infinite !important;
+}
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+.notification-footer {
+    text-align: center !important;
+    padding: 14px !important;
+    background: #fafcff !important;
+    border-top: 1px solid #edf2f7 !important;
+}
+.notification-footer a {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: #1A5F7A !important;
+    text-decoration: none !important;
+}
+.notification-footer a:hover {
+    text-decoration: underline !important;
+}
+body.dark-mode .notification-dropdown-menu {
+    background: #1e293b !important;
+    border: 1px solid #2d3a4e !important;
+}
+body.dark-mode .notification-header {
+    background: linear-gradient(135deg, #0d3b4f, #0a2e3f) !important;
+}
+body.dark-mode .notification-item {
+    background: #1e293b !important;
+    border-bottom-color: #2d3a4e !important;
+}
+body.dark-mode .notification-item:hover {
+    background-color: #2a3a4e !important;
+}
+body.dark-mode .notification-item.unread {
+    background-color: #2a241a !important;
+}
+body.dark-mode .notification-icon-circle {
+    background: #0f172a !important;
+    color: #F39C12 !important;
+}
+body.dark-mode .notification-title {
+    color: #f1f5f9 !important;
+}
+body.dark-mode .notification-message {
+    color: #cbd5e1 !important;
+}
+body.dark-mode .notification-time {
+    color: #94a3b8 !important;
+}
+body.dark-mode .notification-footer {
+    background: #0f172a !important;
+    border-top-color: #2d3a4e !important;
+}
+</style>
 </head>
+
 <body>
- <!-- زر القائمة للهواتف -->
     <button class="menu-toggle" id="menuToggle">
         <i class="fas fa-bars"></i> القائمة
     </button>
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
-        
-        <form class="search-bar d-flex" action="{% url 'search_graduates' %}" method="get">
-            <input class="form-control" type="search" name="q" placeholder="ابحث عن خريج، تخصص، شركة...">
-            <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
-        </form>
-        
-        <div class="d-flex align-items-center gap-4">
-            <a href="#" class="notification-icon position-relative">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">{{ notifications_count|default:"0" }}</span>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+            
+            <form class="search-bar d-flex" action="{% url 'search_all' %}" method="get">
+                <input class="form-control" type="search" name="q" placeholder="ابحث عن خريج، تخصص، شركة...">
+                <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            
+            <div class="d-flex align-items-center gap-4">
+              <!-- أيقونة الإشعارات مع القائمة المنسدلة (نسخة محسنة) -->
+<div class="dropdown">
+<a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">        <i class="fas fa-bell fa-lg"></i>
+        {% if unread_notifications_count > 0 %}
+        <span class="notification-badge">{{ unread_notifications_count }}</span>
+        {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0" aria-labelledby="notificationBell">
+        <div class="notification-header">
+            <h6><i class="fas fa-bell me-2"></i> الإشعارات</h6>
+            <span class="badge">{{ unread_notifications_count }} غير مقروء</span>
+        </div>
+        <div class="notification-list">
+            {% for notif in recent_notifications %}
+            <a href="{{ notif.link }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
+                <div class="notification-icon-circle">
+                    <i class="fas fa-bell-slash"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">{{ notif.title }}</div>
+                    <div class="notification-message">{{ notif.message|truncatechars:60 }}</div>
+                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} مضى</div>
+                </div>
+                {% if not notif.is_read %}
+                <div class="notification-dot"></div>
+                {% endif %}
             </a>
-            
-            <div class="dropdown">
-                <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle fa-lg"></i>
-                    <span>{{ user.first_name|default:user.username }}</span>
-                    <i class="fas fa-chevron-down fa-xs"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                    {% if user.is_authenticated %}
-                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> ملفي الشخصي</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> تسجيل خروج</a></li>
-                    {% else %}
-                        <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> تسجيل دخول</a></li>
-                        <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> إنشاء حساب</a></li>
-                    {% endif %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> الوضع الداكن</a></li>
-                </ul>
+            {% empty %}
+            <div class="text-center py-4 px-3">
+                <i class="fas fa-bell-slash fa-2x text-muted mb-2 d-block"></i>
+                <span class="text-muted">لا توجد إشعارات حالياً</span>
             </div>
+            {% endfor %}
+        </div>
+        <div class="notification-footer">
+            <a href="{% url 'dashboard:notification_list' %}">عرض جميع الإشعارات <i class="fas fa-arrow-left ms-1"></i></a>
         </div>
     </div>
-</nav>
-
-<div class="container my-4">
-    <div class="row">
-        <!-- القائمة الجانبية -->
-        <div class="col-lg-3">
-            <div class="sidebar">
-                <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
-                <div class="nav flex-column">
-                    <a class="nav-link active" href="/"><i class="fas fa-home"></i> الرئيسية</a>
-                    <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
-                    <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
-                    <a class="nav-link" href="{% url 'job_list' %}"><i class="fas fa-briefcase"></i> الوظائف</a>
-                    <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> لوحة الإدارة</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-9">
-            
-            <!-- Slider -->
-            <div class="swiper mySwiper mb-4">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <div class="ad-banner" style="background: linear-gradient(135deg, #1A5F7A, #0d3b4f);">
-                            <h3><i class="fas fa-graduation-cap"></i> منصة متابعة الخريجين</h3>
-                            <p>تواصل مع خريجين الجامعة واكتشف فرص العمل</p>
-                            <a href="#" class="btn-ad">سجل الآن <i class="fas fa-arrow-left"></i></a>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="ad-banner" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
-                            <h3><i class="fas fa-briefcase"></i> أكثر من {{ total_jobs|default:"0" }} وظيفة متاحة</h3>
-                            <p>قدم الآن على فرص العمل المناسبة لك</p>
-                            <a href="{% url 'job_list' %}" class="btn-ad">استعرض الوظائف <i class="fas fa-arrow-left"></i></a>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="ad-banner" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
-                            <h3><i class="fas fa-chart-line"></i> نسبة التوظيف {{ employment_rate|default:"0" }}%</h3>
-                            <p>خريجونا هم الأفضل في سوق العمل</p>
-                            <a href="#" class="btn-ad">تعرف أكثر <i class="fas fa-arrow-left"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-pagination"></div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-            </div>
-            
-            <!-- إحصائيات المنصة -->
-            <div class="section-header mt-2">
-                <h5 class="section-title">📊 إحصائيات المنصة</h5>
-            </div>
-            <div class="row g-3">
-                <div class="col-md-3 col-6">
-                    <div class="stat-box text-center">
-                        <i class="fas fa-user-graduate fa-2x"></i>
-                        <h3>{{ total_graduates|default:"0" }}</h3>
-                        <p>خريج</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-box text-center">
-                        <i class="fas fa-building fa-2x"></i>
-                        <h3>{{ total_employers|default:"0" }}</h3>
-                        <p>شركة</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-box text-center">
-                        <i class="fas fa-briefcase fa-2x"></i>
-                        <h3>{{ total_jobs|default:"0" }}</h3>
-                        <p>وظيفة</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-box text-center">
-                        <i class="fas fa-chart-line fa-2x"></i>
-                        <h3>{{ employment_rate|default:"0" }}%</h3>
-                        <p>نسبة التوظيف</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- أحدث الخريجين -->
-            <div class="section-header mt-5">
-                <h5 class="section-title">🎓 أحدث الخريجين</h5>
-                <a href="{% url 'graduate_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-            </div>
-            <div class="row g-3">
-                {% for graduate in latest_graduates %}
-                <div class="col-md-4 col-6 mb-3">
-                    <div class="graduate-card text-center" onclick="location.href='{% url 'graduate_profile' graduate.id %}'">
-                        <div class="graduate-image-wrapper">
-                            <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" class="graduate-avatar">
-                            <i class="fas fa-graduation-cap graduate-icon"></i>
-                        </div>
-                        <h6 class="mt-2">{{ graduate.user.get_full_name|default:graduate.user.username }}</h6>
-                        <p class="text-muted small">{{ graduate.major }} - {{ graduate.graduation_year }}</p>
-                        {% if graduate.is_verified %}
-                        <span class="badge-verified"><i class="fas fa-check-circle"></i> موثق</span>
+</div>
+                <!-- نهاية الإشعارات -->
+                
+                <div class="dropdown">
+                    <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-lg"></i>
+                        <span>{{ user.first_name|default:user.username }}</span>
+                        <i class="fas fa-chevron-down fa-xs"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                        {% if user.is_authenticated %}
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> ملفي الشخصي</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> تسجيل خروج</a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> تسجيل دخول</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> إنشاء حساب</a></li>
                         {% endif %}
-                    </div>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> الوضع الداكن</a></li>
+                    </ul>
                 </div>
-                {% empty %}
-                <div class="col-12 text-center">لا يوجد خريجين</div>
-                {% endfor %}
-            </div>
-            
-            <!-- قصص نجاح -->
-            <div class="section-header mt-5">
-                <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
-                <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-            </div>
-            <div class="row g-3">
-                {% for story in success_stories %}
-                <div class="col-md-4 col-6 mb-3">
-                    <div class="success-card text-center">
-                        <i class="fas fa-quote-right fa-2x text-primary"></i>
-                        <p class="small mt-2">"{{ story.content|truncatechars:80 }}"</p>
-                        <h6 class="mt-2">{{ story.graduate.user.get_full_name }}</h6>
-                        <p class="text-muted small">{{ story.graduate.major }}</p>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">لا توجد قصص نجاح</div>
-                {% endfor %}
-            </div>
-            
-            <!-- آخر الوظائف -->
-            <div class="section-header mt-5">
-                <h5 class="section-title">💼 آخر الوظائف</h5>
-                <a href="{% url 'job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-            </div>
-            <div class="row g-3">
-                {% for job in latest_jobs %}
-                <div class="col-md-4 col-6 mb-3">
-                    <div class="job-card text-center" onclick="location.href='{% url 'job_detail' job.id %}'">
-                        <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
-                        <h6 class="mt-2">{{ job.title }}</h6>
-                        <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
-                        <span class="badge-job">{{ job.get_job_type_display }}</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">لا توجد وظائف حالياً</div>
-                {% endfor %}
             </div>
         </div>
-    </div>
-</div>
+    </nav>
 
-<!-- Footer -->
-<footer>
-    <div class="container">
+    <!-- باقي محتوى الصفحة (لم يتغير) -->
+    <div class="container my-4">
         <div class="row">
-            <div class="col-md-4 mb-3">
-                <h5><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</h5>
-                <p class="small">منصتك الأولى للتواصل مع الخريجين وفرص العمل</p>
-                <div class="social-icons mt-2">
-                    <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
-                    <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp fa-lg"></i></a>
+            <div class="col-lg-3">
+                <div class="sidebar">
+                    <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
+                    <div class="nav flex-column">
+                        <a class="nav-link active" href="/"><i class="fas fa-home"></i> الرئيسية</a>
+                        <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
+                        <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
+                        <a class="nav-link" href="{% url 'job_list' %}"><i class="fas fa-briefcase"></i> الوظائف</a>
+                        <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> لوحة الإدارة</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <h5>روابط سريعة</h5>
-                <ul class="list-unstyled small">
-                    <li><a href="/">الرئيسية</a></li>
-                    <li><a href="{% url 'graduate_list' %}">الخريجين</a></li>
-                    <li><a href="{% url 'employer_list' %}">الشركات</a></li>
-                    <li><a href="{% url 'dashboard:admin_dashboard' %}">لوحة الإدارة</a></li>
-                </ul>
+            
+            <div class="col-lg-9">
+                <!-- Slider -->
+                <div class="swiper mySwiper mb-4">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="ad-banner" style="background: linear-gradient(135deg, #1A5F7A, #0d3b4f);">
+                                <h3><i class="fas fa-graduation-cap"></i> منصة متابعة الخريجين</h3>
+                                <p>تواصل مع خريجين الجامعة واكتشف فرص العمل</p>
+                                <a href="#" class="btn-ad">سجل الآن <i class="fas fa-arrow-left"></i></a>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="ad-banner" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
+                                <h3><i class="fas fa-briefcase"></i> أكثر من {{ total_jobs|default:"0" }} وظيفة متاحة</h3>
+                                <p>قدم الآن على فرص العمل المناسبة لك</p>
+                                <a href="{% url 'job_list' %}" class="btn-ad">استعرض الوظائف <i class="fas fa-arrow-left"></i></a>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="ad-banner" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                                <h3><i class="fas fa-chart-line"></i> نسبة التوظيف {{ employment_rate|default:"0" }}%</h3>
+                                <p>خريجونا هم الأفضل في سوق العمل</p>
+                                <a href="#" class="btn-ad">تعرف أكثر <i class="fas fa-arrow-left"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+                
+                <!-- إحصائيات المنصة -->
+                <div class="section-header mt-2">
+                    <h5 class="section-title">📊 إحصائيات المنصة</h5>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-box text-center">
+                            <i class="fas fa-user-graduate fa-2x"></i>
+                            <h3>{{ total_graduates|default:"0" }}</h3>
+                            <p>خريج</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-box text-center">
+                            <i class="fas fa-building fa-2x"></i>
+                            <h3>{{ total_employers|default:"0" }}</h3>
+                            <p>شركة</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-box text-center">
+                            <i class="fas fa-briefcase fa-2x"></i>
+                            <h3>{{ total_jobs|default:"0" }}</h3>
+                            <p>وظيفة</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-box text-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                            <h3>{{ employment_rate|default:"0" }}%</h3>
+                            <p>نسبة التوظيف</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- أحدث الخريجين -->
+                <div class="section-header mt-5">
+                    <h5 class="section-title">🎓 أحدث الخريجين</h5>
+                    <a href="{% url 'graduate_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="row g-3">
+                    {% for graduate in latest_graduates %}
+                    <div class="col-md-4 col-6 mb-3">
+                        <div class="graduate-card text-center" onclick="location.href='{% url 'graduate_profile' graduate.id %}'">
+                            <div class="graduate-image-wrapper">
+                                <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" class="graduate-avatar">
+                                <i class="fas fa-graduation-cap graduate-icon"></i>
+                            </div>
+                            <h6 class="mt-2">{{ graduate.user.get_full_name|default:graduate.user.username }}</h6>
+                            <p class="text-muted small">{{ graduate.major }} - {{ graduate.graduation_year }}</p>
+                            {% if graduate.is_verified %}
+                            <span class="badge-verified"><i class="fas fa-check-circle"></i> موثق</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">لا يوجد خريجين</div>
+                    {% endfor %}
+                </div>
+                
+                <!-- قصص نجاح -->
+                <div class="section-header mt-5">
+                    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
+                    <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="row g-3">
+                    {% for story in success_stories %}
+                    <div class="col-md-4 col-6 mb-3">
+                        <div class="success-card text-center">
+                            <i class="fas fa-quote-right fa-2x text-primary"></i>
+                            <p class="small mt-2">"{{ story.content|truncatechars:80 }}"</p>
+                            <h6 class="mt-2">{{ story.graduate.user.get_full_name }}</h6>
+                            <p class="text-muted small">{{ story.graduate.major }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">لا توجد قصص نجاح</div>
+                    {% endfor %}
+                </div>
+                
+                <!-- آخر الوظائف -->
+                <div class="section-header mt-5">
+                    <h5 class="section-title">💼 آخر الوظائف</h5>
+                    <a href="{% url 'job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="row g-3">
+                    {% for job in latest_jobs %}
+                    <div class="col-md-4 col-6 mb-3">
+                        <div class="job-card text-center" onclick="location.href='{% url 'job_detail' job.id %}'">
+                            <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
+                            <h6 class="mt-2">{{ job.title }}</h6>
+                            <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
+                            <span class="badge-job">{{ job.get_job_type_display }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <h5>تواصل معنا</h5>
-                <p><i class="fas fa-phone ms-2"></i> +967 123 456 789</p>
-                <p><i class="fas fa-envelope ms-2"></i> info@alumni.com</p>
-                <p><i class="fas fa-map-marker-alt ms-2"></i> اليمن - مأرب</p>
-            </div>
-        </div>
-        <hr>
-        <div class="text-center">
-            <p>© 2026 نظام متابعة الخريجين - جميع الحقوق محفوظة</p>
         </div>
     </div>
-</footer>
 
-<div class="scroll-top" id="scrollTop">
-    <i class="fas fa-arrow-up"></i>
-</div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</h5>
+                    <p class="small">منصتك الأولى للتواصل مع الخريجين وفرص العمل</p>
+                    <div class="social-icons mt-2">
+                        <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h5>روابط سريعة</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="/">الرئيسية</a></li>
+                        <li><a href="{% url 'graduate_list' %}">الخريجين</a></li>
+                        <li><a href="{% url 'employer_list' %}">الشركات</a></li>
+                        <li><a href="{% url 'dashboard:admin_dashboard' %}">لوحة الإدارة</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>تواصل معنا</h5>
+                    <p><i class="fas fa-phone ms-2"></i> +967 123 456 789</p>
+                    <p><i class="fas fa-envelope ms-2"></i> info@alumni.com</p>
+                    <p><i class="fas fa-map-marker-alt ms-2"></i> اليمن - مأرب</p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>© 2026 نظام متابعة الخريجين - جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-    var swiper = new Swiper('.mySwiper', {
-        loop: true,
-        autoplay: { delay: 5000, disableOnInteraction: false },
-        pagination: { el: '.swiper-pagination', clickable: true },
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-    });
-    
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    darkModeToggle?.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    });
-    if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-    
-    const scrollTop = document.getElementById('scrollTop');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) scrollTop.classList.add('show');
-        else scrollTop.classList.remove('show');
-    });
-    scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    
-       // تسجيل Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/static/sw.js')
-                .then(function(reg) {
-                    console.log('✅ Service Worker registered successfully:', reg);
-                })
-                .catch(function(err) {
-                    console.log('❌ Service Worker registration failed:', err);
-                });
-        });
-    }
+    <div class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
 
-    // فتح وإغلاق القائمة الجانبية على الهواتف
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('open');
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        var swiper = new Swiper('.mySwiper', {
+            loop: true,
+            autoplay: { delay: 5000, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         });
         
-        // إغلاق القائمة عند الضغط خارجها
-        document.addEventListener('click', function(event) {
-            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                sidebar.classList.remove('open');
-            }
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
         });
-    }
-
-     // طلب إذن الإشعارات
-    if ('Notification' in window) {
-        Notification.requestPermission().then(function(perm) {
-            if (perm === 'granted') {
-                console.log('✅ الإشعارات مفعلة');
-            }
+        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        
+        const scrollTop = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) scrollTop.classList.add('show');
+            else scrollTop.classList.remove('show');
         });
-    }
-    
-    // دالة لعرض إشعار
-    function showNotification(title, body) {
-        if (Notification.permission === 'granted') {
-            new Notification(title, { body: body, icon: '/static/favicon.ico' });
+        scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(function(reg) {
+                        console.log('✅ Service Worker registered successfully:', reg);
+                    })
+                    .catch(function(err) {
+                        console.log('❌ Service Worker registration failed:', err);
+                    });
+            });
         }
-    }
-    
-    // مثال: إشعار ترحيبي
-    setTimeout(() => {
-        showNotification('مرحباً بك', 'نتمنى لك تجربة ممتعة على منصة متابعة الخريجين');
-    }, 3000);
-</script>
+
+        // فتح وإغلاق القائمة الجانبية على الهواتف
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (menuToggle && sidebar) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+
+        // طلب إذن الإشعارات
+        if ('Notification' in window) {
+            Notification.requestPermission().then(function(perm) {
+                if (perm === 'granted') {
+                    console.log('✅ الإشعارات مفعلة');
+                }
+            });
+        }
+        
+        function showNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body: body, icon: '/static/favicon.ico' });
+            }
+        }
+        
+        setTimeout(() => {
+            showNotification('مرحباً بك', 'نتمنى لك تجربة ممتعة على منصة متابعة الخريجين');
+        }, 3000);
+
+
+        
+    </script>
+    {% include 'includes/chat_widget.html' %}
 </body>
 </html>

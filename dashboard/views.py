@@ -24,6 +24,7 @@ from employers.models import Employer
 from jobs.models import Job, JobApplication
 from django.contrib.auth.models import User
 from .forms import GraduateForm
+from .models import Notification
 import json
 
 
@@ -120,7 +121,12 @@ def manage_graduates(request):
 @staff_member_required
 def verify_graduate(request, pk):
     graduate = get_object_or_404(Graduate, pk=pk)
-    verification = get_object_or_404(VerificationRequest, graduate=graduate, status='pending')
+    
+    try:
+        verification = VerificationRequest.objects.get(graduate=graduate, status='pending')
+    except VerificationRequest.DoesNotExist:
+        messages.warning(request, f'⚠️ لا يوجد طلب توثيق معلق للخريج {graduate.user.get_full_name()}')
+        return redirect('dashboard:manage_graduates')
     
     if request.method == 'POST':
         form = VerificationReviewForm(request.POST)
@@ -154,8 +160,6 @@ def verify_graduate(request, pk):
         form = VerificationReviewForm()
     
     return render(request, 'dashboard/verify_graduate.html', {'graduate': graduate, 'verification': verification, 'form': form})
-
-
 # ========== إدارة الشركات ==========
 
 @staff_member_required
@@ -618,3 +622,20 @@ class GraduateDeleteView(LoginRequiredMixin, DeleteView):
     
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
+    
+@login_required
+def notification_list(request):
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
+    unread_count = notifications.filter(is_read=False).count()
+    return render(request, 'notifications/list.html', {
+        'notifications': notifications,
+        'unread_count': unread_count
+    })
+@login_required
+def mark_notification_read(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notification.is_read = True
+    notification.save()
+    if notification.link:
+        return redirect(notification.link)
+    return redirect('notification_list')

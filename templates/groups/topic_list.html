@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مواضيع {{ group.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a></div></nav>
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>منتدى: {{ group.name }}</h4>
+            <a href="{% url 'groups:create_topic' group.id %}" class="btn btn-primary">موضوع جديد</a>
+        </div>
+        <div class="list-group">
+            {% for topic in topics %}
+            <a href="{% url 'groups:topic_detail' group.id topic.id %}" class="list-group-item list-group-item-action">
+                <div class="d-flex justify-content-between">
+                    <h5>{{ topic.title }}</h5>
+                    <small>{{ topic.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+                <p>{{ topic.content|truncatechars:100 }}</p>
+                <small>بواسطة {{ topic.created_by.get_full_name|default:topic.created_by.username }} | عدد الردود: {{ topic.comment_count }}</small>
+            </a>
+            {% empty %}
+            <p class="text-muted">لا توجد مواضيع بعد. كن أول من يكتب موضوعاً!</p>
+            {% endfor %}
+        </div>
+        <a href="{% url 'groups:group_detail' group.id %}" class="btn btn-secondary mt-3">العودة للمجموعة</a>
+    </div>
+</body>
+</html>
