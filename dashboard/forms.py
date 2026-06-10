@@ -2,6 +2,8 @@ from django import forms
 from .models import Survey, Event, SystemSetting, AdminProfile, Major, Skill, BannedWord
 from django.contrib.auth.models import User
 from graduates.models import Graduate
+from django import forms
+from .models import SuccessStory
 
 
 class SurveyForm(forms.ModelForm):
@@ -150,3 +152,13 @@ class GraduateForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class SuccessStoryForm(forms.ModelForm):
+    class Meta:
+        model = SuccessStory
+        fields = ['title', 'content', 'image']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان ملهم للقصة'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'اكتب قصتك هنا...'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+        }        

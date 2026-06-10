@@ -163,6 +163,6 @@ def home(request):
         'employment_rate': employment_rate,
         'latest_graduates': Graduate.objects.all().order_by('-created_at')[:6],
         'latest_jobs': Job.objects.filter(is_active=True).order_by('-created_at')[:6],
-        'success_stories': SuccessStory.objects.filter(is_active=True)[:3],
+        'success_stories': SuccessStory.objects.filter(status='approved', is_active=True)[:3],
     }
     return render(request, 'index.html', context)

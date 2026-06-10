@@ -30,4 +30,8 @@ urlpatterns = [
     # مسار الإشعارات (بدون استخدام notifications_urls منفصل مؤقتاً)
     path('notifications/', views.notification_list, name='notification_list'),
     path('notifications/mark-read/<int:pk>/', views.mark_notification_read, name='mark_notification_read'),
+    path('success-story/create/', views.create_success_story, name='create_success_story'),
+    path('success-stories/', views.success_stories_list, name='success_stories_list'),
+    path('success-story/approve/<int:pk>/', views.approve_success_story, name='approve_success_story'),
+    path('success-story/reject/<int:pk>/', views.reject_success_story, name='reject_success_story'),
 ]

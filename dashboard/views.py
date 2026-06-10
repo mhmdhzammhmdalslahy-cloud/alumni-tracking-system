@@ -25,13 +25,20 @@ from jobs.models import Job, JobApplication
 from django.contrib.auth.models import User
 from .forms import GraduateForm
 from .models import Notification
+from .forms import SuccessStoryForm
+from .models import SuccessStory
 import json
 
 
 # ========== الصفحة الرئيسية للوحة التحكم ==========
 
+from dashboard.models import SuccessStory  # تأكد من وجود هذا الاستيراد في أعلى الملف
+
 @staff_member_required
 def admin_dashboard(request):
+    # جلب قصص النجاح المعلقة
+    pending_success_stories = SuccessStory.objects.filter(status='pending')
+    
     context = {
         'total_graduates': Graduate.objects.count(),
         'total_employers': Employer.objects.count(),
@@ -46,9 +53,9 @@ def admin_dashboard(request):
         'popular_majors': get_popular_majors(),
         'top_employers': get_top_employers(),
         'monthly_jobs': get_monthly_jobs(),
+        'pending_success_stories': pending_success_stories,  # <-- أضف هذا المتغير
     }
     return render(request, 'dashboard/admin_dashboard.html', context)
-
 
 def calculate_employment_rate():
     total = Graduate.objects.count()
@@ -639,3 +646,57 @@ def mark_notification_read(request, pk):
     if notification.link:
         return redirect(notification.link)
     return redirect('notification_list')
+
+@login_required
+def create_success_story(request):
+    if request.method == 'POST':
+        form = SuccessStoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            story = form.save(commit=False)
+            story.created_by = request.user
+            
+            # تحديد المؤلف (خريج أو شركة)
+            try:
+                graduate = request.user.graduate_profile
+                story.graduate = graduate
+                story.author_type = 'graduate'
+            except:
+                # إذا لم يكن خريجاً، قد يكون شركة (يحتاج إلى تحقق)
+                try:
+                    from employers.models import Employer
+                    employer = Employer.objects.get(user=request.user)
+                    story.company = employer
+                    story.author_type = 'company'
+                    # يمكن أن نربط القصة بأول خريج (أو نتركه فارغاً)
+                    story.graduate = Graduate.objects.first()  # اختياري
+                except:
+                    messages.error(request, 'يجب أن تكون خريجاً أو شركة لنشر قصة نجاح.')
+                    return redirect('home')
+            
+            story.status = 'pending'
+            story.save()
+            messages.success(request, 'تم إرسال قصتك للمراجعة. ستظهر بعد الموافقة.')
+            return redirect('home')
+    else:
+        form = SuccessStoryForm()
+    
+    return render(request, 'dashboard/success_story_form.html', {'form': form})
+
+def success_stories_list(request):
+    stories = SuccessStory.objects.filter(status='approved', is_active=True)
+    return render(request, 'dashboard/success_stories_list.html', {'stories': stories})
+@staff_member_required
+def approve_success_story(request, pk):
+    story = get_object_or_404(SuccessStory, pk=pk)
+    story.status = 'approved'
+    story.save()
+    messages.success(request, 'تم قبول القصة بنجاح.')
+    return redirect('dashboard:admin_dashboard')
+
+@staff_member_required
+def reject_success_story(request, pk):
+    story = get_object_or_404(SuccessStory, pk=pk)
+    story.status = 'rejected'
+    story.save()
+    messages.warning(request, 'تم رفض القصة.')
+    return redirect('dashboard:admin_dashboard')

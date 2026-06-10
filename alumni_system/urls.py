@@ -21,6 +21,7 @@ urlpatterns = [
     path('search/', views.search_all, name='search_all'),
     path('groups/', include('groups.urls')),   # <-- جديد
     path('chatbot/', include('chatbot.urls')),
+    path('api/', include('api.urls')),
     
 ]
 

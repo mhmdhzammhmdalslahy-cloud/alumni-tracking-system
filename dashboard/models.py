@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class AdminProfile(models.Model):
     ADMIN_LEVELS = [
         ('super_admin', 'مدير النظام'),
@@ -230,18 +231,39 @@ class BannedWord(models.Model):
         return self.word
 
 
+# ========== نموذج قصص النجاح (المتقدم مع الموافقة وأنواع المؤلفين) ==========
 class SuccessStory(models.Model):
+    AUTHOR_TYPES = (
+        ('graduate', 'خريج'),
+        ('company', 'شركة'),
+    )
+    STATUS_CHOICES = (
+        ('pending', 'قيد المراجعة'),
+        ('approved', 'منشور'),
+        ('rejected', 'مرفوض'),
+    )
+    
     graduate = models.ForeignKey('graduates.Graduate', on_delete=models.CASCADE, related_name='success_stories')
+    author_type = models.CharField(max_length=20, choices=AUTHOR_TYPES, default='graduate')
+    company = models.ForeignKey('employers.Employer', on_delete=models.SET_NULL, null=True, blank=True, related_name='success_stories')
     title = models.CharField("العنوان", max_length=200)
     content = models.TextField("المحتوى")
     image = models.ImageField("الصورة", upload_to='success_stories/', blank=True, null=True)
-    is_active = models.BooleanField("نشط", default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='submitted_stories')
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_stories')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
     
     def __str__(self):
         return self.title
+    
+    class Meta:
+        ordering = ['-created_at']
 
 
+# ========== نموذج الإشعارات (تم إضافة الأنواع المفقودة) ==========
 class Notification(models.Model):
     NOTIFICATION_TYPES = (
         ('new_graduate', 'خريج جديد'),
@@ -249,6 +271,9 @@ class Notification(models.Model):
         ('verification_approved', 'تم قبول التوثيق'),
         ('verification_rejected', 'تم رفض التوثيق'),
         ('welcome', 'ترحيب'),
+        ('info', 'معلومات'),
+        ('success', 'نجاح'),
+        ('danger', 'تحذير'),
         ('system', 'إشعار نظام'),
     )
     

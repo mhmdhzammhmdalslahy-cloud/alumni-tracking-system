@@ -1,6 +1,9 @@
- 
 from django.contrib import admin
-from .models import AdminProfile, VerificationRequest, EmployerVerificationRequest, Survey, SurveyResponse, Event, EventAttendance, Report, SystemSetting, AuditLog, Major, Skill, BannedWord
+from .models import (
+    AdminProfile, VerificationRequest, EmployerVerificationRequest,
+    Survey, SurveyResponse, Event, EventAttendance, Report,
+    SystemSetting, AuditLog, Major, Skill, BannedWord, SuccessStory
+)
 
 @admin.register(AdminProfile)
 class AdminProfileAdmin(admin.ModelAdmin):
@@ -60,3 +63,22 @@ class SkillAdmin(admin.ModelAdmin):
 class BannedWordAdmin(admin.ModelAdmin):
     list_display = ['word', 'created_at']
     search_fields = ['word']
+
+@admin.register(SuccessStory)
+class SuccessStoryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author_type', 'status', 'created_at')
+    list_filter = ('status', 'author_type')
+    search_fields = ('title', 'graduate__user__first_name', 'graduate__user__last_name')
+    readonly_fields = ('created_at',)
+    date_hierarchy = 'created_at'
+    actions = ['approve_stories', 'reject_stories']
+    
+    def approve_stories(self, request, queryset):
+        queryset.update(status='approved')
+        self.message_user(request, 'تمت الموافقة على القصص المحددة.')
+    approve_stories.short_description = 'الموافقة على القصص المحددة'
+    
+    def reject_stories(self, request, queryset):
+        queryset.update(status='rejected')
+        self.message_user(request, 'تم رفض القصص المحددة.')
+    reject_stories.short_description = 'رفض القصص المحددة'

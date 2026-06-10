@@ -101,7 +101,7 @@
         </div>
     </div>
     
-    <!-- نسبة التوظيف -->
+    <!-- نسبة التوظيف وأكثر التخصصات طلباً -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card">
@@ -130,6 +130,52 @@
                         <span class="badge bg-primary">{{ major.count }} خريج</span>
                     </div>
                     {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== قصص نجاح قيد المراجعة (جديد) ========== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-star me-2"></i> قصص نجاح قيد المراجعة</h6>
+                </div>
+                <div class="card-body">
+                    {% if pending_success_stories %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>العنوان</th>
+                                        <th>الخريج</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for story in pending_success_stories %}
+                                    <tr>
+                                        <td>{{ story.title }}</td>
+                                        <td>{{ story.graduate.user.get_full_name|default:story.graduate.user.username }}</td>
+                                        <td>{{ story.created_at|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-check"></i> قبول
+                                            </a>
+                                            <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-times"></i> رفض
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted mb-0">لا توجد قصص نجاح قيد المراجعة.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

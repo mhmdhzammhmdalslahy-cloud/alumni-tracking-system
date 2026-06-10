@@ -353,8 +353,7 @@ body.dark-mode .notification-footer {
                 <!-- أحدث الخريجين -->
                 <div class="section-header mt-5">
                     <h5 class="section-title">🎓 أحدث الخريجين</h5>
-                    <a href="{% url 'graduate_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-                </div>
+<a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>                </div>
                 <div class="row g-3">
                     {% for graduate in latest_graduates %}
                     <div class="col-md-4 col-6 mb-3">
@@ -375,48 +374,73 @@ body.dark-mode .notification-footer {
                     {% endfor %}
                 </div>
                 
-                <!-- قصص نجاح -->
-                <div class="section-header mt-5">
-                    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
-                    <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-                </div>
-                <div class="row g-3">
-                    {% for story in success_stories %}
-                    <div class="col-md-4 col-6 mb-3">
-                        <div class="success-card text-center">
-                            <i class="fas fa-quote-right fa-2x text-primary"></i>
-                            <p class="small mt-2">"{{ story.content|truncatechars:80 }}"</p>
-                            <h6 class="mt-2">{{ story.graduate.user.get_full_name }}</h6>
-                            <p class="text-muted small">{{ story.graduate.major }}</p>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center">لا توجد قصص نجاح</div>
-                    {% endfor %}
-                </div>
-                
+
                 <!-- آخر الوظائف -->
-                <div class="section-header mt-5">
-                    <h5 class="section-title">💼 آخر الوظائف</h5>
-                    <a href="{% url 'job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-                </div>
-                <div class="row g-3">
-                    {% for job in latest_jobs %}
-                    <div class="col-md-4 col-6 mb-3">
-                        <div class="job-card text-center" onclick="location.href='{% url 'job_detail' job.id %}'">
-                            <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
-                            <h6 class="mt-2">{{ job.title }}</h6>
-                            <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
-                            <span class="badge-job">{{ job.get_job_type_display }}</span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
-                    {% endfor %}
+<div class="section-header mt-5">
+    <h5 class="section-title">💼 آخر الوظائف</h5>
+    <a href="{% url 'job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+</div>
+<div class="row g-3">
+    {% for job in latest_jobs %}
+    <div class="col-md-4 col-6 mb-3">
+        <div class="job-card text-center" onclick="location.href='{% url 'job_detail' job.id %}'">
+            <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
+            <h6 class="mt-2">{{ job.title }}</h6>
+            <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
+            <span class="badge-job">{{ job.get_job_type_display }}</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
+    {% endfor %}
+</div>
+
+
+              <!-- قصص نجاح -->
+<div class="section-header mt-5">
+    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
+    <div class="d-flex gap-2">
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-plus"></i> أضف قصتك
+        </a>
+        {% endif %}
+<a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>    </div>
+</div>
+
+<div class="row g-4">
+    {% for story in success_stories %}
+    <div class="col-md-4 col-6 mb-4">
+        <div class="card success-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+            {% if story.image %}
+            <img src="{{ story.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+            {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                <i class="fas fa-quote-right fa-3x text-primary opacity-50"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <i class="fas fa-quote-right fa-2x text-primary opacity-25 mb-2 d-block"></i>
+                <p class="card-text small">"{{ story.content|truncatechars:120 }}"</p>
+                <div class="mt-3">
+                    <h6 class="mb-0">{{ story.graduate.user.get_full_name|default:story.graduate.user.username }}</h6>
+                    <small class="text-muted">{{ story.graduate.major }} - {{ story.graduate.graduation_year }}</small>
                 </div>
             </div>
         </div>
     </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="fas fa-star-of-life fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">لا توجد قصص نجاح بعد</h5>
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-primary mt-2">كن أول من يضيف قصته!</a>
+        {% else %}
+        <p class="text-muted">سجل الدخول لمشاركة قصتك الملهمة</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
 
     <!-- Footer -->
     <footer>
