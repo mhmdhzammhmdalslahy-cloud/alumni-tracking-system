@@ -30,7 +30,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, 'تم تسجيل الخروج بنجاح')
-    return redirect('landing')
+    return redirect('home')
 
 
 def register_view(request):

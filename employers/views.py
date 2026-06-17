@@ -8,10 +8,13 @@ from django.utils import timezone
 from .models import Employer, EmployerVerificationRequest, CompanyReview
 from .forms import EmployerForm, EmployerVerificationForm
 from jobs.models import Job, JobApplication
-from graduates.models import Graduate  # ✅ أضف هذا السطر مهم جداً
+from graduates.models import Graduate
+from dashboard.models import Notification
 import re
 from dashboard.decorators import employer_required
 
+
+# ========== قائمة وعرض الشركات ==========
 
 class EmployerListView(ListView):
     model = Employer
@@ -57,21 +60,14 @@ class EmployerDetailView(DetailView):
         context['active_jobs'] = active_jobs
         context['total_applications'] = JobApplication.objects.filter(job__employer=self.object).count()
         
-        # إضافة التقييمات للسياق
         from django.db.models import Avg
         avg_rating = self.object.reviews.aggregate(Avg('rating'))['rating__avg']
         context['avg_rating'] = round(avg_rating, 1) if avg_rating else 0
         context['reviews_count'] = self.object.reviews.count()
-        
-        print("=" * 50)
-        print(f"🏢 شركة: {self.object.company_name}")
-        print(f"📊 عدد الوظائف النشطة: {active_jobs.count()}")
-        for job in active_jobs:
-            print(f"  - {job.title} (ينتهي: {job.deadline})")
-        print(f"📋 إجمالي الطلبات: {context['total_applications']}")
-        print("=" * 50)
         return context
 
+
+# ========== إنشاء وتعديل وحذف الشركات (مع صلاحيات صارمة) ==========
 
 class EmployerCreateView(LoginRequiredMixin, CreateView):
     model = Employer
@@ -90,27 +86,56 @@ class EmployerUpdateView(LoginRequiredMixin, UpdateView):
     form_class = EmployerForm
     template_name = 'employers/employer_form.html'
     success_url = reverse_lazy('employer_list')
-    
-    def get_queryset(self):
-        # فقط ملف شركته
-        return self.model.objects.filter(user=self.request.user)
-    
-    def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request.user, 'employer_profile'):
-            messages.error(request, 'يجب أن تكون مسجلاً كشركة')
-            return redirect('employer_create')
-        return super().dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'employer_profile'):
+            messages.error(request, '⚠️ يجب أن تكون مسجلاً كشركة لتعديل الملف.')
+            return redirect('employer_list')
+        
+        obj = get_object_or_404(Employer, pk=kwargs['pk'])
+        if obj.user != request.user:
+            messages.error(request, '⚠️ ليس لديك صلاحية لتعديل ملف هذه الشركة.')
+            return redirect('employer_list')
+        
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'employer_profile'):
+            messages.error(request, '⚠️ يجب أن تكون مسجلاً كشركة لتعديل الملف.')
+            return redirect('employer_list')
+        
+        obj = get_object_or_404(Employer, pk=kwargs['pk'])
+        if obj.user != request.user:
+            messages.error(request, '⚠️ ليس لديك صلاحية لتعديل ملف هذه الشركة.')
+            return redirect('employer_list')
+        
+        return super().post(request, *args, **kwargs)
 
 class EmployerDeleteView(LoginRequiredMixin, DeleteView):
     model = Employer
     success_url = reverse_lazy('employer_list')
     template_name = 'employers/employer_confirm_delete.html'
-    
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        ✅ التحقق من الصلاحية قبل استدعاء get_object.
+        """
+        if not hasattr(request.user, 'employer_profile'):
+            messages.error(request, '⚠️ يجب أن تكون مسجلاً كشركة لحذف الملف.')
+            return redirect('employer_create')
+        
+        obj = get_object_or_404(Employer, pk=kwargs['pk'])
+        if obj.user != request.user:
+            messages.error(request, '⚠️ ليس لديك صلاحية لحذف ملف هذه الشركة. يمكنك فقط حذف ملف شركتك.')
+            return redirect('employer_list')
+        
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
 
-# ========== الدوال المساعدة (خارج الكلاسات) ==========
+
+# ========== دوال التوثيق والتحقق ==========
 
 def verify_commercial_registration(commercial_registration):
     """التحقق التلقائي من صحة السجل التجاري"""
@@ -125,7 +150,6 @@ def verify_employer(request, pk):
     if request.method == 'POST':
         form = EmployerVerificationForm(request.POST, request.FILES)
         if form.is_valid():
-            # التحقق من السجل التجاري تلقائياً
             if employer.commercial_registration:
                 is_valid, msg = verify_commercial_registration(employer.commercial_registration)
                 if not is_valid:
@@ -143,32 +167,128 @@ def verify_employer(request, pk):
     return render(request, 'employers/employer_verify.html', {'form': form, 'employer': employer})
 
 
+# ========== إدارة طلبات التوظيف (القبول - الرفض - المقابلة) ==========
+
 def accept_application(request, app_id):
+    """قبول طلب توظيف من قبل الشركة"""
     application = get_object_or_404(JobApplication, id=app_id)
-    if request.user == application.job.employer.user:
-        application.status = 'accepted'
-        application.save()
-        messages.success(request, f'✅ تم قبول طلب {application.graduate.user.get_full_name()} بنجاح! سيتم التواصل معه قريباً.')
+    
+    if request.user != application.job.employer.user:
+        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
+        return redirect('employer_list')
+    
+    application.status = 'accepted'
+    application.save()
+    
+    # إشعار للخريج
+    Notification.objects.create(
+        recipient=application.graduate.user,
+        title='🎉 تم قبول طلبك الوظيفي',
+        message=f'قامت شركة {application.job.employer.company_name} بقبول طلبك لوظيفة {application.job.title}.',
+        link=f'/jobs/{application.job.id}/'
+    )
+    
+    messages.success(request, f'✅ تم قبول طلب {application.graduate.user.get_full_name()} بنجاح!')
     return redirect('employer_profile', pk=application.job.employer.pk)
 
 
 def reject_application(request, app_id):
+    """رفض طلب توظيف من قبل الشركة"""
     application = get_object_or_404(JobApplication, id=app_id)
-    if request.user == application.job.employer.user:
-        application.status = 'rejected'
-        application.save()
-        messages.warning(request, f'📝 تم رفض طلب {application.graduate.user.get_full_name()}. نتمنى له التوفيق في فرص أخرى!')
+    
+    if request.user != application.job.employer.user:
+        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
+        return redirect('employer_list')
+    
+    application.status = 'rejected'
+    application.save()
+    messages.warning(request, f'📝 تم رفض طلب {application.graduate.user.get_full_name()}. نتمنى له التوفيق!')
     return redirect('employer_profile', pk=application.job.employer.pk)
 
 
 def call_for_interview(request, app_id):
+    """دعوة خريج لإجراء مقابلة"""
     application = get_object_or_404(JobApplication, id=app_id)
-    if request.user == application.job.employer.user:
-        application.status = 'interview'
-        application.save()
-        messages.info(request, f'📅 تم تحديد مقابلة مع {application.graduate.user.get_full_name()}. سيتم إرسال التفاصيل عبر البريد الإلكتروني.')
+    
+    if request.user != application.job.employer.user:
+        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
+        return redirect('employer_list')
+    
+    application.status = 'interview'
+    application.save()
+    
+    Notification.objects.create(
+        recipient=application.graduate.user,
+        title='📅 دعوة لإجراء مقابلة',
+        message=f'تمت دعوتك لإجراء مقابلة مع شركة {application.job.employer.company_name} لوظيفة {application.job.title}.',
+        link=f'/jobs/{application.job.id}/'
+    )
+    
+    messages.info(request, f'📅 تم تحديد مقابلة مع {application.graduate.user.get_full_name()}.')
     return redirect('employer_profile', pk=application.job.employer.pk)
 
+
+def accept_application_page(request, app_id):
+    """صفحة متقدمة لقبول الطلب مع عرض وظيفي"""
+    application = get_object_or_404(JobApplication, id=app_id)
+    
+    if request.user != application.job.employer.user:
+        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
+        return redirect('employer_profile', pk=application.job.employer.pk)
+    
+    if request.method == 'POST':
+        offer_message = request.POST.get('offer_message', '')
+        salary_offered = request.POST.get('salary_offered', '')
+        
+        application.status = 'accepted'
+        application.notes = f"عرض وظيفي: {offer_message}\nالراتب المعروض: {salary_offered}"
+        application.save()
+        
+        Notification.objects.create(
+            recipient=application.graduate.user,
+            title='🎉 تم قبول طلبك الوظيفي',
+            message=f'قامت شركة {application.job.employer.company_name} بقبول طلبك لوظيفة {application.job.title}.',
+            link=f'/jobs/{application.job.id}/'
+        )
+        
+        messages.success(request, '✅ تم قبول الطلب وإرسال العرض الوظيفي للخريج')
+        return redirect('employer_profile', pk=application.job.employer.pk)
+    
+    return render(request, 'employers/accept_application.html', {'application': application})
+
+
+def interview_application_page(request, app_id):
+    """صفحة تحديد موعد مقابلة مع خريج"""
+    application = get_object_or_404(JobApplication, id=app_id)
+    
+    if request.user != application.job.employer.user:
+        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
+        return redirect('employer_profile', pk=application.job.employer.pk)
+    
+    if request.method == 'POST':
+        interview_date = request.POST.get('interview_date')
+        interview_link = request.POST.get('interview_link', '')
+        interview_notes = request.POST.get('interview_notes', '')
+        
+        application.status = 'interview'
+        application.interview_date = interview_date
+        application.notes = f"موعد المقابلة: {interview_date}\nالرابط: {interview_link}\nملاحظات: {interview_notes}"
+        application.save()
+        
+        Notification.objects.create(
+            recipient=application.graduate.user,
+            title='📅 دعوة لإجراء مقابلة',
+            message=f'تمت دعوتك لإجراء مقابلة مع شركة {application.job.employer.company_name} بتاريخ {interview_date}.',
+            link=f'/jobs/{application.job.id}/'
+        )
+        
+        messages.success(request, '📅 تم تحديد المقابلة وإشعار الخريج')
+        return redirect('employer_profile', pk=application.job.employer.pk)
+    
+    return render(request, 'employers/interview_application.html', {'application': application})
+
+
+# ========== إضافة تقييم للشركة ==========
 
 def add_review(request, pk):
     employer = get_object_or_404(Employer, pk=pk)
@@ -176,7 +296,6 @@ def add_review(request, pk):
         rating = request.POST.get('rating')
         comment = request.POST.get('comment')
         
-        # التحقق من وجود تقييم سابق
         existing_review = CompanyReview.objects.filter(employer=employer, graduate=request.user.graduate_profile).first()
         if existing_review:
             existing_review.rating = rating
@@ -193,6 +312,7 @@ def add_review(request, pk):
             messages.success(request, '✅ تم إضافة تقييمك بنجاح')
     return redirect('employer_profile', pk=pk)
 
+# ========== البحث عن الخريجين ==========
 
 def search_graduates(request):
     queryset = Graduate.objects.filter(is_verified=True)
@@ -213,55 +333,6 @@ def search_graduates(request):
         queryset = queryset.filter(address__icontains=city)
     year = request.GET.get('year', '')
     if year and year != 'جميع السنوات':
-        queryset = queryset.filter(graduation_year=year)
+        queryset = queryset.filter(graduation_year=year)   # <-- تم التصحيح هنا
     
     return render(request, 'graduates/graduate_list.html', {'graduates': queryset})
-
-
-# إرسال إشعار واتساب (يتطلب API خارجي)
-def send_whatsapp_notification(phone, message):
-    # يمكن استخدام Twilio أو WATI أو GreenAPI
-    pass
-
-def accept_application_page(request, app_id):
-    application = get_object_or_404(JobApplication, id=app_id)
-    if request.user != application.job.employer.user:
-        messages.error(request, 'غير مصرح لك')
-        return redirect('employer_profile', pk=application.job.employer.pk)
-    
-    if request.method == 'POST':
-        # إجراءات القبول (إرسال عرض وظيفي، توقيع عقد، إلخ)
-        offer_message = request.POST.get('offer_message', '')
-        salary_offered = request.POST.get('salary_offered', '')
-        
-        application.status = 'accepted'
-        application.notes = f"عرض وظيفي: {offer_message}\nالراتب المعروض: {salary_offered}"
-        application.save()
-        
-        # إرسال إشعار للخريج
-        messages.success(request, f'✅ تم قبول الطلب وإرسال العرض الوظيفي للخريج')
-        return redirect('employer_profile', pk=application.job.employer.pk)
-    
-    return render(request, 'employers/accept_application.html', {'application': application})
-
-
-def interview_application_page(request, app_id):
-    application = get_object_or_404(JobApplication, id=app_id)
-    if request.user != application.job.employer.user:
-        messages.error(request, 'غير مصرح لك')
-        return redirect('employer_profile', pk=application.job.employer.pk)
-    
-    if request.method == 'POST':
-        interview_date = request.POST.get('interview_date')
-        interview_link = request.POST.get('interview_link', '')
-        interview_notes = request.POST.get('interview_notes', '')
-        
-        application.status = 'interview'
-        application.interview_date = interview_date
-        application.notes = f"موعد المقابلة: {interview_date}\nالرابط: {interview_link}\nملاحظات: {interview_notes}"
-        application.save()
-        
-        messages.success(request, f'📅 تم تحديد المقابلة وإشعار الخريج')
-        return redirect('employer_profile', pk=application.job.employer.pk)
-    
-    return render(request, 'employers/interview_application.html', {'application': application})

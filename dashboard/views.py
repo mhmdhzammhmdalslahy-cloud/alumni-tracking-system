@@ -5,47 +5,59 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.urls import reverse_lazy
+from graduates.forms import GraduateForm
 from django.db.models import Q, Count, Avg
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
+from django.urls import reverse
+import json
+
 from .models import (
     AdminProfile, VerificationRequest, EmployerVerificationRequest,
     Survey, SurveyResponse, Event, EventAttendance, Report,
-    SystemSetting, AuditLog, Major, Skill, BannedWord, SuccessStory
+    SystemSetting, AuditLog, Major, Skill, BannedWord, SuccessStory,
+    Notification
 )
 from .forms import (
     SurveyForm, EventForm, SystemSettingForm, AdminProfileForm,
-    MajorForm, SkillForm, BannedWordForm, VerificationReviewForm
+    MajorForm, SkillForm, BannedWordForm, VerificationReviewForm,
+    SuccessStoryForm
 )
 from graduates.models import Graduate
 from employers.models import Employer
 from jobs.models import Job, JobApplication
 from django.contrib.auth.models import User
-from .forms import GraduateForm
-from .models import Notification
-from .forms import SuccessStoryForm
-from .models import SuccessStory
-import json
+from groups.models import Group
 
 
 # ========== الصفحة الرئيسية للوحة التحكم ==========
 
-from dashboard.models import SuccessStory  # تأكد من وجود هذا الاستيراد في أعلى الملف
-
 @staff_member_required
 def admin_dashboard(request):
+    # حساب الأعداد الأساسية
+    total_graduates = Graduate.objects.count()
+    total_employers = Employer.objects.count()
+    total_jobs = Job.objects.filter(is_active=True).count()
+    total_applications = JobApplication.objects.count()
+    
+    # حساب الطلبات المعلقة
+    pending_graduates_count = VerificationRequest.objects.filter(status='pending').count()
+    pending_employers_count = EmployerVerificationRequest.objects.filter(status='pending').count()
+    pending_stories_count = SuccessStory.objects.filter(status='pending').count()
+    pending_groups_count = Group.objects.filter(status='pending', is_active=True).count()
+    
     # جلب قصص النجاح المعلقة
     pending_success_stories = SuccessStory.objects.filter(status='pending')
     
     context = {
-        'total_graduates': Graduate.objects.count(),
-        'total_employers': Employer.objects.count(),
-        'total_jobs': Job.objects.filter(is_active=True).count(),
-        'total_applications': JobApplication.objects.count(),
-        'pending_graduates': VerificationRequest.objects.filter(status='pending').count(),
-        'pending_employers': EmployerVerificationRequest.objects.filter(status='pending').count(),
+        'total_graduates': total_graduates,
+        'total_employers': total_employers,
+        'total_jobs': total_jobs,
+        'total_applications': total_applications,
+        'pending_graduates': pending_graduates_count,
+        'pending_employers': pending_employers_count,
         'employment_rate': calculate_employment_rate(),
         'recent_graduates': Graduate.objects.all().order_by('-created_at')[:5],
         'recent_employers': Employer.objects.all().order_by('-created_at')[:5],
@@ -53,9 +65,15 @@ def admin_dashboard(request):
         'popular_majors': get_popular_majors(),
         'top_employers': get_top_employers(),
         'monthly_jobs': get_monthly_jobs(),
-        'pending_success_stories': pending_success_stories,  # <-- أضف هذا المتغير
+        'pending_success_stories': pending_success_stories,
+        # متغيرات لعرض الأرقام في لوحة التحكم
+        'pending_graduates_count': pending_graduates_count,
+        'pending_employers_count': pending_employers_count,
+        'pending_stories_count': pending_stories_count,
+        'pending_groups_count': pending_groups_count,
     }
     return render(request, 'dashboard/admin_dashboard.html', context)
+
 
 def calculate_employment_rate():
     total = Graduate.objects.count()
@@ -91,7 +109,6 @@ def get_monthly_jobs():
 def manage_graduates(request):
     graduates = Graduate.objects.all().order_by('-created_at')
     
-    # بحث وفلترة
     search = request.GET.get('search', '')
     if search:
         graduates = graduates.filter(
@@ -142,18 +159,23 @@ def verify_graduate(request, pk):
             if action == 'approve':
                 verification.status = 'approved'
                 graduate.is_verified = True
+                graduate.user.is_active = True
+                graduate.user.save()
                 graduate.save()
                 messages.success(request, f'✅ تم توثيق حساب {graduate.user.get_full_name()} بنجاح')
             else:
                 verification.status = 'rejected'
                 verification.rejection_reason = form.cleaned_data['rejection_reason']
+                graduate.is_verified = False
+                graduate.user.is_active = False
+                graduate.user.save()
+                graduate.save()
                 messages.warning(request, f'📝 تم رفض طلب توثيق {graduate.user.get_full_name()}')
             
             verification.reviewed_by = request.user.admin_profile
             verification.reviewed_at = timezone.now()
             verification.save()
             
-            # تسجيل في Audit Log
             AuditLog.objects.create(
                 admin=request.user.admin_profile,
                 action='approve' if action == 'approve' else 'reject',
@@ -162,11 +184,30 @@ def verify_graduate(request, pk):
                 details={'name': graduate.user.get_full_name()}
             )
             
+            if action == 'approve':
+                Notification.objects.create(
+                    recipient=graduate.user,
+                    title='✅ تم توثيق حسابك',
+                    message=f'تم قبول طلب توثيق حسابك كخريج.',
+                    notification_type='success',
+                    link=f'/graduates/{graduate.id}/'
+                )
+            else:
+                Notification.objects.create(
+                    recipient=graduate.user,
+                    title='❌ تم رفض طلب التوثيق',
+                    message=f'عذراً، تم رفض طلب توثيق حسابك. السبب: {verification.rejection_reason}',
+                    notification_type='danger',
+                    link='/profile/'
+                )
+            
             return redirect('dashboard:manage_graduates')
     else:
         form = VerificationReviewForm()
     
     return render(request, 'dashboard/verify_graduate.html', {'graduate': graduate, 'verification': verification, 'form': form})
+
+
 # ========== إدارة الشركات ==========
 
 @staff_member_required
@@ -211,11 +252,17 @@ def verify_employer(request, pk):
             if action == 'approve':
                 verification.status = 'approved'
                 employer.is_verified = True
+                employer.user.is_active = True
+                employer.user.save()
                 employer.save()
                 messages.success(request, f'✅ تم توثيق حساب {employer.company_name} بنجاح')
             else:
                 verification.status = 'rejected'
                 verification.rejection_reason = form.cleaned_data['rejection_reason']
+                employer.is_verified = False
+                employer.user.is_active = False
+                employer.user.save()
+                employer.save()
                 messages.warning(request, f'📝 تم رفض طلب توثيق {employer.company_name}')
             
             verification.reviewed_by = request.user.admin_profile
@@ -230,6 +277,23 @@ def verify_employer(request, pk):
                 details={'name': employer.company_name}
             )
             
+            if action == 'approve':
+                Notification.objects.create(
+                    recipient=employer.user,
+                    title='✅ تم توثيق حساب شركتك',
+                    message=f'تم قبول طلب توثيق شركة {employer.company_name}.',
+                    notification_type='success',
+                    link=f'/employers/{employer.id}/'
+                )
+            else:
+                Notification.objects.create(
+                    recipient=employer.user,
+                    title='❌ تم رفض طلب التوثيق',
+                    message=f'عذراً، تم رفض طلب توثيق شركتك. السبب: {verification.rejection_reason}',
+                    notification_type='danger',
+                    link='/employer/profile/'
+                )
+            
             return redirect('dashboard:manage_employers')
     else:
         form = VerificationReviewForm()
@@ -242,11 +306,9 @@ def verify_employer(request, pk):
 @staff_member_required
 def manage_surveys(request):
     surveys = Survey.objects.all().order_by('-created_at')
-    
     paginator = Paginator(surveys, 20)
     page_number = request.GET.get('page', 1)
     surveys_page = paginator.get_page(page_number)
-    
     return render(request, 'dashboard/manage_surveys.html', {'surveys': surveys_page})
 
 
@@ -262,7 +324,6 @@ def create_survey(request):
             return redirect('dashboard:manage_surveys')
     else:
         form = SurveyForm()
-    
     return render(request, 'dashboard/survey_form.html', {'form': form, 'title': 'إنشاء استبيان جديد'})
 
 
@@ -277,7 +338,6 @@ def edit_survey(request, pk):
             return redirect('dashboard:manage_surveys')
     else:
         form = SurveyForm(instance=survey)
-    
     return render(request, 'dashboard/survey_form.html', {'form': form, 'title': 'تعديل الاستبيان'})
 
 
@@ -294,11 +354,9 @@ def delete_survey(request, pk):
 @staff_member_required
 def manage_events(request):
     events = Event.objects.all().order_by('-date')
-    
     paginator = Paginator(events, 20)
     page_number = request.GET.get('page', 1)
     events_page = paginator.get_page(page_number)
-    
     return render(request, 'dashboard/manage_events.html', {'events': events_page})
 
 
@@ -314,7 +372,6 @@ def create_event(request):
             return redirect('dashboard:manage_events')
     else:
         form = EventForm()
-    
     return render(request, 'dashboard/event_form.html', {'form': form, 'title': 'إنشاء فعالية جديدة'})
 
 
@@ -329,7 +386,6 @@ def edit_event(request, pk):
             return redirect('dashboard:manage_events')
     else:
         form = EventForm(instance=event)
-    
     return render(request, 'dashboard/event_form.html', {'form': form, 'title': 'تعديل الفعالية'})
 
 
@@ -353,7 +409,6 @@ def reports(request):
 def generate_report(request):
     if request.method == 'POST':
         report_type = request.POST.get('report_type')
-        
         if report_type == 'employment':
             return render(request, 'dashboard/reports/employment_report.html', {
                 'data': get_employment_report_data(None, None),
@@ -362,8 +417,8 @@ def generate_report(request):
             return render(request, 'dashboard/reports/general_report.html', {
                 'data': get_general_report_data(),
             })
-    
     return render(request, 'dashboard/generate_report.html')
+
 
 def get_employment_report_data(start_date, end_date):
     graduates = Graduate.objects.all()
@@ -371,7 +426,6 @@ def get_employment_report_data(start_date, end_date):
         graduates = graduates.filter(created_at__gte=start_date)
     if end_date:
         graduates = graduates.filter(created_at__lte=end_date)
-    
     return {
         'total': graduates.count(),
         'working': graduates.filter(current_job_status='working').count(),
@@ -384,18 +438,14 @@ def get_skill_gap_report_data():
     from jobs.models import Job
     all_skills = set()
     job_skills = set()
-    
     for grad in Graduate.objects.all():
         for skill in grad.skills.all():
             all_skills.add(skill.name.lower())
-    
     for job in Job.objects.all():
         skills = job.required_skills.lower().split(',')
         for skill in skills:
             job_skills.add(skill.strip())
-    
     gap_skills = job_skills - all_skills
-    
     return {
         'total_skills': len(all_skills),
         'required_skills': len(job_skills),
@@ -419,7 +469,6 @@ def system_settings(request):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     settings = SystemSetting.objects.all()
     if request.method == 'POST':
         for setting in settings:
@@ -430,7 +479,6 @@ def system_settings(request):
                 setting.save()
         messages.success(request, '✅ تم حفظ الإعدادات بنجاح')
         return redirect('dashboard:system_settings')
-    
     return render(request, 'dashboard/system_settings.html', {'settings': settings})
 
 
@@ -441,7 +489,6 @@ def manage_admins(request):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     admins = AdminProfile.objects.all().order_by('-created_at')
     return render(request, 'dashboard/manage_admins.html', {'admins': admins})
 
@@ -451,7 +498,6 @@ def add_admin(request):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     if request.method == 'POST':
         form = AdminProfileForm(request.POST)
         if form.is_valid():
@@ -462,7 +508,6 @@ def add_admin(request):
             return redirect('dashboard:manage_admins')
     else:
         form = AdminProfileForm()
-    
     return render(request, 'dashboard/admin_form.html', {'form': form, 'title': 'إضافة مشرف جديد'})
 
 
@@ -471,7 +516,6 @@ def edit_admin(request, pk):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     admin = get_object_or_404(AdminProfile, pk=pk)
     if request.method == 'POST':
         form = AdminProfileForm(request.POST, instance=admin)
@@ -481,7 +525,6 @@ def edit_admin(request, pk):
             return redirect('dashboard:manage_admins')
     else:
         form = AdminProfileForm(instance=admin)
-    
     return render(request, 'dashboard/admin_form.html', {'form': form, 'title': 'تعديل بيانات المشرف'})
 
 
@@ -490,12 +533,10 @@ def delete_admin(request, pk):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     admin = get_object_or_404(AdminProfile, pk=pk)
     if admin == request.user.admin_profile:
         messages.error(request, 'لا يمكنك حذف حسابك الخاص')
         return redirect('dashboard:manage_admins')
-    
     admin.delete()
     messages.success(request, '✅ تم حذف المشرف بنجاح')
     return redirect('dashboard:manage_admins')
@@ -508,58 +549,21 @@ def audit_log(request):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
-    
     logs = AuditLog.objects.all().order_by('-created_at')
-    
     action = request.GET.get('action', '')
     if action:
         logs = logs.filter(action=action)
-    
     target = request.GET.get('target', '')
     if target:
         logs = logs.filter(target_type__icontains=target)
-    
     paginator = Paginator(logs, 50)
     page_number = request.GET.get('page', 1)
     logs_page = paginator.get_page(page_number)
-    
     return render(request, 'dashboard/audit_log.html', {'logs': logs_page})
 
 
-# ========== إدارة التخصصات والمهارات ==========
+# ========== إدارة التخصصات والمهارات (نسخة واحدة فقط) ==========
 
-@staff_member_required
-def manage_majors(request):
-    majors = Major.objects.all().order_by('name')
-    
-    if request.method == 'POST':
-        form = MajorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '✅ تم إضافة التخصص بنجاح')
-            return redirect('dashboard:manage_majors')
-    else:
-        form = MajorForm()
-    
-    return render(request, 'dashboard/manage_majors.html', {'majors': majors, 'form': form})
-
-
-@staff_member_required
-def manage_skills(request):
-    skills = Skill.objects.all().order_by('name')
-    
-    if request.method == 'POST':
-        form = SkillForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '✅ تم إضافة المهارة بنجاح')
-            return redirect('dashboard:manage_skills')
-    else:
-        form = SkillForm()
-    
-    return render(request, 'dashboard/manage_skills.html', {'skills': skills, 'form': form})
-
- # إدارة التخصصات (مع إضافة الحذف)
 @staff_member_required
 def manage_majors(request):
     if request.method == 'POST':
@@ -568,7 +572,6 @@ def manage_majors(request):
             major.delete()
             messages.success(request, '✅ تم حذف التخصص بنجاح')
             return redirect('dashboard:manage_majors')
-        
         form = MajorForm(request.POST)
         if form.is_valid():
             form.save()
@@ -576,7 +579,6 @@ def manage_majors(request):
             return redirect('dashboard:manage_majors')
     else:
         form = MajorForm()
-    
     majors = Major.objects.all().order_by('name')
     return render(request, 'dashboard/manage_majors.html', {'majors': majors, 'form': form})
 
@@ -589,7 +591,6 @@ def manage_skills(request):
             skill.delete()
             messages.success(request, '✅ تم حذف المهارة بنجاح')
             return redirect('dashboard:manage_skills')
-        
         form = SkillForm(request.POST)
         if form.is_valid():
             form.save()
@@ -597,13 +598,12 @@ def manage_skills(request):
             return redirect('dashboard:manage_skills')
     else:
         form = SkillForm()
-    
     skills = Skill.objects.all().order_by('name')
     return render(request, 'dashboard/manage_skills.html', {'skills': skills, 'form': form})
 
 
+# ========== صلاحيات الخريج (تعديل/حذف ملفه فقط) ==========
 
-# إضافة صلاحية الخريج لتحديث ملفه فقط
 class GraduateUpdateView(LoginRequiredMixin, UpdateView):
     model = Graduate
     form_class = GraduateForm
@@ -611,7 +611,6 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('graduate_list')
     
     def get_queryset(self):
-        # فقط ملفه الشخصي
         return self.model.objects.filter(user=self.request.user)
     
     def dispatch(self, request, *args, **kwargs):
@@ -621,7 +620,6 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-# إضافة صلاحية الخريج لحذف ملفه فقط
 class GraduateDeleteView(LoginRequiredMixin, DeleteView):
     model = Graduate
     success_url = reverse_lazy('graduate_list')
@@ -629,7 +627,10 @@ class GraduateDeleteView(LoginRequiredMixin, DeleteView):
     
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
-    
+
+
+# ========== الإشعارات ==========
+
 @login_required
 def notification_list(request):
     notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
@@ -638,6 +639,8 @@ def notification_list(request):
         'notifications': notifications,
         'unread_count': unread_count
     })
+
+
 @login_required
 def mark_notification_read(request, pk):
     notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
@@ -647,6 +650,9 @@ def mark_notification_read(request, pk):
         return redirect(notification.link)
     return redirect('notification_list')
 
+
+# ========== قصص النجاح ==========
+
 @login_required
 def create_success_story(request):
     if request.method == 'POST':
@@ -654,37 +660,34 @@ def create_success_story(request):
         if form.is_valid():
             story = form.save(commit=False)
             story.created_by = request.user
-            
-            # تحديد المؤلف (خريج أو شركة)
             try:
                 graduate = request.user.graduate_profile
                 story.graduate = graduate
                 story.author_type = 'graduate'
             except:
-                # إذا لم يكن خريجاً، قد يكون شركة (يحتاج إلى تحقق)
                 try:
                     from employers.models import Employer
                     employer = Employer.objects.get(user=request.user)
                     story.company = employer
                     story.author_type = 'company'
-                    # يمكن أن نربط القصة بأول خريج (أو نتركه فارغاً)
-                    story.graduate = Graduate.objects.first()  # اختياري
+                    story.graduate = Graduate.objects.first()
                 except:
                     messages.error(request, 'يجب أن تكون خريجاً أو شركة لنشر قصة نجاح.')
                     return redirect('home')
-            
             story.status = 'pending'
             story.save()
             messages.success(request, 'تم إرسال قصتك للمراجعة. ستظهر بعد الموافقة.')
             return redirect('home')
     else:
         form = SuccessStoryForm()
-    
     return render(request, 'dashboard/success_story_form.html', {'form': form})
+
 
 def success_stories_list(request):
     stories = SuccessStory.objects.filter(status='approved', is_active=True)
     return render(request, 'dashboard/success_stories_list.html', {'stories': stories})
+
+
 @staff_member_required
 def approve_success_story(request, pk):
     story = get_object_or_404(SuccessStory, pk=pk)
@@ -693,6 +696,7 @@ def approve_success_story(request, pk):
     messages.success(request, 'تم قبول القصة بنجاح.')
     return redirect('dashboard:admin_dashboard')
 
+
 @staff_member_required
 def reject_success_story(request, pk):
     story = get_object_or_404(SuccessStory, pk=pk)
@@ -700,3 +704,121 @@ def reject_success_story(request, pk):
     story.save()
     messages.warning(request, 'تم رفض القصة.')
     return redirect('dashboard:admin_dashboard')
+
+
+# ========== الموافقة على المجموعات ==========
+
+@staff_member_required
+def approve_group(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    group.status = 'approved'
+    group.is_active = True
+    group.save()
+    
+    if group.created_by:
+        Notification.objects.create(
+            recipient=group.created_by,
+            title='✅ تم قبول مجموعتك',
+            message=f'تمت الموافقة على مجموعتك "{group.name}" وأصبحت متاحة للخريجين.',
+            notification_type='success',
+            link=f'/groups/{group.id}/'
+        )
+    
+    messages.success(request, f'✅ تم قبول مجموعة "{group.name}" بنجاح.')
+    return redirect('dashboard:pending_requests')
+
+
+@staff_member_required
+def reject_group(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    group.status = 'rejected'
+    group.is_active = False
+    group.save()
+    
+    if group.created_by:
+        Notification.objects.create(
+            recipient=group.created_by,
+            title='❌ تم رفض مجموعتك',
+            message=f'عذراً، تم رفض مجموعتك "{group.name}". يمكنك التواصل مع الإدارة لمعرفة السبب.',
+            notification_type='danger',
+            link='/groups/'
+        )
+    
+    messages.warning(request, f'❌ تم رفض مجموعة "{group.name}".')
+    return redirect('dashboard:pending_requests')
+
+
+# ========== صفحة الموافقات المركزية ==========
+
+@staff_member_required
+def pending_requests(request):
+    pending_graduates = VerificationRequest.objects.filter(status='pending').select_related('graduate__user')
+    pending_employers = EmployerVerificationRequest.objects.filter(status='pending').select_related('employer__user')
+    pending_stories = SuccessStory.objects.filter(status='pending').select_related('graduate__user')
+    pending_groups = Group.objects.filter(status='pending', is_active=True)
+    
+    context = {
+        'pending_graduates': pending_graduates,
+        'pending_employers': pending_employers,
+        'pending_stories': pending_stories,
+        'pending_groups': pending_groups,
+    }
+    return render(request, 'dashboard/pending_requests.html', context)
+
+
+# ========== تعطيل/تفعيل مستخدم ==========
+
+@staff_member_required
+def toggle_user_status(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    user.is_active = not user.is_active
+    user.save()
+    
+    status_text = "تفعيل" if user.is_active else "تعطيل"
+    messages.success(request, f'✅ تم {status_text} حساب {user.get_full_name() or user.username} بنجاح.')
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard:admin_dashboard'))
+
+# ========== دوال الموافقة على المجموعات ==========
+
+@staff_member_required
+def approve_group(request, pk):
+    """✅ قبول مجموعة (تصبح ظاهرة للخريجين)"""
+    group = get_object_or_404(Group, pk=pk)
+    group.status = 'approved'
+    group.is_active = True
+    group.save()
+    
+    # إشعار لمنشئ المجموعة
+    if group.created_by:
+        Notification.objects.create(
+            recipient=group.created_by,
+            title='✅ تم قبول مجموعتك',
+            message=f'تمت الموافقة على مجموعتك "{group.name}" وأصبحت متاحة للخريجين.',
+            notification_type='success',
+            link=f'/groups/{group.id}/'
+        )
+    
+    messages.success(request, f'✅ تم قبول مجموعة "{group.name}" بنجاح.')
+    return redirect('dashboard:pending_requests')
+
+
+@staff_member_required
+def reject_group(request, pk):
+    """❌ رفض مجموعة مع إشعار للمنشئ"""
+    group = get_object_or_404(Group, pk=pk)
+    group.status = 'rejected'
+    group.is_active = False
+    group.save()
+    
+    # إشعار لمنشئ المجموعة
+    if group.created_by:
+        Notification.objects.create(
+            recipient=group.created_by,
+            title='❌ تم رفض مجموعتك',
+            message=f'عذراً، تم رفض مجموعتك "{group.name}". يمكنك التواصل مع الإدارة لمعرفة السبب.',
+            notification_type='danger',
+            link='/groups/'
+        )
+    
+    messages.warning(request, f'❌ تم رفض مجموعة "{group.name}".')
+    return redirect('dashboard:pending_requests')

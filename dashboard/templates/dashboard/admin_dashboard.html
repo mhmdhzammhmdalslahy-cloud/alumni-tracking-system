@@ -1,0 +1,182 @@
+{% extends 'dashboard/base_admin.html' %}
+{% load static %}
+
+{% block title %}لوحة التحكم - الإدارة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">لوحة التحكم</h1>
+        </div>
+    </div>
+    
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">الخريجين</h6>
+                            <h2 class="mb-0">{{ total_graduates }}</h2>
+                        </div>
+                        <i class="fas fa-user-graduate fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">الشركات</h6>
+                            <h2 class="mb-0">{{ total_employers }}</h2>
+                        </div>
+                        <i class="fas fa-building fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">الوظائف النشطة</h6>
+                            <h2 class="mb-0">{{ total_jobs }}</h2>
+                        </div>
+                        <i class="fas fa-briefcase fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">طلبات التوظيف</h6>
+                            <h2 class="mb-0">{{ total_applications }}</h2>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- طلبات التحقق المعلقة -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i> طلبات توثيق الخريجين المعلقة</h6>
+                </div>
+                <div class="card-body">
+                    {% if pending_graduates > 0 %}
+                        <h2 class="text-center mb-3">{{ pending_graduates }}</h2>
+                        <a href="{% url 'dashboard:manage_graduates' %}?status=pending" class="btn btn-danger w-100">مراجعة الطلبات</a>
+                    {% else %}
+                        <p class="text-center text-muted mb-0">لا توجد طلبات معلقة</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i> طلبات توثيق الشركات المعلقة</h6>
+                </div>
+                <div class="card-body">
+                    {% if pending_employers > 0 %}
+                        <h2 class="text-center mb-3">{{ pending_employers }}</h2>
+                        <a href="{% url 'dashboard:manage_employers' %}?status=pending" class="btn btn-warning w-100">مراجعة الطلبات</a>
+                    {% else %}
+                        <p class="text-center text-muted mb-0">لا توجد طلبات معلقة</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نسبة التوظيف وأكثر التخصصات طلباً -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">نسبة التوظيف</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-success" style="width: {{ employment_rate }}%;">
+                            {{ employment_rate }}%
+                        </div>
+                    </div>
+                    <p class="text-muted">من إجمالي {{ total_graduates }} خريج</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">أكثر التخصصات طلباً</h6>
+                </div>
+                <div class="card-body">
+                    {% for major in popular_majors %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ major.major }}</span>
+                        <span class="badge bg-primary">{{ major.count }} خريج</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== الطلبات المعلقة ========== -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i> الطلبات المعلقة</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="p-3 border rounded">
+                                <h3 class="mb-0 text-primary">{{ pending_graduates_count|default:0 }}</h3>
+                                <small class="text-muted">خريجين</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="p-3 border rounded">
+                                <h3 class="mb-0 text-success">{{ pending_employers_count|default:0 }}</h3>
+                                <small class="text-muted">شركات</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="p-3 border rounded">
+                                <h3 class="mb-0 text-warning">{{ pending_stories_count|default:0 }}</h3>
+                                <small class="text-muted">قصص نجاح</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="p-3 border rounded">
+                                <h3 class="mb-0 text-info">{{ pending_groups_count|default:0 }}</h3>
+                                <small class="text-muted">مجموعات</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'dashboard:pending_requests' %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-eye"></i> إدارة الطلبات المعلقة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

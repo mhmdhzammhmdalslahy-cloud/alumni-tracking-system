@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://m7o7h5a0m0ed.pythonanywhere.com/sitemap.xml

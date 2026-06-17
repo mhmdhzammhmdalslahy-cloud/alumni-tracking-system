@@ -86,6 +86,23 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'graduates/graduate_form.html'
     success_url = reverse_lazy('graduate_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        """
+        ✅ التحقق من الصلاحية قبل استدعاء get_object.
+        """
+        # التحقق من وجود ملف خريج للمستخدم
+        if not hasattr(request.user, 'graduate_profile'):
+            messages.error(request, '⚠️ يجب أن تكون خريجاً مسجلاً لتعديل الملف.')
+            return redirect('graduate_create')
+        
+        # جلب الخريج والتحقق من ملكيته
+        obj = get_object_or_404(Graduate, pk=kwargs['pk'])
+        if obj.user != request.user:
+            messages.error(request, '⚠️ ليس لديك صلاحية لتعديل هذا الملف. يمكنك فقط تعديل ملفك الشخصي.')
+            return redirect('graduate_list')
+        
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(self.request, '✅ تم تحديث بيانات الخريج بنجاح!')
@@ -96,14 +113,37 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
             for error in errors:
                 messages.error(self.request, f'❌ خطأ في حقل {field}: {error}')
         return super().form_invalid(form)
-
-
 class GraduateDeleteView(LoginRequiredMixin, DeleteView):
     model = Graduate
     success_url = reverse_lazy('graduate_list')
     template_name = 'graduates/graduate_confirm_delete.html'
 
+    def get_object(self, queryset=None):
+        """
+        ✅ يجلب الخريج مع تحقق إضافي: إذا لم يكن صاحب الملف، يظهر رسالة خطأ.
+        """
+        obj = get_object_or_404(Graduate, pk=self.kwargs['pk'])
+        
+        # التحقق من أن المستخدم الحالي هو صاحب الملف
+        if obj.user != self.request.user:
+            messages.error(self.request, '⚠️ ليس لديك صلاحية لحذف هذا الملف. يمكنك فقط حذف ملفك الشخصي.')
+            return redirect('graduate_list')
+        
+        return obj
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        ✅ يتحقق من وجود ملف خريج للمستخدم الحالي.
+        """
+        if not hasattr(request.user, 'graduate_profile'):
+            messages.error(request, '⚠️ يجب أن تكون خريجاً مسجلاً لحذف الملف.')
+            return redirect('graduate_create')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
+        """
+        ✅ يمنع حذف أي خريج غير صاحب الحساب (ضمان إضافي).
+        """
         return self.model.objects.filter(user=self.request.user)
 
 
@@ -141,6 +181,7 @@ def search_graduates(request):
         graduates = Graduate.objects.none()
 
     return render(request, 'graduates/graduate_list.html', {'graduates': graduates})
+
 
 def home(request):
     from graduates.models import Graduate

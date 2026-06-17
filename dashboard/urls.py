@@ -34,4 +34,8 @@ urlpatterns = [
     path('success-stories/', views.success_stories_list, name='success_stories_list'),
     path('success-story/approve/<int:pk>/', views.approve_success_story, name='approve_success_story'),
     path('success-story/reject/<int:pk>/', views.reject_success_story, name='reject_success_story'),
+    # مسارات الموافقة على المجموعات (قيد المراجعة)
+    path('group/<int:pk>/approve/', views.approve_group, name='approve_group'),
+    path('group/<int:pk>/reject/', views.reject_group, name='reject_group'),
+    path('pending-requests/', views.pending_requests, name='pending_requests'),
 ]

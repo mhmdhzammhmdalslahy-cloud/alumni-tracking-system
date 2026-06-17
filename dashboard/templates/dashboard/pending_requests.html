@@ -1,0 +1,179 @@
+{% extends 'dashboard/base_admin.html' %}
+{% load static %}
+
+{% block title %}الطلبات المعلقة - الإدارة{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">📋 الطلبات المعلقة</h1>
+
+    <!-- طلبات توثيق الخريجين -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-user-graduate"></i> طلبات توثيق الخريجين ({{ pending_graduates|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_graduates %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>التخصص</th>
+                                <th>الرقم الجامعي</th>
+                                <th>تاريخ الطلب</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in pending_graduates %}
+                            <tr>
+                                <td>{{ req.graduate.user.get_full_name }}</td>
+                                <td>{{ req.graduate.major }}</td>
+                                <td>{{ req.student_university_number }}</td>
+                                <td>{{ req.created_at|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'dashboard:verify_graduate' req.graduate.id %}" class="btn btn-outline-primary">مراجعة</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">لا توجد طلبات توثيق خريجين معلقة.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- طلبات توثيق الشركات -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-building"></i> طلبات توثيق الشركات ({{ pending_employers|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_employers %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم الشركة</th>
+                                <th>القطاع</th>
+                                <th>المقر</th>
+                                <th>تاريخ الطلب</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in pending_employers %}
+                            <tr>
+                                <td>{{ req.employer.company_name }}</td>
+                                <td>{{ req.employer.industry }}</td>
+                                <td>{{ req.employer.headquarters }}</td>
+                                <td>{{ req.created_at|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'dashboard:verify_employer' req.employer.id %}" class="btn btn-outline-success">مراجعة</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">لا توجد طلبات توثيق شركات معلقة.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- قصص نجاح معلقة -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-star"></i> قصص نجاح قيد المراجعة ({{ pending_stories|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_stories %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>العنوان</th>
+                                <th>الخريج</th>
+                                <th>تاريخ الإضافة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for story in pending_stories %}
+                            <tr>
+                                <td>{{ story.title }}</td>
+                                <td>{{ story.graduate.user.get_full_name }}</td>
+                                <td>{{ story.created_at|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-success">قبول</a>
+                                        <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-danger">رفض</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">لا توجد قصص نجاح معلقة.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- مجموعات معلقة -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-users"></i> مجموعات قيد المراجعة ({{ pending_groups|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_groups %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>اسم المجموعة</th>
+                                <th>المنشئ</th>
+                                <th>الفئة</th>
+                                <th>التاريخ</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in pending_groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>{{ group.created_by.get_full_name|default:group.created_by.username }}</td>
+                                <td>{{ group.category|default:"عام" }}</td>
+                                <td>{{ group.created_at|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'dashboard:approve_group' group.id %}" class="btn btn-success">قبول</a>
+                                        <a href="{% url 'dashboard:reject_group' group.id %}" class="btn btn-danger">رفض</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">لا توجد مجموعات معلقة.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- زر العودة -->
+    <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-right"></i> العودة إلى لوحة التحكم
+    </a>
+</div>
+{% endblock %}
