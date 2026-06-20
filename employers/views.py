@@ -23,6 +23,7 @@ class EmployerListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
+        # ✅ فقط الشركات الموثقة
         queryset = Employer.objects.filter(is_active=True, is_verified=True)
         search = self.request.GET.get('search', '')
         if search:
@@ -38,7 +39,7 @@ class EmployerListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_companies'] = Employer.objects.filter(is_active=True).count()
+        context['total_companies'] = Employer.objects.filter(is_active=True, is_verified=True).count()
         context['verified_companies'] = Employer.objects.filter(is_verified=True).count()
         return context
 
@@ -67,7 +68,7 @@ class EmployerDetailView(DetailView):
         return context
 
 
-# ========== إنشاء وتعديل وحذف الشركات (مع صلاحيات صارمة) ==========
+# ========== إنشاء وتعديل وحذف الشركات ==========
 
 class EmployerCreateView(LoginRequiredMixin, CreateView):
     model = Employer
@@ -77,9 +78,12 @@ class EmployerCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        # ✅ الشركة الجديدة غير موثقة حتى يوافق عليها المشرف
+        form.instance.is_verified = False
         response = super().form_valid(form)
-        messages.success(self.request, '✅ تم تسجيل الشركة بنجاح! سيتم مراجعة طلبك قريباً')
+        messages.success(self.request, '✅ تم تسجيل الشركة بنجاح! سيتم مراجعة طلبك من قبل الإدارة.')
         return response
+
 
 class EmployerUpdateView(LoginRequiredMixin, UpdateView):
     model = Employer
@@ -111,22 +115,31 @@ class EmployerUpdateView(LoginRequiredMixin, UpdateView):
         
         return super().post(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, '✅ تم تحديث بيانات الشركة بنجاح!')
+        return response
+
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, f'❌ خطأ في حقل {field}: {error}')
+        return super().form_invalid(form)
+
+
 class EmployerDeleteView(LoginRequiredMixin, DeleteView):
     model = Employer
     success_url = reverse_lazy('employer_list')
     template_name = 'employers/employer_confirm_delete.html'
 
     def dispatch(self, request, *args, **kwargs):
-        """
-        ✅ التحقق من الصلاحية قبل استدعاء get_object.
-        """
         if not hasattr(request.user, 'employer_profile'):
             messages.error(request, '⚠️ يجب أن تكون مسجلاً كشركة لحذف الملف.')
             return redirect('employer_create')
         
         obj = get_object_or_404(Employer, pk=kwargs['pk'])
         if obj.user != request.user:
-            messages.error(request, '⚠️ ليس لديك صلاحية لحذف ملف هذه الشركة. يمكنك فقط حذف ملف شركتك.')
+            messages.error(request, '⚠️ ليس لديك صلاحية لحذف ملف هذه الشركة.')
             return redirect('employer_list')
         
         return super().dispatch(request, *args, **kwargs)
@@ -135,7 +148,7 @@ class EmployerDeleteView(LoginRequiredMixin, DeleteView):
         return self.model.objects.filter(user=self.request.user)
 
 
-# ========== دوال التوثيق والتحقق ==========
+# ========== دوال التوثيق والتحقق (مع إنشاء تلقائي للطلب) ==========
 
 def verify_commercial_registration(commercial_registration):
     """التحقق التلقائي من صحة السجل التجاري"""
@@ -146,6 +159,19 @@ def verify_commercial_registration(commercial_registration):
 
 def verify_employer(request, pk):
     employer = get_object_or_404(Employer, pk=pk)
+    
+    # محاولة جلب طلب توثيق معلق
+    verification = EmployerVerificationRequest.objects.filter(employer=employer, status='pending').first()
+    
+    # ✅ إذا لم يكن هناك طلب معلق، قم بإنشائه تلقائياً
+    if not verification:
+        verification = EmployerVerificationRequest.objects.create(
+            employer=employer,
+            commercial_registration_file='',  # يمكن تركه فارغاً أو تعيين قيمة افتراضية
+            status='pending'
+        )
+        messages.info(request, f'📝 تم إنشاء طلب توثيق تلقائي للشركة {employer.company_name}')
+        return redirect('dashboard:verify_employer', pk=employer.pk)
 
     if request.method == 'POST':
         form = EmployerVerificationForm(request.POST, request.FILES)
@@ -170,7 +196,6 @@ def verify_employer(request, pk):
 # ========== إدارة طلبات التوظيف (القبول - الرفض - المقابلة) ==========
 
 def accept_application(request, app_id):
-    """قبول طلب توظيف من قبل الشركة"""
     application = get_object_or_404(JobApplication, id=app_id)
     
     if request.user != application.job.employer.user:
@@ -180,7 +205,6 @@ def accept_application(request, app_id):
     application.status = 'accepted'
     application.save()
     
-    # إشعار للخريج
     Notification.objects.create(
         recipient=application.graduate.user,
         title='🎉 تم قبول طلبك الوظيفي',
@@ -193,7 +217,6 @@ def accept_application(request, app_id):
 
 
 def reject_application(request, app_id):
-    """رفض طلب توظيف من قبل الشركة"""
     application = get_object_or_404(JobApplication, id=app_id)
     
     if request.user != application.job.employer.user:
@@ -207,7 +230,6 @@ def reject_application(request, app_id):
 
 
 def call_for_interview(request, app_id):
-    """دعوة خريج لإجراء مقابلة"""
     application = get_object_or_404(JobApplication, id=app_id)
     
     if request.user != application.job.employer.user:
@@ -229,7 +251,6 @@ def call_for_interview(request, app_id):
 
 
 def accept_application_page(request, app_id):
-    """صفحة متقدمة لقبول الطلب مع عرض وظيفي"""
     application = get_object_or_404(JobApplication, id=app_id)
     
     if request.user != application.job.employer.user:
@@ -258,7 +279,6 @@ def accept_application_page(request, app_id):
 
 
 def interview_application_page(request, app_id):
-    """صفحة تحديد موعد مقابلة مع خريج"""
     application = get_object_or_404(JobApplication, id=app_id)
     
     if request.user != application.job.employer.user:
@@ -312,6 +332,7 @@ def add_review(request, pk):
             messages.success(request, '✅ تم إضافة تقييمك بنجاح')
     return redirect('employer_profile', pk=pk)
 
+
 # ========== البحث عن الخريجين ==========
 
 def search_graduates(request):
@@ -333,6 +354,7 @@ def search_graduates(request):
         queryset = queryset.filter(address__icontains=city)
     year = request.GET.get('year', '')
     if year and year != 'جميع السنوات':
-        queryset = queryset.filter(graduation_year=year)   # <-- تم التصحيح هنا
+        
+        queryset = queryset.filter(graduation_year=year)
     
     return render(request, 'graduates/graduate_list.html', {'graduates': queryset})

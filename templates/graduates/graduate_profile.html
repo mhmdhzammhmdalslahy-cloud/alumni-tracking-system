@@ -267,7 +267,7 @@
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#certificates">📜 شهادات</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#social">🌐 تواصل</button></li>
             </ul>
-            <!-- قسم المجموعات داخل ملف الخريج -->
+            
             <div class="tab-content-custom">
                 <!-- أكاديمي -->
                 <div class="tab-pane fade show active" id="academic">
@@ -386,11 +386,28 @@
                         </div>
                     </div>
                 </div>
+            </div> <!-- نهاية tab-content-custom -->
+            
+            <!--<!-- ====== قسم تفضيلات الإشعارات (بريد إلكتروني فقط) ====== -->
+{% if user == graduate.user %}
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-bell"></i> تفضيلات الإشعارات</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'update_notification_preferences' %}">
+            {% csrf_token %}
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" name="receive_email_notifications" id="emailNotif" {% if graduate.receive_email_notifications %}checked{% endif %}>
+                <label class="form-check-label" for="emailNotif">
+                    استقبال إشعارات عبر البريد الإلكتروني (مجاني)
+                </label>
             </div>
-        </div>
+            <button type="submit" class="btn btn-primary">حفظ التفضيلات</button>
+        </form>
     </div>
 </div>
-
+{% endif %}
 <!-- نافذة تأكيد الحذف -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -416,8 +433,6 @@
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
     }
-
-
 </script>
 </body>
 </html>

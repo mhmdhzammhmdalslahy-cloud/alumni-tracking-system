@@ -2,6 +2,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from graduates.models import Graduate
+from django.dispatch import receiver
+from jobs.models import Job
+from dashboard.notifications import notify_graduates_about_new_job
 from employers.models import Employer
 from jobs.models import Job
 from dashboard.models import Notification, VerificationRequest, EmployerVerificationRequest, AdminProfile
@@ -116,3 +119,9 @@ def notify_employer_verification(sender, instance, **kwargs):
             notification_type=notif_type,
             link=link
         )
+
+        
+@receiver(post_save, sender=Job)
+def send_job_notifications(sender, instance, created, **kwargs):
+    if created and instance.is_active:
+        notify_graduates_about_new_job(instance)

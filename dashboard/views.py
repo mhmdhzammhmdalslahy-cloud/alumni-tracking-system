@@ -4,14 +4,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.urls import reverse_lazy
-from graduates.forms import GraduateForm
+from django.urls import reverse_lazy, reverse
 from django.db.models import Q, Count, Avg
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.core.mail import send_mail
+from django.conf import settings
 import json
 
 from .models import (
@@ -26,12 +26,11 @@ from .forms import (
     SuccessStoryForm
 )
 from graduates.models import Graduate
+from graduates.forms import GraduateForm
 from employers.models import Employer
 from jobs.models import Job, JobApplication
 from django.contrib.auth.models import User
 from groups.models import Group
-
-
 # ========== الصفحة الرئيسية للوحة التحكم ==========
 
 @staff_member_required
@@ -146,12 +145,23 @@ def manage_graduates(request):
 def verify_graduate(request, pk):
     graduate = get_object_or_404(Graduate, pk=pk)
     
-    try:
-        verification = VerificationRequest.objects.get(graduate=graduate, status='pending')
-    except VerificationRequest.DoesNotExist:
-        messages.warning(request, f'⚠️ لا يوجد طلب توثيق معلق للخريج {graduate.user.get_full_name()}')
-        return redirect('dashboard:manage_graduates')
+    # محاولة جلب طلب توثيق معلق
+    verification = VerificationRequest.objects.filter(graduate=graduate, status='pending').first()
     
+    # إذا لم يكن هناك طلب معلق، قم بإنشائه تلقائياً
+    if not verification:
+        # إنشاء طلب توثيق جديد للخريج
+        verification = VerificationRequest.objects.create(
+            graduate=graduate,
+            student_university_number=graduate.university_id,
+            uploaded_document='',  # يمكن تركه فارغاً أو تعيين قيمة افتراضية
+            status='pending'
+        )
+        messages.info(request, f'📝 تم إنشاء طلب توثيق تلقائي للخريج {graduate.user.get_full_name()}')
+        # إعادة التوجيه إلى نفس الصفحة لتحديث النموذج
+        return redirect('dashboard:verify_graduate', pk=graduate.pk)
+    
+    # إذا كان الطلب موجوداً، تابع العملية كالمعتاد
     if request.method == 'POST':
         form = VerificationReviewForm(request.POST)
         if form.is_valid():
@@ -163,6 +173,44 @@ def verify_graduate(request, pk):
                 graduate.user.save()
                 graduate.save()
                 messages.success(request, f'✅ تم توثيق حساب {graduate.user.get_full_name()} بنجاح')
+                
+                # ========== إرسال رسالة ترحيب ==========
+                # 1. إشعار داخلي (في قاعدة البيانات)
+                Notification.objects.create(
+                    recipient=graduate.user,
+                    title='🎉 مرحباً بك في نظام متابعة الخريجين',
+                    message=f'أهلاً {graduate.user.get_full_name()}، تم توثيق حسابك بنجاح. يمكنك الآن الاستفادة من جميع خدمات المنصة.',
+                    notification_type='welcome',
+                    link=f'/graduates/{graduate.id}/'
+                )
+                
+                # 2. بريد إلكتروني ترحيبي
+                try:
+                    send_mail(
+                        subject='🎉 مرحباً بك في نظام متابعة الخريجين',
+                        message=f"""أهلاً {graduate.user.get_full_name()},
+
+تم توثيق حسابك بنجاح في نظام متابعة الخريجين. يمكنك الآن:
+
+- ✅ عرض وتحديث ملفك الشخصي
+- ✅ التقدم للوظائف المتاحة
+- ✅ المشاركة في المجموعات والمنتديات
+- ✅ إضافة قصص نجاح
+- ✅ استقبال إشعارات الوظائف الجديدة
+
+نتمنى لك تجربة ممتعة!
+
+فريق نظام متابعة الخريجين
+""",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[graduate.user.email],
+                        fail_silently=True,  # لا يظهر خطأ إذا فشل الإرسال
+                    )
+                except Exception as e:
+                    # تسجيل الخطأ في السجلات (اختياري)
+                    print(f"⚠️ فشل إرسال البريد الترحيبي لـ {graduate.user.email}: {e}")
+                # ========== نهاية رسالة الترحيب ==========
+                
             else:
                 verification.status = 'rejected'
                 verification.rejection_reason = form.cleaned_data['rejection_reason']
@@ -206,8 +254,6 @@ def verify_graduate(request, pk):
         form = VerificationReviewForm()
     
     return render(request, 'dashboard/verify_graduate.html', {'graduate': graduate, 'verification': verification, 'form': form})
-
-
 # ========== إدارة الشركات ==========
 
 @staff_member_required
@@ -822,3 +868,58 @@ def reject_group(request, pk):
     
     messages.warning(request, f'❌ تم رفض مجموعة "{group.name}".')
     return redirect('dashboard:pending_requests')
+
+@staff_member_required
+def approve_graduate(request, pk):
+    graduate = get_object_or_404(Graduate, pk=pk)
+    graduate.is_active = True
+    graduate.is_verified = True
+    graduate.save()
+    
+    # إشعار للخريج
+    Notification.objects.create(
+        recipient=graduate.user,
+        title='✅ تم قبول تسجيلك',
+        message=f'تم قبول طلب تسجيلك كخريج في منصة متابعة الخريجين.',
+        notification_type='success',
+        link=f'/graduates/{graduate.id}/'
+    )
+    
+    messages.success(request, f'✅ تم قبول الخريج {graduate.user.get_full_name()} بنجاح.')
+    return redirect('dashboard:pending_requests')
+
+
+@staff_member_required
+def approve_graduate(request, pk):
+    graduate = get_object_or_404(Graduate, pk=pk)
+    graduate.is_active = True
+    graduate.is_verified = True
+    graduate.save()
+    
+    # إشعار للخريج
+    Notification.objects.create(
+        recipient=graduate.user,
+        title='✅ تم قبول تسجيلك',
+        message=f'تم قبول طلب تسجيلك كخريج في منصة متابعة الخريجين.',
+        notification_type='success',
+        link=f'/graduates/{graduate.id}/'
+    )
+    
+    messages.success(request, f'✅ تم قبول الخريج {graduate.user.get_full_name()} بنجاح.')
+    return redirect('dashboard:pending_requests')
+
+
+@login_required
+def update_notification_preferences(request):
+    try:
+        graduate = request.user.graduate_profile
+    except Graduate.DoesNotExist:
+        messages.error(request, "لا يوجد ملف خريج مرتبط بحسابك.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        receive_email = request.POST.get('receive_email_notifications') == 'on'
+        graduate.receive_email_notifications = receive_email
+        graduate.save()
+        messages.success(request, '✅ تم تحديث تفضيلات الإشعارات بنجاح.')
+    return redirect('graduate_profile', pk=graduate.pk)

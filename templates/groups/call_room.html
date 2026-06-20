@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📹 البث المباشر - {{ group.name }}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- PeerJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.1/peerjs.min.js"></script>
+    <!-- CSRF Token -->
+    {% load static %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    
+    <style>
+        /* ============================================================
+           التنسيقات العامة - تصميم عصري وفاخر
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
+            background: #0a0a12;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* ============================================================
+           حاوية البث الرئيسية
+           ============================================================ */
+        .live-container {
+            display: flex;
+            height: 100vh;
+            background: #0a0a12;
+            position: relative;
+        }
+
+        /* ============================================================
+           منطقة الفيديو الرئيسية
+           ============================================================ */
+        .video-main {
+            flex: 1;
+            position: relative;
+            background: #0a0a12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-main video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-height: 100vh;
+            background: #0a0a12;
+        }
+        
+        /* Placeholder عند عدم وجود بث */
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: rgba(255,255,255,0.15);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .video-placeholder i {
+            font-size: 6rem;
+            display: block;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .video-placeholder p {
+            font-size: 1.4rem;
+            font-weight: 300;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* ============================================================
+           تراكب البث - الطبقات العلوية
+           ============================================================ */
+        .live-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .live-overlay > * {
+            pointer-events: auto;
+        }
+
+        /* ============================================================
+           رأس البث - معلومات البث والإحصائيات
+           ============================================================ */
+        .live-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .streamer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 20px 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .streamer-info .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1A5F7A, #F39C12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+        }
+        
+        .streamer-info .name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+        }
+        
+        .streamer-info .badge-live {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            animation: pulse-live 1.5s infinite;
+            text-transform: uppercase;
+        }
+        
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+        
+        .live-stats {
+            display: flex;
+            gap: 25px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .live-stats .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.3s;
+        }
+        
+        .live-stats .stat-item i {
+            font-size: 0.9rem;
+        }
+        
+        .live-stats .stat-item .count {
+            font-weight: 700;
+            min-width: 20px;
+        }
+
+        /* ============================================================
+           زر العودة
+           ============================================================ */
+        .btn-back {
+            position: absolute;
+            top: 85px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            transform: translateX(-8px) scale(1.02);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* ============================================================
+           الشريط الجانبي - أزرار التفاعل
+           ============================================================ */
+        .side-bar {
+            position: absolute;
+            bottom: 160px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            padding: 24px 14px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .side-bar .action-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            padding: 4px;
+        }
+        
+        .side-bar .action-btn i {
+            font-size: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .side-bar .action-btn:hover i {
+            transform: scale(1.2) translateY(-3px);
+        }
+        
+        .side-bar .action-btn:active i {
+            transform: scale(0.9);
+        }
+        
+        .side-bar .action-btn .count {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 20px;
+        }
+        
+        .side-bar .action-btn.like i {
+            color: #ff4757;
+        }
+        
+        .side-bar .action-btn.like:hover i {
+            animation: likeAnim 0.6s ease;
+        }
+        
+        @keyframes likeAnim {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.4); }
+            50% { transform: scale(1.8); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .side-bar .action-btn .tooltip-text {
+            position: absolute;
+            left: 75px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 5px 14px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .side-bar .action-btn:hover .tooltip-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============================================================
+           شريط المشاركين
+           ============================================================ */
+        .participants-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 10px 24px;
+            border-radius: 50px;
+            z-index: 10;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 92%;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .participants-bar .participant {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .participants-bar .participant .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        
+        .participants-bar .participant .dot.online {
+            background: #2ecc71;
+            animation: pulse-dot 2s infinite;
+        }
+        
+        .participants-bar .participant .dot.offline {
+            background: #7f8c8d;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        
+        .participants-bar .participant .avatar-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           شريط التحكم - أزرار البث
+           ============================================================ */
+        .control-bar {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 20px;
+            border-radius: 50px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        .control-bar .btn {
+            border-radius: 50px;
+            padding: 10px 22px;
+            font-weight: 700;
+            border: none;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            min-width: 90px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-bar .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        
+        .control-bar .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .control-bar .btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .control-bar .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-start i {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .btn-end {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-mute {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff;
+        }
+        
+        .btn-mute.active {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .btn-video {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-video.active {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .btn-share {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+        
+        .btn-copy {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+        
+        .btn-leave {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        
+        .control-bar .btn.hidden {
+            display: none !important;
+        }
+
+        /* ============================================================
+           صندوق الدردشة
+           ============================================================ */
+        .chat-box {
+            position: absolute;
+            bottom: 160px;
+            left: 20px;
+            width: 340px;
+            max-height: 400px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 16px;
+            z-index: 10;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        
+        .chat-box.open {
+            display: block;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .chat-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        
+        .chat-box .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .chat-box .chat-header h6 {
+            margin: 0;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+        
+        .chat-box .chat-header h6 i {
+            color: #F39C12;
+            margin-left: 8px;
+        }
+        
+        .chat-box .chat-header .close-chat {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .chat-box .chat-header .close-chat:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .chat-box .chat-messages {
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+        
+        .chat-box .chat-messages::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .chat-box .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+        }
+        
+        .chat-box .chat-msg {
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            padding: 6px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            animation: msgIn 0.3s ease;
+        }
+        
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .chat-box .chat-msg .user {
+            color: #F39C12;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .chat-box .chat-msg .msg-text {
+            word-break: break-word;
+            flex: 1;
+        }
+        
+        .chat-box .chat-msg .time {
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+        }
+        
+        .chat-box .chat-msg.own {
+            background: rgba(26, 95, 122, 0.2);
+            border-right: 3px solid #1A5F7A;
+        }
+        
+        .chat-box .chat-msg.own .user {
+            color: #3498db;
+        }
+        
+        .chat-box .chat-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .chat-box .chat-input input {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        
+        .chat-box .chat-input input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+        
+        .chat-box .chat-input input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(26, 95, 122, 0.3);
+        }
+        
+        .chat-box .chat-input button {
+            background: linear-gradient(135deg, #1A5F7A, #0d4a5f);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .chat-box .chat-input button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(26, 95, 122, 0.4);
+        }
+
+        /* ============================================================
+           حالة البث
+           ============================================================ */
+        .stream-status {
+            position: absolute;
+            bottom: 170px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .stream-status.active {
+            display: flex;
+            animation: slideUp 0.4s ease;
+        }
+        
+        .stream-status .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2ecc71;
+            animation: pulse-dot 2s infinite;
+        }
+
+        /* ============================================================
+           إشعارات (Toast)
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 450px;
+            width: 92%;
+            align-items: center;
+            pointer-events: none;
+        }
+        
+        .toast-notification {
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 4px solid #F39C12;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            pointer-events: auto;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .toast-notification.success {
+            border-right-color: #2ecc71;
+        }
+        
+        .toast-notification.error {
+            border-right-color: #e74c3c;
+        }
+        
+        .toast-notification.warning {
+            border-right-color: #f39c12;
+        }
+        
+        .toast-notification.info {
+            border-right-color: #3498db;
+        }
+        
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .toast-notification .toast-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        
+        .toast-notification .toast-content {
+            flex: 1;
+        }
+        
+        .toast-notification .toast-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        
+        .toast-notification .toast-message {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* ============================================================
+           رسوم متحركة للإعجابات (فلور)
+           ============================================================ */
+        .floating-like {
+            position: fixed;
+            font-size: 2.5rem;
+            color: #ff4757;
+            pointer-events: none;
+            z-index: 9998;
+            animation: floatLike 2.5s ease-out forwards;
+        }
+        
+        @keyframes floatLike {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5);
+            }
+            50% {
+                transform: translateY(-100px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-250px) scale(0.8);
+            }
+        }
+
+        /* ============================================================
+           استجابة للشاشات الصغيرة
+           ============================================================ */
+        @media (max-width: 992px) {
+            .live-stats .stat-item span:not(.count) {
+                display: none;
+            }
+            
+            .chat-box {
+                width: 300px;
+                left: 10px;
+                bottom: 140px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .side-bar {
+                bottom: 170px;
+                right: 10px;
+                padding: 18px 10px;
+                gap: 20px;
+                border-radius: 25px;
+            }
+            
+            .side-bar .action-btn i {
+                font-size: 1.6rem;
+            }
+            
+            .side-bar .action-btn .tooltip-text {
+                display: none;
+            }
+            
+            .live-header {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                gap: 8px;
+            }
+            
+            .streamer-info {
+                padding: 6px 14px 6px 10px;
+            }
+            
+            .streamer-info .avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+            
+            .streamer-info .name {
+                font-size: 0.8rem;
+            }
+            
+            .streamer-info .badge-live {
+                font-size: 0.5rem;
+                padding: 2px 10px;
+            }
+            
+            .live-stats {
+                padding: 6px 14px;
+                gap: 12px;
+                font-size: 0.7rem;
+            }
+            
+            .live-stats .stat-item i {
+                font-size: 0.7rem;
+            }
+            
+            .control-bar {
+                padding: 8px 12px;
+                gap: 6px;
+                bottom: 80px;
+                border-radius: 30px;
+            }
+            
+            .control-bar .btn {
+                padding: 6px 12px;
+                font-size: 0.65rem;
+                min-width: 40px;
+                gap: 4px;
+            }
+            
+            .control-bar .btn span {
+                display: none;
+            }
+            
+            .control-bar .btn i {
+                font-size: 1.1rem;
+            }
+            
+            .participants-bar {
+                padding: 6px 14px;
+                gap: 6px;
+                bottom: 20px;
+                font-size: 0.7rem;
+                border-radius: 30px;
+            }
+            
+            .participants-bar .participant .avatar-sm {
+                width: 24px;
+                height: 24px;
+                font-size: 0.5rem;
+            }
+            
+            .btn-back {
+                top: 70px;
+                left: 10px;
+                font-size: 0.7rem;
+                padding: 6px 14px;
+                border-radius: 30px;
+            }
+            
+            .btn-back span {
+                display: none;
+            }
+            
+            .stream-status {
+                bottom: 140px;
+                right: 10px;
+                font-size: 0.7rem;
+                padding: 6px 14px;
+            }
+            
+            .chat-box {
+                width: 92%;
+                left: 4%;
+                bottom: 130px;
+                max-height: 250px;
+                padding: 12px;
+            }
+            
+            .chat-box .chat-messages {
+                max-height: 140px;
+            }
+            
+            .video-placeholder i {
+                font-size: 4rem;
+            }
+            
+            .video-placeholder p {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .live-stats .stat-item {
+                gap: 3px;
+            }
+            
+            .live-stats .stat-item .count {
+                min-width: 15px;
+            }
+            
+            .control-bar .btn {
+                padding: 5px 10px;
+                min-width: 34px;
+            }
+            
+            .control-bar .btn i {
+                font-size: 0.9rem;
+            }
+            
+            .participants-bar .participant {
+                font-size: 0.6rem;
+                padding: 0 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- ========== حاوية البث ========== -->
+    <!-- ============================================================ -->
+    <div class="live-container">
+
+        <!-- ====== الفيديو ====== -->
+        <div class="video-main">
+            <!-- فيديو البث المحلي -->
+            <video id="localVideo" autoplay muted playsinline></video>
+            <!-- فيديو المشاهد البعيد -->
+            <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
+
+            <!-- Placeholder -->
+            <div class="video-placeholder" id="videoPlaceholder">
+                <i class="fas fa-video-slash"></i>
+                <p>⏳ انتظر بدء البث...</p>
+            </div>
+
+            <!-- ====== تراكب البث ====== -->
+            <div class="live-overlay">
+
+                <!-- زر العودة -->
+                <a href="{% url 'groups:group_detail' group.id %}" class="btn-back">
+                    <i class="fas fa-arrow-right"></i> <span>العودة</span>
+                </a>
+
+                <!-- ====== رأس البث ====== -->
+                <div class="live-header">
+                    <div class="streamer-info">
+                        <div class="avatar" id="streamerAvatar">{{ user.first_name|slice:":1"|upper }}</div>
+                        <span class="name" id="streamerName">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="badge-live" id="liveBadge">● مباشر</span>
+                    </div>
+                    <div class="live-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-eye"></i>
+                            <span class="count" id="viewerCount">0</span>
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-heart" style="color:#ff4757;"></i>
+                            <span class="count" id="likeCount">0</span>
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-comment"></i>
+                            <span class="count" id="commentCount">0</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ====== حالة البث ====== -->
+                <div class="stream-status" id="streamStatus">
+                    <span class="status-dot"></span>
+                    <span>البث نشط</span>
+                </div>
+
+                <!-- ====== الشريط الجانبي ====== -->
+                <div class="side-bar">
+                    <button class="action-btn like" onclick="addLike()" title="إعجاب">
+                        <i class="fas fa-heart"></i>
+                        <span class="count" id="likeCountSide">0</span>
+                        <span class="tooltip-text">❤️ إعجاب</span>
+                    </button>
+                    <button class="action-btn" onclick="toggleChat()" title="الدردشة">
+                        <i class="fas fa-comment"></i>
+                        <span class="count" id="commentCountSide">0</span>
+                        <span class="tooltip-text">💬 دردشة</span>
+                    </button>
+                    <button class="action-btn" onclick="shareRoom()" title="مشاركة">
+                        <i class="fas fa-share-alt"></i>
+                        <span class="count">مشاركة</span>
+                        <span class="tooltip-text">🔗 مشاركة</span>
+                    </button>
+                    <button class="action-btn" onclick="copyRoomLink()" title="نسخ الرابط">
+                        <i class="fas fa-copy"></i>
+                        <span class="count">نسخ</span>
+                        <span class="tooltip-text">📋 نسخ الرابط</span>
+                    </button>
+                </div>
+
+                <!-- ====== المشاركون ====== -->
+                <div class="participants-bar" id="participantsBar">
+                    <!-- يتم إضافتهم عبر JavaScript -->
+                </div>
+
+                <!-- ====== شريط التحكم ====== -->
+                <div class="control-bar">
+                    <button class="btn btn-start" id="startStreamBtn">
+                        <i class="fas fa-circle"></i> <span>بدء البث</span>
+                    </button>
+                    <button class="btn btn-mute hidden" id="muteBtn">
+                        <i class="fas fa-microphone"></i> <span>كتم</span>
+                    </button>
+                    <button class="btn btn-video hidden" id="videoBtn">
+                        <i class="fas fa-video"></i> <span>إيقاف</span>
+                    </button>
+                    <button class="btn btn-share hidden" id="shareScreenBtn">
+                        <i class="fas fa-desktop"></i> <span>شاشة</span>
+                    </button>
+                    <button class="btn btn-end hidden" id="endCallBtn">
+                        <i class="fas fa-phone-slash"></i> <span>إنهاء</span>
+                    </button>
+                    <button class="btn btn-copy" onclick="copyRoomLink()">
+                        <i class="fas fa-copy"></i> <span>نسخ</span>
+                    </button>
+                    <button class="btn btn-leave" onclick="leaveRoom()">
+                        <i class="fas fa-sign-out-alt"></i> <span>خروج</span>
+                    </button>
+                </div>
+
+                <!-- ====== الدردشة ====== -->
+                <div class="chat-box" id="chatBox">
+                    <div class="chat-header">
+                        <h6><i class="fas fa-comment-dots"></i> الدردشة</h6>
+                        <button class="close-chat" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg text-center text-muted small" style="justify-content:center;background:none;">
+                            <span>💬 لا توجد رسائل بعد</span>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="اكتب تعليقاً..." maxlength="200" onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ========== الإشعارات ========== -->
+    <!-- ============================================================ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================================ -->
+    <!-- ========== السكربتات الرئيسية ========== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // ========== التهيئة والمتغيرات العامة ==========
+        // ============================================================
+        
+        // بيانات البث
+        const ROOM_ID = '{{ room_name }}';
+        const GROUP_ID = {{ group.id }};
+        const USERNAME = '{{ user.username }}';
+        const FULL_NAME = '{{ user.get_full_name|default:user.username }}';
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
+        
+        // متغيرات PeerJS
+        const peer = new Peer();
+        let localStream = null;
+        let remoteStream = null;
+        let call = null;
+        let isStreaming = false;
+        let isMuted = false;
+        let isVideoOff = false;
+        let isScreenSharing = false;
+        
+        // إحصائيات
+        let likeCount = 0;
+        let commentCount = 0;
+        let viewerCount = 0;
+        let viewers = [];
+        let chatMessages = [];
+        
+        // عناصر DOM
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const participantsBar = document.getElementById('participantsBar');
+        const viewerCountEl = document.getElementById('viewerCount');
+        const likeCountEl = document.getElementById('likeCount');
+        const likeCountSide = document.getElementById('likeCountSide');
+        const commentCountEl = document.getElementById('commentCount');
+        const commentCountSide = document.getElementById('commentCountSide');
+        const chatBox = document.getElementById('chatBox');
+        const chatMessagesEl = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const startStreamBtn = document.getElementById('startStreamBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const shareScreenBtn = document.getElementById('shareScreenBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const liveBadge = document.getElementById('liveBadge');
+        const streamStatus = document.getElementById('streamStatus');
+
+        // ============================================================
+        // ========== دالة عرض الإشعارات ==========
+        // ============================================================
+        function showToast(title, message, icon = 'fa-info-circle', type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${icon}"></i></span>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            // إزالة الإشعار بعد 4 ثواني
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px) scale(0.95)';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ============================================================
+        // ========== تحديث المشاركين ==========
+        // ============================================================
+        function updateParticipants() {
+            participantsBar.innerHTML = '';
+            
+            // المستخدم الحالي
+            const me = document.createElement('span');
+            me.className = 'participant';
+            me.innerHTML = `
+                <span class="avatar-sm">${FULL_NAME.charAt(0).toUpperCase()}</span>
+                أنت
+                <span class="dot online"></span>
+            `;
+            participantsBar.appendChild(me);
+            
+            let count = 1;
+            
+            // المشاهدين الآخرين
+            if (viewers.length > 0) {
+                viewers.forEach(viewer => {
+                    const el = document.createElement('span');
+                    el.className = 'participant';
+                    el.innerHTML = `
+                        <span class="avatar-sm">${viewer.name.charAt(0).toUpperCase()}</span>
+                        ${viewer.name}
+                        <span class="dot online"></span>
+                    `;
+                    participantsBar.appendChild(el);
+                    count++;
+                });
+            } else if (!isStreaming) {
+                const waiting = document.createElement('span');
+                waiting.className = 'participant';
+                waiting.innerHTML = `
+                    <span class="avatar-sm">...</span>
+                    <span style="color:rgba(255,255,255,0.4);">في انتظار مشاهدين</span>
+                    <span class="dot offline"></span>
+                `;
+                participantsBar.appendChild(waiting);
+            }
+            
+            viewerCount = count;
+            viewerCountEl.textContent = count;
+        }
+
+        // ============================================================
+        // ========== طلب الكاميرا والصوت ==========
+        // ============================================================
+        async function requestMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: 'user', 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 }
+                    },
+                    audio: { 
+                        echoCancellation: true, 
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                localVideo.srcObject = localStream;
+                videoPlaceholder.style.display = 'none';
+                showToast('🎥 جاهز', 'تم تمكين الكاميرا والميكروفون', 'fa-check-circle', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ فشل الحصول على الوسائط:', error);
+                let message = 'الرجاء السماح بالوصول إلى الكاميرا والميكروفون.';
+                if (error.name === 'NotFoundError') {
+                    message = 'لم يتم العثور على كاميرا أو ميكروفون.';
+                } else if (error.name === 'NotAllowedError') {
+                    message = 'تم رفض الوصول إلى الكاميرا والميكروفون.';
+                }
+                showToast('⚠️ خطأ', message, 'fa-exclamation-triangle', 'error');
+                return false;
+            }
+        }
+
+        // ============================================================
+        // ========== بدء البث ==========
+        // ============================================================
+        async function startStream() {
+            const hasMedia = await requestMedia();
+            if (!hasMedia) return;
+
+            isStreaming = true;
+            
+            // إظهار أزرار التحكم
+            startStreamBtn.classList.add('hidden');
+            muteBtn.classList.remove('hidden');
+            videoBtn.classList.remove('hidden');
+            shareScreenBtn.classList.remove('hidden');
+            endCallBtn.classList.remove('hidden');
+            streamStatus.classList.add('active');
+            liveBadge.style.display = 'inline-block';
+            
+            showToast('🔴 بدء البث', 'أنت الآن على الهواء مباشرة!', 'fa-circle', 'success');
+            updateParticipants();
+            
+            // حفظ حالة البث في الخادم
+            saveStreamStatus(true);
+            
+            console.log('📡 Peer ID:', peer.id);
+            console.log('🔗 رابط البث:', window.location.href);
+        }
+
+        // ============================================================
+        // ========== حفظ حالة البث في الخادم ==========
+        // ============================================================
+        function saveStreamStatus(isActive) {
+            fetch(`/groups/${GROUP_ID}/stream-status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN
+                },
+                body: JSON.stringify({ is_active: isActive })
+            }).catch(err => console.log('⚠️ لا يمكن حفظ حالة البث:', err));
+        }
+
+        // ============================================================
+        // ========== استقبال المشاهدين (PeerJS) ==========
+        // ============================================================
+        peer.on('call', (incomingCall) => {
+            if (!isStreaming || !localStream) {
+                incomingCall.close();
+                return;
+            }
+
+            incomingCall.answer(localStream);
+
+            incomingCall.on('stream', (stream) => {
+                remoteVideo.srcObject = stream;
+                remoteVideo.style.display = 'block';
+                remoteStream = stream;
+                
+                const viewerName = 'مشاهد ' + (viewers.length + 1);
+                viewers.push({ name: viewerName, stream: stream });
+                
+                showToast('👋 مشاهد جديد', `انضم ${viewerName} إلى البث!`, 'fa-user-plus', 'success');
+                updateParticipants();
+            });
+
+            incomingCall.on('close', () => {
+                viewers = viewers.filter(v => v.stream !== remoteStream);
+                remoteVideo.style.display = 'none';
+                remoteVideo.srcObject = null;
+                remoteStream = null;
+                showToast('👋 مغادرة', 'غادر مشاهد البث', 'fa-user-minus', 'warning');
+                updateParticipants();
+            });
+
+            call = incomingCall;
+        });
+
+        // ============================================================
+        // ========== الانضمام كمشاهد ==========
+        // ============================================================
+        function joinAsViewer(peerId) {
+            if (isStreaming) {
+                showToast('⚠️ تنبيه', 'أنت بالفعل تبث!', 'fa-exclamation-triangle', 'warning');
+                return;
+            }
+
+            if (!peerId) {
+                peerId = prompt('أدخل Peer ID الخاص بالبث:');
+                if (!peerId) return;
+            }
+
+            requestMedia().then(() => {
+                if (!localStream) {
+                    showToast('⚠️ خطأ', 'فشل الحصول على الكاميرا والصوت', 'fa-exclamation-triangle', 'error');
+                    return;
+                }
+                
+                call = peer.call(peerId, localStream);
+                call.on('stream', (stream) => {
+                    remoteVideo.srcObject = stream;
+                    remoteVideo.style.display = 'block';
+                    videoPlaceholder.style.display = 'none';
+                    showToast('📺 متصل', 'أنت تشاهد البث الآن!', 'fa-eye', 'success');
+                });
+                call.on('close', () => {
+                    remoteVideo.style.display = 'none';
+                    remoteVideo.srcObject = null;
+                    showToast('📺 انتهى', 'انتهى البث', 'fa-eye-slash', 'warning');
+                });
+            });
+        }
+
+        // ============================================================
+        // ========== PeerJS - جاهز ==========
+        // ============================================================
+        peer.on('open', (id) => {
+            console.log('✅ Peer ID:', id);
+            updateParticipants();
+            showToast('📡 جاهز', 'تم الاتصال بالخادم', 'fa-check-circle', 'success');
+            
+            // حفظ Peer ID في الخادم
+            fetch(`/groups/${GROUP_ID}/set-peer-id/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN
+                },
+                body: JSON.stringify({ peer_id: id })
+            }).catch(err => console.log('⚠️ لا يمكن حفظ Peer ID:', err));
+        });
+
+        // ============================================================
+        // ========== الإعجاب ==========
+        // ============================================================
+        function addLike() {
+            likeCount++;
+            likeCountEl.textContent = likeCount;
+            likeCountSide.textContent = likeCount;
+            
+            // تأثير طائر للإعجاب
+            createFloatingLike();
+            
+            showToast('❤️ إعجاب', 'أعجبك البث!', 'fa-heart', 'success');
+            
+            // إرسال الإعجاب إلى الخادم
+            fetch(`/groups/${GROUP_ID}/like/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN
+                },
+                body: JSON.stringify({ likes: likeCount })
+            }).catch(err => console.log('⚠️ لا يمكن حفظ الإعجاب:', err));
+        }
+        
+        // تأثير طائر للإعجاب
+        function createFloatingLike() {
+            const emojis = ['❤️', '🔥', '⭐', '🎉', '💖', '✨'];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const el = document.createElement('div');
+            el.className = 'floating-like';
+            el.textContent = emoji;
+            el.style.left = (20 + Math.random() * 60) + '%';
+            el.style.bottom = '20%';
+            el.style.fontSize = (2 + Math.random() * 1.5) + 'rem';
+            document.body.appendChild(el);
+            
+            setTimeout(() => el.remove(), 2500);
+        }
+
+        // ============================================================
+        // ========== الدردشة ==========
+        // ============================================================
+        function toggleChat() {
+            chatBox.classList.toggle('open');
+            if (chatBox.classList.contains('open')) {
+                chatInput.focus();
+            }
+        }
+        
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            commentCount++;
+            commentCountEl.textContent = commentCount;
+            commentCountSide.textContent = commentCount;
+            
+            // إزالة رسالة "لا توجد رسائل"
+            const emptyMsg = chatMessagesEl.querySelector('.text-center');
+            if (emptyMsg) emptyMsg.remove();
+            
+            // إضافة الرسالة
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const msg = document.createElement('div');
+            msg.className = 'chat-msg own';
+            msg.innerHTML = `
+                <span class="user">أنت:</span>
+                <span class="msg-text">${escapeHtml(text)}</span>
+                <span class="time">${time}</span>
+            `;
+            chatMessagesEl.appendChild(msg);
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+            chatInput.value = '';
+            
+            showToast('💬 تعليق', 'تم إرسال تعليقك', 'fa-comment', 'info');
+            
+            // إرسال التعليق إلى الخادم
+            fetch(`/groups/${GROUP_ID}/comment/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN
+                },
+                body: JSON.stringify({ 
+                    comment: text, 
+                    count: commentCount 
+                })
+            }).catch(err => console.log('⚠️ لا يمكن حفظ التعليق:', err));
+        }
+        
+        // دالة لتأمين النص من XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // ========== الكتم ==========
+        // ============================================================
+        muteBtn.addEventListener('click', function() {
+            if (localStream) {
+                const track = localStream.getAudioTracks()[0];
+                if (track) {
+                    isMuted = !isMuted;
+                    track.enabled = !isMuted;
+                    this.innerHTML = isMuted ?
+                        '<i class="fas fa-microphone-slash"></i> <span>الغاء</span>' :
+                        '<i class="fas fa-microphone"></i> <span>كتم</span>';
+                    this.classList.toggle('active');
+                    showToast(
+                        isMuted ? '🔇 كتم' : '🔊 إلغاء الكتم',
+                        isMuted ? 'تم كتم صوتك' : 'تم إلغاء كتم صوتك',
+                        isMuted ? 'fa-microphone-slash' : 'fa-microphone',
+                        isMuted ? 'warning' : 'info'
+                    );
+                }
+            }
+        });
+
+        // ============================================================
+        // ========== إيقاف/تشغيل الفيديو ==========
+        // ============================================================
+        videoBtn.addEventListener('click', function() {
+            if (localStream) {
+                const track = localStream.getVideoTracks()[0];
+                if (track) {
+                    isVideoOff = !isVideoOff;
+                    track.enabled = !isVideoOff;
+                    this.innerHTML = isVideoOff ?
+                        '<i class="fas fa-video-slash"></i> <span>تشغيل</span>' :
+                        '<i class="fas fa-video"></i> <span>إيقاف</span>';
+                    this.classList.toggle('active');
+                    
+                    if (isVideoOff) {
+                        videoPlaceholder.style.display = 'block';
+                        showToast('📷 إيقاف', 'تم إيقاف الفيديو', 'fa-video-slash', 'warning');
+                    } else {
+                        videoPlaceholder.style.display = 'none';
+                        showToast('📷 تشغيل', 'تم تشغيل الفيديو', 'fa-video', 'info');
+                    }
+                }
+            }
+        });
+
+        // ============================================================
+        // ========== مشاركة الشاشة ==========
+        // ============================================================
+        shareScreenBtn.addEventListener('click', async function() {
+            if (isScreenSharing) {
+                // إيقاف مشاركة الشاشة
+                stopScreenShare();
+                return;
+            }
+            
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { cursor: 'always' },
+                    audio: true
+                });
+                
+                const videoTrack = screenStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    // إزالة مسار الفيديو القديم
+                    const oldVideoTrack = localStream.getVideoTracks()[0];
+                    if (oldVideoTrack) {
+                        localStream.removeTrack(oldVideoTrack);
+                        oldVideoTrack.stop();
+                    }
+                    localStream.addTrack(videoTrack);
+                    localVideo.srcObject = localStream;
+                    
+                    isScreenSharing = true;
+                    this.innerHTML = '<i class="fas fa-stop"></i> <span>إيقاف</span>';
+                    this.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                    
+                    showToast('🖥️ مشاركة', 'تم بدء مشاركة الشاشة', 'fa-desktop', 'success');
+                    
+                    videoTrack.onended = () => {
+                        stopScreenShare();
+                    };
+                }
+            } catch (error) {
+                console.error('❌ فشل مشاركة الشاشة:', error);
+                showToast('⚠️ خطأ', 'فشل بدء مشاركة الشاشة', 'fa-exclamation-triangle', 'error');
+            }
+        });
+        
+        function stopScreenShare() {
+            if (!isScreenSharing) return;
+            
+            isScreenSharing = false;
+            shareScreenBtn.innerHTML = '<i class="fas fa-desktop"></i> <span>شاشة</span>';
+            shareScreenBtn.style.background = '';
+            
+            // إعادة تشغيل الكاميرا
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                const newTrack = stream.getVideoTracks()[0];
+                if (newTrack) {
+                    const oldTrack = localStream.getVideoTracks()[0];
+                    if (oldTrack) {
+                        localStream.removeTrack(oldTrack);
+                        oldTrack.stop();
+                    }
+                    localStream.addTrack(newTrack);
+                    localVideo.srcObject = localStream;
+                    if (!isVideoOff) {
+                        videoPlaceholder.style.display = 'none';
+                    }
+                }
+            }).catch(err => {
+                console.log('⚠️ لا يمكن إعادة تشغيل الكاميرا:', err);
+            });
+            
+            showToast('🖥️ إيقاف', 'تم إيقاف مشاركة الشاشة', 'fa-desktop', 'warning');
+        }
+
+        // ============================================================
+        // ========== نسخ الرابط ==========
+        // ============================================================
+        function copyRoomLink() {
+            const link = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showToast('✅ تم النسخ', 'تم نسخ رابط البث', 'fa-copy', 'success');
+                }).catch(() => fallbackCopy(link));
+            } else {
+                fallbackCopy(link);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+            showToast('✅ تم النسخ', 'تم نسخ رابط البث', 'fa-copy', 'success');
+        }
+        
+        // ============================================================
+        // ========== مشاركة الرابط (Web Share API) ==========
+        // ============================================================
+        function shareRoom() {
+            const link = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: '📹 البث المباشر',
+                    text: `انضم إلى البث المباشر للمجموعة: {{ group.name }}`,
+                    url: link
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyRoomLink();
+                    }
+                });
+            } else {
+                copyRoomLink();
+            }
+        }
+
+        // ============================================================
+        // ========== إنهاء البث ==========
+        // ============================================================
+        endCallBtn.addEventListener('click', () => {
+            if (!confirm('هل تريد إنهاء البث الحالي؟')) return;
+            
+            // إغلاق المكالمة
+            if (call) {
+                call.close();
+                call = null;
+            }
+            
+            // إيقاف تدفق المشاهدين
+            if (remoteStream) {
+                remoteStream.getTracks().forEach(track => track.stop());
+                remoteVideo.srcObject = null;
+                remoteStream = null;
+            }
+            remoteVideo.style.display = 'none';
+            
+            // إعادة تعيين الحالة
+            isStreaming = false;
+            viewers = [];
+            startStreamBtn.classList.remove('hidden');
+            muteBtn.classList.add('hidden');
+            videoBtn.classList.add('hidden');
+            shareScreenBtn.classList.add('hidden');
+            endCallBtn.classList.add('hidden');
+            streamStatus.classList.remove('active');
+            liveBadge.style.display = 'none';
+            videoPlaceholder.style.display = 'block';
+            
+            showToast('👋 إنهاء', 'تم إنهاء البث', 'fa-phone-slash', 'warning');
+            updateParticipants();
+            
+            // تحديث حالة البث في الخادم
+            saveStreamStatus(false);
+        });
+
+        // ============================================================
+        // ========== الخروج من الغرفة ==========
+        // ============================================================
+        function leaveRoom() {
+            if (isStreaming) {
+                if (!confirm('هل تريد إنهاء البث والمغادرة؟')) return;
+                endCallBtn.click();
+                setTimeout(() => {
+                    window.location.href = "{% url 'groups:group_detail' group.id %}";
+                }, 300);
+            } else {
+                window.location.href = "{% url 'groups:group_detail' group.id %}";
+            }
+        }
+
+        // ============================================================
+        // ========== عند إغلاق الصفحة ==========
+        // ============================================================
+        window.addEventListener('beforeunload', () => {
+            if (call) call.close();
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            if (isStreaming) {
+                saveStreamStatus(false);
+            }
+        });
+
+        // ============================================================
+        // ========== بدء التشغيل ==========
+        // ============================================================
+        updateParticipants();
+        showToast('🎥 مرحباً', 'اضغط "بدء البث" لبدء البث المباشر', 'fa-info-circle', 'info');
+        
+        console.log('🔗 رابط البث:', window.location.href);
+        console.log('🏠 الغرفة:', ROOM_ID);
+        console.log('👤 المستخدم:', USERNAME);
+        console.log('📡 نظام البث المباشر جاهز!');
+    </script>
+
+</body>
+</html>

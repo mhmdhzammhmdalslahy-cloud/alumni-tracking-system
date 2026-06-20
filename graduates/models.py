@@ -31,7 +31,14 @@ class Graduate(models.Model):
     reward_points = models.IntegerField("نقاط الحوافز", default=0)
     created_at = models.DateTimeField("تاريخ التسجيل", auto_now_add=True)
     updated_at = models.DateTimeField("آخر تحديث", auto_now=True)
-    
+    is_active = models.BooleanField(default=False)  # الخريج يبدأ غير نشط
+
+    # ✅ حقل الإشعارات الجديد
+    receive_email_notifications = models.BooleanField(
+        default=True,
+        verbose_name="استقبال إشعارات البريد الإلكتروني"
+    )
+
     def __str__(self):
         return self.user.get_full_name() or self.user.username
 
@@ -44,7 +51,8 @@ class WorkExperience(models.Model):
     end_date = models.DateField("تاريخ النهاية", null=True, blank=True)
     is_current = models.BooleanField("هل ما زلت تعمل هنا؟", default=False)
     description = models.TextField("وصف المهام", blank=True, null=True)
-    
+    phone = models.CharField(max_length=15, blank=True, null=True)  # حقل الهاتف (اختياري)
+
     def __str__(self):
         return f"{self.job_title} at {self.company}"
 

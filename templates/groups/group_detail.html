@@ -4,85 +4,1285 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ group.name }} - المجموعات</title>
+    
+    <!-- ====== CSS ====== -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        /* ============================================================
+           التنسيقات العامة
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           شريط التنقل المحسن
+           ============================================================ */
+        .navbar-custom {
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            padding: 15px 0;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-custom .navbar-brand {
+            color: #fff !important;
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .navbar-custom .navbar-brand i {
+            margin-left: 10px;
+            color: #F39C12;
+        }
+        
+        .navbar-custom .nav-link {
+            color: rgba(255,255,255,0.85) !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 50px;
+        }
+        
+        .navbar-custom .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .navbar-custom .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F39C12, #e67e22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            transition: 0.3s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .navbar-custom .user-avatar:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* ============================================================
+           البطاقة الرئيسية مع تأثيرات
+           ============================================================ */
+        .group-card {
+            background: #fff;
+            border-radius: 28px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .group-card:hover {
+            box-shadow: 0 25px 70px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+        }
+
+        /* ============================================================
+           رأس المجموعة - تصميم عصري
+           ============================================================ */
+        .group-header {
+            position: relative;
+            padding: 35px 35px 25px;
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        .group-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+        }
+        
+        .group-header::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 250px;
+            height: 250px;
+            background: rgba(243, 156, 18, 0.05);
+            border-radius: 50%;
+        }
+        
+        .group-header .group-icon {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            border: 3px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        
+        .group-header .group-icon:hover {
+            transform: scale(1.05) rotate(-5deg);
+        }
+        
+        .group-header .group-name {
+            font-weight: 900;
+            font-size: 2rem;
+            margin: 12px 0 8px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .group-header .group-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .group-header .group-meta .badge-custom {
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+        
+        .badge-custom.badge-primary {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .badge-custom.badge-success {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+        
+        .badge-custom.badge-warning {
+            background: rgba(243, 156, 18, 0.3);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.2);
+        }
+        
+        .badge-custom.badge-danger {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .group-header .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .group-header .action-buttons .btn {
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .group-header .action-buttons .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        
+        .group-header .action-buttons .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .group-header .action-buttons .btn-outline-light {
+            border-color: rgba(255,255,255,0.25);
+            color: #fff;
+        }
+        
+        .group-header .action-buttons .btn-outline-light:hover {
+            background: #fff;
+            color: #1A5F7A;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-join {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-join:hover {
+            color: #fff;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(46, 204, 113, 0.4);
+        }
+        
+        .btn-leave {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-leave:hover {
+            color: #fff;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(231, 76, 60, 0.4);
+        }
+
+        /* ============================================================
+           إشعار المكالمة النشطة - تصميم جذاب
+           ============================================================ */
+        .call-notification {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            padding: 14px 25px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            animation: callPulse 2s infinite;
+            border-bottom: 3px solid rgba(255,255,255,0.15);
+            position: relative;
+        }
+        
+        .call-notification.active {
+            display: flex;
+        }
+        
+        .call-notification .call-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .call-notification .call-info i {
+            font-size: 2rem;
+            animation: ringBell 1.5s infinite;
+        }
+        
+        @keyframes ringBell {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
+        }
+        
+        .call-notification .call-info .call-text {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        
+        .call-notification .call-info .call-text small {
+            font-weight: 400;
+            opacity: 0.85;
+            font-size: 0.8rem;
+            display: block;
+        }
+        
+        .call-notification .call-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .call-notification .call-actions .btn {
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-weight: 700;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .call-notification .call-actions .btn-join-call {
+            background: #fff;
+            color: #e74c3c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .call-notification .call-actions .btn-join-call:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .call-notification .call-actions .btn-dismiss {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            backdrop-filter: blur(5px);
+        }
+        
+        .call-notification .call-actions .btn-dismiss:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        
+        @keyframes callPulse {
+            0%, 100% { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+            50% { background: linear-gradient(135deg, #ff6b6b, #e74c3c); }
+        }
+
+        /* ============================================================
+           قسم الوصف
+           ============================================================ */
+        .group-description {
+            padding: 22px 35px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .group-description p {
+            margin: 0;
+            color: #4a4a6a;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        /* ============================================================
+           قسم الأعضاء مع تحسينات
+           ============================================================ */
+        .members-section {
+            padding: 25px 35px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .members-section .section-title {
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 18px;
+            font-size: 1.2rem;
+        }
+        
+        .members-section .section-title i {
+            color: #1A5F7A;
+            margin-left: 10px;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 14px;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .member-item:hover {
+            background: #f0f2f5;
+            transform: translateX(-5px);
+        }
+        
+        .member-item .member-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1A5F7A, #F39C12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            transition: 0.3s;
+        }
+        
+        .member-item:hover .member-avatar {
+            transform: scale(1.05);
+        }
+        
+        .member-item .member-name {
+            font-weight: 600;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        
+        .member-item .member-name:hover {
+            color: #1A5F7A;
+        }
+        
+        .member-item .member-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: auto;
+            flex-shrink: 0;
+        }
+        
+        .member-item .member-status.online {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+            animation: pulse-dot 2s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        
+        .member-item .member-status.offline {
+            background: #bdc3c7;
+        }
+
+        /* ============================================================
+           قسم المنتدى والمكالمات - تصميم بطاقات
+           ============================================================ */
+        .forum-call-section {
+            padding: 25px 35px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        
+        .forum-call-section .section-title {
+            font-weight: 800;
+            color: #1a1a2e;
+            font-size: 1.2rem;
+        }
+        
+        .forum-call-section .section-title i {
+            color: #1A5F7A;
+            margin-left: 10px;
+        }
+        
+        .forum-call-section .sub-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .forum-call-section .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 18px;
+        }
+        
+        .forum-call-section .action-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: #1a1a2e;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        
+        .forum-call-section .action-card:hover {
+            border-color: #1A5F7A;
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(26, 95, 122, 0.15);
+        }
+        
+        .forum-call-section .action-card:active {
+            transform: scale(0.95);
+        }
+        
+        .forum-call-section .action-card .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .forum-call-section .action-card:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        
+        .forum-call-section .action-card .icon.forum {
+            color: #3498db;
+        }
+        
+        .forum-call-section .action-card .icon.video {
+            color: #2ecc71;
+        }
+        
+        .forum-call-section .action-card .icon.audio {
+            color: #f39c12;
+        }
+        
+        .forum-call-section .action-card .card-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .forum-call-section .action-card .card-desc {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin: 6px 0 0;
+        }
+        
+        .forum-call-section .action-card .live-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            padding: 3px 14px;
+            border-radius: 50px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            animation: pulse 1.5s infinite;
+            display: none;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .forum-call-section .action-card .live-badge.active {
+            display: inline-block;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+
+        /* ============================================================
+           قسم العودة
+           ============================================================ */
+        .back-section {
+            padding: 20px 35px 30px;
+        }
+        
+        .back-section .btn {
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-section .btn:hover {
+            transform: translateX(-5px);
+        }
+
+        /* ============================================================
+           حالة فارغة
+           ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        /* ============================================================
+           إشعارات منبثقة (Toast) محسنة
+           ============================================================ */
+        .toast-container-custom {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            max-width: 450px;
+            width: 92%;
+            pointer-events: none;
+        }
+        
+        .toast-custom {
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            pointer-events: auto;
+            width: 100%;
+            border-right: 4px solid #1A5F7A;
+            animation: toastSlideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .toast-custom.success {
+            border-right-color: #2ecc71;
+        }
+        
+        .toast-custom.error {
+            border-right-color: #e74c3c;
+        }
+        
+        .toast-custom.warning {
+            border-right-color: #f39c12;
+        }
+        
+        .toast-custom .toast-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .toast-custom .toast-content {
+            flex: 1;
+        }
+        
+        .toast-custom .toast-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        
+        .toast-custom .toast-message {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        @keyframes toastSlideDown {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .toast-custom.hiding {
+            animation: toastSlideUp 0.4s ease forwards;
+        }
+        
+        @keyframes toastSlideUp {
+            to { opacity: 0; transform: translateY(-30px) scale(0.95); }
+        }
+
+        /* ============================================================
+           تحسينات للأجهزة المحمولة
+           ============================================================ */
+        @media (max-width: 992px) {
+            .group-header {
+                padding: 25px;
+            }
+            
+            .group-header .group-name {
+                font-size: 1.6rem;
+            }
+            
+            .forum-call-section .action-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .group-header {
+                padding: 20px;
+            }
+            
+            .group-header .group-name {
+                font-size: 1.4rem;
+            }
+            
+            .group-header .group-meta {
+                gap: 8px;
+            }
+            
+            .group-header .group-meta .badge-custom {
+                font-size: 0.7rem;
+                padding: 4px 12px;
+            }
+            
+            .group-header .action-buttons .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .group-description {
+                padding: 18px 20px;
+            }
+            
+            .group-description p {
+                font-size: 0.95rem;
+            }
+            
+            .members-section {
+                padding: 18px 20px;
+            }
+            
+            .forum-call-section {
+                padding: 18px 20px;
+            }
+            
+            .forum-call-section .action-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-section {
+                padding: 15px 20px 20px;
+            }
+            
+            .call-notification {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px 20px;
+            }
+            
+            .call-notification .call-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .call-notification .call-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .call-notification .call-actions .btn {
+                padding: 8px 18px;
+                font-size: 0.85rem;
+            }
+            
+            .member-item {
+                padding: 6px 10px;
+            }
+            
+            .member-item .member-avatar {
+                width: 34px;
+                height: 34px;
+                font-size: 0.8rem;
+            }
+            
+            .member-item .member-name {
+                font-size: 0.85rem;
+            }
+            
+            .toast-container-custom {
+                top: 70px;
+                max-width: 95%;
+            }
+            
+            .toast-custom {
+                padding: 14px 18px;
+            }
+            
+            .toast-custom .toast-icon {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .group-header .group-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+            
+            .group-header .group-name {
+                font-size: 1.2rem;
+            }
+            
+            .group-header .action-buttons {
+                gap: 6px;
+            }
+            
+            .group-header .action-buttons .btn {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+            }
+            
+            .forum-call-section .action-card {
+                padding: 18px 15px;
+            }
+            
+            .forum-call-section .action-card .icon {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
+
+    <!-- ============================================================ -->
+    <!-- ========== شريط التنقل ========== -->
+    <!-- ============================================================ -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home"></i> الرئيسية
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'groups:group_list' %}">
+                            <i class="fas fa-users"></i> المجموعات
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link p-1" href="{% url 'graduate_profile' user.id %}">
+                            <div class="user-avatar">{{ user.first_name|slice:":1"|upper }}</div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> دخول
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <div class="container my-4">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-            {% if group.image %}
-            <img src="{{ group.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;">
-            {% else %}
-            <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                <i class="fas fa-users fa-5x text-white"></i>
-            </div>
-            {% endif %}
-            
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <h3 class="mb-0">{{ group.name }}</h3>
-                    <div>
-                        {% if is_member %}
-                        <a href="{% url 'groups:leave_group' group.id %}" class="btn btn-outline-danger btn-sm">مغادرة المجموعة</a>
-                        {% else %}
-                        <a href="{% url 'groups:join_group' group.id %}" class="btn btn-success btn-sm">انضمام</a>
-                        {% endif %}
+    <!-- ============================================================ -->
+    <!-- ========== إشعارات منبثقة ========== -->
+    <!-- ============================================================ -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <!-- ============================================================ -->
+    <!-- ========== المحتوى الرئيسي ========== -->
+    <!-- ============================================================ -->
+    <div class="container">
+        <div class="group-card">
+
+            <!-- ============================================================ -->
+            <!-- ========== إشعار المكالمة النشطة ========== -->
+            <!-- ============================================================ -->
+            <div class="call-notification" id="callNotification">
+                <div class="call-info">
+                    <i class="fas fa-phone-alt"></i>
+                    <div class="call-text">
+                        📞 هناك مكالمة نشطة الآن!
+                        <small>انضم الآن للمشاركة في البث المباشر مع الأعضاء</small>
                     </div>
                 </div>
-                <p class="text-muted mt-2">{{ group.description|default:"لا يوجد وصف" }}</p>
-                <div class="d-flex gap-3 mt-2">
-                    <span class="badge bg-primary">{{ group.category|default:"عام" }}</span>
-                    <span class="badge {% if group.status == 'approved' %}bg-success{% elif group.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                        {{ group.get_status_display }}
-                    </span>
+                <div class="call-actions">
+                    <a href="{% url 'groups:call_room' group.id %}" class="btn btn-join-call">
+                        <i class="fas fa-video"></i> انضم الآن
+                    </a>
+                    <button class="btn btn-dismiss" onclick="dismissCallNotification()">
+                        <i class="fas fa-times"></i> تجاهل
+                    </button>
                 </div>
-                <hr>
-                <h5><i class="fas fa-users"></i> الأعضاء ({{ group.member_count }})</h5>
-                <div class="row mt-3">
-                    {% for member in group.members.all %}
-                    <div class="col-md-3 col-6 mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
-                                <i class="fas fa-user text-primary"></i>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ========== رأس المجموعة ========== -->
+            <!-- ============================================================ -->
+            <div class="group-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="group-icon">
+                                <i class="fas fa-users"></i>
                             </div>
-                            <a href="{% url 'graduate_profile' member.id %}" class="text-decoration-none text-dark">
+                            <div>
+                                <h1 class="group-name">{{ group.name }}</h1>
+                                <div class="group-meta">
+                                    <span class="badge-custom badge-primary">
+                                        <i class="fas fa-tag"></i> {{ group.category|default:"عام" }}
+                                    </span>
+                                    <span class="badge-custom {% if group.status == 'approved' %}badge-success{% elif group.status == 'pending' %}badge-warning{% else %}badge-danger{% endif %}">
+                                        <i class="fas fa-circle"></i> {{ group.get_status_display }}
+                                    </span>
+                                    <span class="badge-custom badge-primary">
+                                        <i class="fas fa-users"></i> {{ group.member_count }} عضو
+                                    </span>
+                                    <span class="badge-custom badge-primary">
+                                        <i class="fas fa-calendar-alt"></i> {{ group.created_at|date:"Y/m/d" }}
+                                    </span>
+                                    {% if group.created_by %}
+                                    <span class="badge-custom badge-primary">
+                                        <i class="fas fa-user-cog"></i> بواسطة: {{ group.created_by.get_full_name|default:group.created_by.username }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-3 mt-md-0">
+                        <div class="action-buttons justify-content-md-end">
+                            {% if is_member %}
+                            <a href="{% url 'groups:leave_group' group.id %}" class="btn btn-leave" onclick="return confirm('هل أنت متأكد من مغادرة المجموعة؟')">
+                                <i class="fas fa-sign-out-alt"></i> مغادرة
+                            </a>
+                            {% else %}
+                            <a href="{% url 'groups:join_group' group.id %}" class="btn btn-join">
+                                <i class="fas fa-user-plus"></i> انضمام
+                            </a>
+                            {% endif %}
+                            <button class="btn btn-outline-light" onclick="copyGroupLink()" title="نسخ الرابط">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn btn-outline-light" onclick="shareGroup()" title="مشاركة">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ========== الوصف ========== -->
+            <!-- ============================================================ -->
+            <div class="group-description">
+                <p><i class="fas fa-quote-right text-muted me-2"></i> {{ group.description|default:"لا يوجد وصف للمجموعة." }}</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ========== الأعضاء ========== -->
+            <!-- ============================================================ -->
+            <div class="members-section">
+                <h5 class="section-title">
+                    <i class="fas fa-users"></i> الأعضاء 
+                    <span class="badge bg-primary rounded-pill">{{ group.member_count }}</span>
+                </h5>
+                <div class="row g-2">
+                    {% for member in group.members.all|slice:":8" %}
+                    <div class="col-md-3 col-6">
+                        <div class="member-item">
+                            <div class="member-avatar">{{ member.user.first_name|slice:":1"|upper }}</div>
+                            <a href="{% url 'graduate_profile' member.id %}" class="member-name">
                                 {{ member.user.get_full_name|default:member.user.username }}
                             </a>
+                            <span class="member-status {% if member.is_online %}online{% else %}offline{% endif %}"></span>
                         </div>
                     </div>
                     {% empty %}
-                    <p class="text-muted">لا يوجد أعضاء بعد. كن أول من ينضم!</p>
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-user-plus"></i>
+                            <p>لا يوجد أعضاء بعد. كن أول من ينضم!</p>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
+                {% if group.member_count > 8 %}
+                <div class="text-center mt-3">
+                    <a href="#" class="text-decoration-none text-primary fw-bold">
+                        عرض جميع الأعضاء ({{ group.member_count }})
+                        <i class="fas fa-arrow-left me-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ========== المنتدى والمكالمات ========== -->
+            <!-- ============================================================ -->
+            <div class="forum-call-section">
+                <h5 class="section-title">
+                    <i class="fas fa-comments"></i> المنتدى والمكالمات
+                </h5>
+                <p class="sub-text">ناقش مواضيع مع أعضاء المجموعة أو ابدأ مكالمة فيديو جماعية.</p>
                 
-                <!-- ========== قسم المنتدى (المواضيع) ========== -->
-                <hr>
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5><i class="fas fa-comments"></i> المنتدى</h5>
-                    {% if is_member %}
-                    <a href="{% url 'groups:create_topic' group.id %}" class="btn btn-sm btn-primary">موضوع جديد</a>
-                    {% endif %}
+                <div class="action-grid">
+                    <!-- بطاقة المنتدى -->
+                    <a href="{% url 'groups:topic_list' group.id %}" class="action-card">
+                        <span class="icon forum"><i class="fas fa-comment-dots"></i></span>
+                        <div class="card-title">المنتدى</div>
+                        <p class="card-desc">ناقش مواضيع مع الأعضاء</p>
+                    </a>
+                    
+                    <!-- بطاقة مكالمة فيديو -->
+                    <a href="{% url 'groups:call_room' group.id %}" class="action-card" id="videoCallCard">
+                        <span class="icon video"><i class="fas fa-video"></i></span>
+                        <div class="card-title">مكالمة فيديو</div>
+                        <p class="card-desc">بث مباشر وتفاعل فوري</p>
+                        <span class="live-badge" id="liveBadge">● مباشر</span>
+                    </a>
+                    
+                    <!-- بطاقة مكالمة صوتية -->
+                    <a href="#" class="action-card" onclick="showToast('🎧 قريباً', 'ميزة المكالمات الصوتية قيد التطوير', 'warning')">
+                        <span class="icon audio"><i class="fas fa-phone"></i></span>
+                        <div class="card-title">مكالمة صوتية</div>
+                        <p class="card-desc">تواصل صوتي مع الأعضاء</p>
+                    </a>
+
+                    <!-- بطاقة البث المباشر -->
+                    <a href="{% url 'groups:live_stream' group.id %}" class="action-card" style="border-color: #e74c3c;">
+                        <span class="icon video" style="color: #e74c3c;"><i class="fas fa-broadcast-tower"></i></span>
+                        <div class="card-title">📡 بث مباشر</div>
+                        <p class="card-desc">ابدأ بثاً مباشراً للمجموعة</p>
+                        <span class="live-badge active">● مباشر</span>
+                    </a>
                 </div>
-                <div class="mt-2">
-                    <a href="{% url 'groups:topic_list' group.id %}" class="btn btn-outline-primary btn-sm w-100">عرض جميع المواضيع</a>
-                </div>
-                <!-- ================================== -->
             </div>
-            <div class="card-footer bg-white border-0 pb-3">
-                <a href="{% url 'groups:group_list' %}" class="btn btn-secondary">العودة إلى المجموعات</a>
+
+            <!-- ============================================================ -->
+            <!-- ========== زر العودة ========== -->
+            <!-- ============================================================ -->
+            <div class="back-section">
+                <a href="{% url 'groups:group_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right"></i> العودة إلى المجموعات
+                </a>
             </div>
+
         </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- ========== السكربتات ========== -->
+    <!-- ============================================================ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================================
+        // ========== إشعارات منبثقة محسنة ==========
+        // ============================================================
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            
+            // اختيار الأيقونة المناسبة
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            else if (type === 'error') icon = 'fa-exclamation-circle';
+            else if (type === 'warning') icon = 'fa-exclamation-triangle';
+            
+            // إنشاء الإشعار
+            const toast = document.createElement('div');
+            toast.className = `toast-custom ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${icon}"></i></span>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // إزالة الإشعار بعد 4 ثواني
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ============================================================
+        // ========== نسخ رابط المجموعة ==========
+        // ============================================================
+        function copyGroupLink() {
+            const link = window.location.href;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showToast('✅ تم النسخ!', 'تم نسخ رابط المجموعة بنجاح', 'success');
+                }).catch(() => fallbackCopy(link));
+            } else {
+                fallbackCopy(link);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+            showToast('✅ تم النسخ!', 'تم نسخ رابط المجموعة بنجاح', 'success');
+        }
+
+        // ============================================================
+        // ========== مشاركة المجموعة (Web Share API) ==========
+        // ============================================================
+        function shareGroup() {
+            const link = window.location.href;
+            const title = '{{ group.name }}';
+            const text = 'انضم إلى مجموعة "{{ group.name }}" على نظام متابعة الخريجين';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: link
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyGroupLink();
+                    }
+                });
+            } else {
+                copyGroupLink();
+            }
+        }
+
+        // ============================================================
+        // ========== إشعار المكالمة النشطة ==========
+        // ============================================================
+        let callNotificationShown = false;
+
+        function showCallNotification() {
+            const notification = document.getElementById('callNotification');
+            const liveBadge = document.getElementById('liveBadge');
+            
+            notification.classList.add('active');
+            if (liveBadge) liveBadge.classList.add('active');
+            callNotificationShown = true;
+            
+            showToast('📞 مكالمة نشطة', 'يوجد بث مباشر في هذه المجموعة! انضم الآن', 'warning');
+        }
+
+        function dismissCallNotification() {
+            const notification = document.getElementById('callNotification');
+            notification.classList.remove('active');
+            // إخفاء الإشعار لمدة 5 دقائق
+            localStorage.setItem('callDismissed_' + {{ group.id }}, Date.now());
+            showToast('👋 تم الإغلاق', 'يمكنك الانضمام لاحقاً من خلال زر المكالمة', 'info');
+        }
+
+        // ============================================================
+        // ========== التحقق من وجود مكالمة نشطة ==========
+        // ============================================================
+        function checkActiveCall() {
+            // التحقق من localStorage أولاً
+            const dismissed = localStorage.getItem('callDismissed_' + {{ group.id }});
+            if (dismissed) {
+                const timeSince = Date.now() - parseInt(dismissed);
+                if (timeSince < 300000) { // 5 دقائق
+                    return; // لا نعرض الإشعار
+                }
+                localStorage.removeItem('callDismissed_' + {{ group.id }});
+            }
+            
+            // استبدل هذا بطلب AJAX حقيقي للتحقق من حالة البث
+            const hasActiveCall = {{ active_call|yesno:"true,false" }}; // يتم تمريرها من views
+            
+            if (hasActiveCall) {
+                showCallNotification();
+            }
+        }
+
+        // ============================================================
+        // ========== تحديث حالة المكالمة دورياً ==========
+        // ============================================================
+        function refreshCallStatus() {
+            fetch(`/groups/{{ group.id }}/stream-status/`, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_active) {
+                    showCallNotification();
+                } else {
+                    document.getElementById('callNotification').classList.remove('active');
+                    document.getElementById('liveBadge').classList.remove('active');
+                }
+            })
+            .catch(() => {
+                // في حالة فشل الطلب، نستخدم localStorage
+                const hasActive = localStorage.getItem('activeCall_' + {{ group.id }}) === 'true';
+                if (hasActive) {
+                    showCallNotification();
+                }
+            });
+        }
+
+        // ============================================================
+        // ========== تهيئة الصفحة ==========
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // عرض إشعار ترحيبي
+            showToast('👋 مرحباً!', 'مرحباً بك في مجموعة "{{ group.name }}"', 'info');
+            
+            // التحقق من وجود بث نشط
+            checkActiveCall();
+            
+            // التحقق من عضوية المستخدم
+            const isMember = {{ is_member|yesno:"true,false" }};
+            if (!isMember) {
+                // إذا كان المستخدم ليس عضواً، نعرض تنبيه
+                const grid = document.querySelector('.forum-call-section .action-grid');
+                if (grid) {
+                    grid.style.opacity = '0.5';
+                    grid.style.pointerEvents = 'none';
+                    grid.style.userSelect = 'none';
+                }
+                showToast('🔒 عضوية مطلوبة', 'انضم إلى المجموعة للمشاركة في المكالمات والمنتدى', 'warning');
+            }
+            
+            // بدء التحديث الدوري لحالة المكالمة
+            setInterval(refreshCallStatus, 30000); // كل 30 ثانية
+        });
+
+        // ============================================================
+        // ========== معالجة المكالمات من localStorage ==========
+        // ============================================================
+        // يمكن استخدام هذا لبدء مكالمة من مكان آخر في التطبيق
+        window.startCall = function() {
+            localStorage.setItem('activeCall_' + {{ group.id }}, 'true');
+            showCallNotification();
+        };
+        
+        window.endCall = function() {
+            localStorage.removeItem('activeCall_' + {{ group.id }});
+            document.getElementById('callNotification').classList.remove('active');
+            document.getElementById('liveBadge').classList.remove('active');
+        };
+
+        // ============================================================
+        // ========== تنبيه للمطورين ==========
+        // ============================================================
+        console.log('📱 صفحة المجموعة - {{ group.name }}');
+        console.log('🆔 معرف المجموعة:', {{ group.id }});
+        console.log('👥 عدد الأعضاء:', {{ group.member_count }});
+        console.log('🔗 رابط المجموعة:', window.location.href);
+        console.log('📡 حالة المكالمة: تم تهيئة النظام');
+    </script>
 </body>
 </html>

@@ -18,7 +18,8 @@ class GraduateListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = Graduate.objects.all().order_by('-created_at')
+        # ✅ فقط الخريجين الموثقين (is_verified=True)
+        queryset = Graduate.objects.filter(is_verified=True).order_by('-created_at')
 
         search_query = self.request.GET.get('search', '')
         if search_query:
@@ -40,8 +41,9 @@ class GraduateListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['working_count'] = Graduate.objects.filter(current_job_status='working').count()
-        context['total_count'] = Graduate.objects.count()
+        # ✅ فقط الخريجين الموثقين في الإحصائيات
+        context['working_count'] = Graduate.objects.filter(is_verified=True, current_job_status='working').count()
+        context['total_count'] = Graduate.objects.filter(is_verified=True).count()
         return context
 
 
@@ -52,6 +54,7 @@ class GraduateProfileView(DetailView):
 
     def get_object(self):
         obj = super().get_object()
+        # ✅ يمكن عرض الملف حتى لو غير موثق (لكن يمكن منع الوصول إذا أردت)
         obj.profile_views += 1
         obj.save()
         return obj
@@ -66,8 +69,10 @@ class GraduateCreateView(CreateView):
     def form_valid(self, form):
         if self.request.user.is_authenticated:
             form.instance.user = self.request.user
+            # ✅ الخريج الجديد يكون غير موثق حتى يوافق عليه المشرف
+            form.instance.is_verified = False
             response = super().form_valid(form)
-            messages.success(self.request, '✅ تم إضافة الخريج بنجاح!')
+            messages.success(self.request, '✅ تم إضافة الخريج بنجاح! سيتم مراجعة طلبك من قبل الإدارة.')
             return response
         else:
             messages.warning(self.request, '⚠️ يرجى تسجيل الدخول أولاً')
@@ -87,15 +92,10 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('graduate_list')
 
     def dispatch(self, request, *args, **kwargs):
-        """
-        ✅ التحقق من الصلاحية قبل استدعاء get_object.
-        """
-        # التحقق من وجود ملف خريج للمستخدم
         if not hasattr(request.user, 'graduate_profile'):
             messages.error(request, '⚠️ يجب أن تكون خريجاً مسجلاً لتعديل الملف.')
             return redirect('graduate_create')
         
-        # جلب الخريج والتحقق من ملكيته
         obj = get_object_or_404(Graduate, pk=kwargs['pk'])
         if obj.user != request.user:
             messages.error(request, '⚠️ ليس لديك صلاحية لتعديل هذا الملف. يمكنك فقط تعديل ملفك الشخصي.')
@@ -113,18 +113,16 @@ class GraduateUpdateView(LoginRequiredMixin, UpdateView):
             for error in errors:
                 messages.error(self.request, f'❌ خطأ في حقل {field}: {error}')
         return super().form_invalid(form)
+
+
 class GraduateDeleteView(LoginRequiredMixin, DeleteView):
     model = Graduate
     success_url = reverse_lazy('graduate_list')
     template_name = 'graduates/graduate_confirm_delete.html'
 
     def get_object(self, queryset=None):
-        """
-        ✅ يجلب الخريج مع تحقق إضافي: إذا لم يكن صاحب الملف، يظهر رسالة خطأ.
-        """
         obj = get_object_or_404(Graduate, pk=self.kwargs['pk'])
         
-        # التحقق من أن المستخدم الحالي هو صاحب الملف
         if obj.user != self.request.user:
             messages.error(self.request, '⚠️ ليس لديك صلاحية لحذف هذا الملف. يمكنك فقط حذف ملفك الشخصي.')
             return redirect('graduate_list')
@@ -132,18 +130,12 @@ class GraduateDeleteView(LoginRequiredMixin, DeleteView):
         return obj
 
     def dispatch(self, request, *args, **kwargs):
-        """
-        ✅ يتحقق من وجود ملف خريج للمستخدم الحالي.
-        """
         if not hasattr(request.user, 'graduate_profile'):
             messages.error(request, '⚠️ يجب أن تكون خريجاً مسجلاً لحذف الملف.')
             return redirect('graduate_create')
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        """
-        ✅ يمنع حذف أي خريج غير صاحب الحساب (ضمان إضافي).
-        """
         return self.model.objects.filter(user=self.request.user)
 
 
@@ -171,10 +163,12 @@ def verify_graduate(request):
 def search_graduates(request):
     query = request.GET.get('q', '')
     if query:
+        # ✅ فقط الخريجين الموثقين في نتائج البحث
         graduates = Graduate.objects.filter(
             Q(user__first_name__icontains=query) |
             Q(user__last_name__icontains=query) |
-            Q(major__icontains=query)
+            Q(major__icontains=query),
+            is_verified=True
         )
         messages.info(request, f'🔍 تم العثور على {graduates.count()} خريج')
     else:
@@ -189,12 +183,12 @@ def home(request):
     from jobs.models import Job
     from dashboard.models import SuccessStory
 
-    total_graduates = Graduate.objects.count()
-    total_employers = Employer.objects.count()
+    # ✅ إحصائيات تعتمد فقط على الخريجين الموثقين
+    total_graduates = Graduate.objects.filter(is_verified=True).count()
+    total_employers = Employer.objects.filter(is_verified=True).count()
     total_jobs = Job.objects.filter(is_active=True).count()
 
-    # حساب نسبة التوظيف
-    working_graduates = Graduate.objects.filter(current_job_status='working').count()
+    working_graduates = Graduate.objects.filter(is_verified=True, current_job_status='working').count()
     employment_rate = round((working_graduates / total_graduates) * 100) if total_graduates > 0 else 0
 
     context = {
@@ -202,7 +196,8 @@ def home(request):
         'total_employers': total_employers,
         'total_jobs': total_jobs,
         'employment_rate': employment_rate,
-        'latest_graduates': Graduate.objects.all().order_by('-created_at')[:6],
+        # ✅ أحدث الخريجين الموثقين فقط
+        'latest_graduates': Graduate.objects.filter(is_verified=True).order_by('-created_at')[:6],
         'latest_jobs': Job.objects.filter(is_active=True).order_by('-created_at')[:6],
         'success_stories': SuccessStory.objects.filter(status='approved', is_active=True)[:3],
     }

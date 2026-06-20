@@ -38,4 +38,7 @@ urlpatterns = [
     path('group/<int:pk>/approve/', views.approve_group, name='approve_group'),
     path('group/<int:pk>/reject/', views.reject_group, name='reject_group'),
     path('pending-requests/', views.pending_requests, name='pending_requests'),
+    path('approve-graduate/<int:pk>/', views.approve_graduate, name='approve_graduate'),
+    path('update-notification-preferences/', views.update_notification_preferences, name='update_notification_preferences'),
+    
 ]
