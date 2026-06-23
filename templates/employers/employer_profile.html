@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ employer.company_name }} - ملف شركة</title>
     
-    <!-- ✅ استخدام رابط Font Awesome أحدث لضمان عمل الأيقونات -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,11 +12,10 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* --- أنماطك الأصلية محفوظة هنا (تم دمج التحسينات) --- */
+        /* --- جميع الأنماط الأصلية محفوظة --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #f0f2f5 0%, #e4e8f0 100%); }
         
-        /* هيدر ضخم مع تحسينات */
         .hero-giant {
             background: linear-gradient(135deg, #1A5F7A 0%, #0a2e3f 100%);
             border-radius: 30px;
@@ -53,7 +51,6 @@
         }
         .company-logo-big:hover { transform: scale(1.05); }
         
-        /* بطاقات الإحصائيات الضخمة */
         .stat-card-giant {
             background: white;
             border-radius: 25px;
@@ -70,7 +67,6 @@
         .stat-card-giant i { font-size: 2.5rem; color: #1A5F7A; }
         .stat-card-giant h2 { font-size: 2.2rem; font-weight: 800; margin: 10px 0 5px; }
         
-        /* بطاقات المعلومات */
         .info-card-giant {
             background: white;
             border-radius: 25px;
@@ -81,7 +77,30 @@
         }
         .info-card-giant:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         
-        /* تبويبات أنيقة */
+        /* ====== التقييمات ====== */
+        .reviews-summary {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .reviews-summary .avg-rating {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #F39C12;
+            line-height: 1;
+        }
+        .reviews-summary .stars-big i {
+            font-size: 1.8rem;
+            margin: 0 2px;
+        }
+        .review-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+        .review-item:last-child { border-bottom: none; }
+        
         .nav-tabs-giant {
             border-bottom: none;
             gap: 10px;
@@ -108,8 +127,6 @@
             transform: translateY(-2px);
         }
         
-        /* محتوى التبويبات */
-        .tab-content-giant { background: transparent; padding: 0; margin-top: 0; }
         .tab-pane-giant {
             background: white;
             border-radius: 25px;
@@ -118,7 +135,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
         
-        /* بطاقات الوظائف */
         .job-card-giant {
             background: #f8f9fa;
             border-radius: 18px;
@@ -129,7 +145,6 @@
         }
         .job-card-giant:hover { background: #e9ecef; transform: translateX(-5px); }
         
-        /* بطاقات الطلبات */
         .application-card-giant {
             background: #f8f9fa;
             border-radius: 18px;
@@ -139,7 +154,6 @@
         }
         .application-card-giant:hover { background: #e9ecef; transform: translateX(-5px); }
         
-        /* أزرار القبول والرفض */
         .btn-giant-accept { background: #27ae60; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: 600; transition: 0.2s; }
         .btn-giant-accept:hover { background: #2ecc71; transform: scale(1.02); }
         .btn-giant-reject { background: #e74c3c; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: 600; transition: 0.2s; }
@@ -147,7 +161,6 @@
         .btn-giant-interview { background: #f39c12; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: 600; transition: 0.2s; }
         .btn-giant-interview:hover { background: #e67e22; transform: scale(1.02); }
         
-        /* أيقونة اتصل بنا */
         .contact-giant-icon {
             background: #F39C12;
             width: 60px;
@@ -162,14 +175,13 @@
         }
         .contact-giant-icon:hover { transform: scale(1.1); background: #1A5F7A; }
         
-        /* نافذة اتصال منبثقة */
         .modal-contact-giant { text-align: center; padding: 20px; }
         .modal-contact-giant i { font-size: 2.5rem; color: #1A5F7A; margin-bottom: 15px; }
         
-        /* الوضع الداكن */
         body.dark-mode .stat-card-giant,
         body.dark-mode .info-card-giant,
         body.dark-mode .tab-pane-giant,
+        body.dark-mode .reviews-summary,
         body.dark-mode .job-card-giant,
         body.dark-mode .application-card-giant {
             background: #1e2a3a;
@@ -178,11 +190,6 @@
         body.dark-mode .application-card-giant:hover { background: #2c3e50; }
         body.dark-mode .nav-tabs-giant .nav-link { background: #2c3e50; color: #aaa; }
         body.dark-mode .nav-tabs-giant .nav-link.active { background: linear-gradient(135deg, #1A5F7A, #0d3b4f); color: white; }
-        
-        /* إزالة المسافات البيضاء */
-        .no-gap { margin: 0; padding: 0; }
-        .mt-0 { margin-top: 0 !important; }
-        .pt-0 { padding-top: 0 !important; }
     </style>
 </head>
 <body>
@@ -216,7 +223,7 @@
         </div>
         
         <div class="col-lg-9">
-            <!-- هيدر ضخم -->
+            <!-- ====== هيدر ضخم ====== -->
             <div class="hero-giant">
                 <div class="row align-items-center">
                     <div class="col-md-3 text-center">
@@ -249,23 +256,87 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- إحصائيات ضخمة -->
+
+            <!-- ============================================================ -->
+            <!-- ========== ✅ التقييمات (تم نقلها إلى الأعلى) ========== -->
+            <!-- ============================================================ -->
+            <div class="reviews-summary">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="avg-rating">{{ employer.avg_rating|floatformat:1|default:"0.0" }}</div>
+                        <div class="stars-big text-warning">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= employer.avg_rating|default:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">({{ employer.reviews.count }} تقييم)</small>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-bold mb-2"><i class="fas fa-comment-dots"></i> تقييم الخريجين</h5>
+                        {% if employer.reviews.exists %}
+                            {% for review in employer.reviews.all|slice:":3" %}
+                            <div class="review-item">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold">{{ review.graduate.user.get_full_name }}</span>
+                                    <span class="text-warning">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                                <p class="small mb-0 text-muted">{{ review.comment|truncatechars:80 }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">لا توجد تقييمات حتى الآن. كن أول من يقيم!</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <button class="btn btn-outline-primary btn-lg w-100" data-bs-toggle="collapse" data-bs-target="#addReviewForm">
+                            <i class="fas fa-star"></i> أضف تقييمك
+                        </button>
+                        <div class="collapse mt-3" id="addReviewForm">
+                            <form method="post" action="{% url 'add_review' employer.pk %}">
+                                {% csrf_token %}
+                                <select name="rating" class="form-select mb-2">
+                                    <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                    <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                    <option value="3">⭐⭐⭐ جيد</option>
+                                    <option value="2">⭐⭐ مقبول</option>
+                                    <option value="1">⭐ ضعيف</option>
+                                </select>
+                                <textarea name="comment" class="form-control mb-2" rows="2" placeholder="شارك تجربتك مع الشركة..."></textarea>
+                                <button type="submit" class="btn btn-primary btn-sm w-100">إرسال التقييم</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== إحصائيات ضخمة ====== -->
             <div class="row g-4 mb-4">
                 <div class="col-md-3 col-6"><div class="stat-card-giant"><i class="fas fa-briefcase"></i><h2>{{ employer.get_jobs_count }}</h2><small>وظائف نشطة</small></div></div>
                 <div class="col-md-3 col-6"><div class="stat-card-giant"><i class="fas fa-users"></i><h2>{{ total_applications }}</h2><small>متقدمين</small></div></div>
                 <div class="col-md-3 col-6"><div class="stat-card-giant"><i class="fas fa-eye"></i><h2>{{ employer.views_count }}</h2><small>مشاهدات</small></div></div>
                 <div class="col-md-3 col-6"><div class="stat-card-giant"><i class="fas fa-calendar"></i><h2>{{ employer.founded_year|default:"-" }}</h2><small>سنة التأسيس</small></div></div>
             </div>
-            
-            <!-- تبويبات أنيقة -->
+
+            <!-- ====== تبويبات ====== -->
             <ul class="nav nav-tabs nav-tabs-giant" id="companyTab">
                 <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#about">🏢 عن الشركة</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#jobs">💼 الوظائف</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#applications">📋 طلبات التوظيف</button></li>
             </ul>
-            
-            <div class="tab-content tab-content-giant">
+
+            <div class="tab-content">
                 <!-- عن الشركة -->
                 <div class="tab-pane fade show active tab-pane-giant" id="about">
                     <div class="info-card-giant"><h4 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary"></i> نبذة عن الشركة</h4><p class="fs-5">{{ employer.about|default:"لا توجد نبذة تعريفية" }}</p></div>
@@ -274,8 +345,8 @@
                         <div class="col-md-6"><div class="info-card-giant"><h5 class="fw-bold"><i class="fas fa-map-marker-alt"></i> العنوان</h5><p>{{ employer.address|default:"لا يوجد عنوان" }}</p><h5 class="fw-bold mt-3"><i class="fas fa-globe"></i> الموقع الإلكتروني</h5><p>{% if employer.website %}<a href="{{ employer.website }}" target="_blank">{{ employer.website }}</a>{% else %}غير مضاف{% endif %}</p></div></div>
                     </div>
                 </div>
-                
-                <!-- الوظائف (تمت إضافة البث المباشر هنا) -->
+
+                <!-- الوظائف -->
                 <div class="tab-pane fade tab-pane-giant" id="jobs">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold m-0"><i class="fas fa-briefcase text-primary"></i> الوظائف الشاغرة</h4>
@@ -283,159 +354,111 @@
                         <a href="{% url 'job_create' %}?employer={{ employer.pk }}" class="btn btn-primary btn-lg rounded-pill px-4"><i class="fas fa-plus"></i> إضافة وظيفة</a>
                         {% endif %}
                     </div>
-                    {% for job in active_jobs %}
-                    <div class="job-card-giant">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap">
-                            <div><h5 class="mb-1">{{ job.title }}</h5><div class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ job.location }} | <i class="fas fa-calendar"></i> {{ job.deadline|date:"Y-m-d" }}</div></div>
-                            <div class="mt-2 mt-sm-0">
-                                <!-- ✅ تمت إضافة شارة البث المباشر هنا -->
-                                {% if job.is_live %}
-                                <span class="badge bg-danger me-1"><i class="fas fa-circle"></i> بث مباشر</span>
-                                <a href="{{ job.live_link }}" target="_blank" class="btn btn-sm btn-danger me-1 rounded-pill">شاهد البث</a>
-                                {% endif %}
-                                <span class="badge bg-success fs-6 me-2">{{ job.get_job_type_display }}</span>
-                                {% if user.is_authenticated and user.graduate_profile %}<a href="{% url 'apply_for_job' job.pk %}" class="btn btn-success btn-sm rounded-pill px-3">تقدم الآن</a>{% endif %}
-                                {% if user == job.employer.user %}<a href="{% url 'job_update' job.pk %}" class="btn btn-outline-warning btn-sm ms-1 rounded-pill"><i class="fas fa-edit"></i></a>{% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}<div class="alert alert-info text-center py-3">لا توجد وظائف حالياً</div>{% endfor %}
-                </div>
-                
-                <!-- الطلبات -->
-                <!-- تبويب طلبات التوظيف - مع بيانات كاملة -->
-<div class="tab-pane fade tab-pane-giant" id="applications">
-    <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-primary"></i> طلبات التوظيف</h4>
-    {% for job in active_jobs %}
-        {% for app in job.applications.all|slice:":15" %}
-        <div class="application-card-giant mb-3">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
-                <div>
-                    <h5 class="mb-1">{{ app.graduate.user.get_full_name }}</h5>
-                    <div class="text-muted small">{{ job.title }} - قدم: {{ app.applied_at|date:"Y-m-d" }}</div>
-                </div>
-                <div class="mt-2 mt-sm-0">
-                    {% if app.status == 'pending' %}
-                    <a href="{% url 'accept_application_page' app.id %}" class="btn-giant-accept me-1">
-                <i class="fas fa-check"></i> قبول
-                     </a>
-                     <a href="{% url 'interview_application_page' app.id %}" class="btn-giant-interview me-1">
-                   <i class="fas fa-calendar-alt"></i> مقابلة
-                 </a>
-                    <a href="{% url 'reject_application' app.id %}" class="btn-giant-reject" onclick="return confirm('❌ رفض الطلب؟')"><i class="fas fa-times"></i> رفض</a>
-                    {% elif app.status == 'accepted' %}<span class="badge bg-success fs-6"><i class="fas fa-check-circle"></i> مقبول</span>
-                    {% elif app.status == 'interview' %}<span class="badge bg-info fs-6"><i class="fas fa-calendar-alt"></i> تم تحديد مقابلة</span>
-                    {% elif app.status == 'rejected' %}<span class="badge bg-danger fs-6"><i class="fas fa-times-circle"></i> مرفوض</span>
-                    {% else %}<span class="badge bg-secondary fs-6">{{ app.get_status_display }}</span>{% endif %}
-                </div>
-            </div>
-            
-            <!-- ========== بيانات المتقدم الكاملة ========== -->
-            <div class="row mt-3 pt-2 border-top">
-                <!-- العمود الأول: المعلومات الشخصية -->
-                <div class="col-md-4">
-                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-user"></i> المعلومات الشخصية</div>
-                    <p class="small mb-1"><strong>الاسم:</strong> {{ app.graduate.user.get_full_name }}</p>
-                    <p class="small mb-1"><strong>البريد:</strong> {{ app.graduate.user.email }}</p>
-                    <p class="small mb-1"><strong>الجوال:</strong> {{ app.graduate.phone|default:"غير مضاف" }}</p>
-                    <p class="small mb-1"><strong>الرقم الجامعي:</strong> {{ app.graduate.university_id }}</p>
-                    <p class="small mb-1"><strong>سنة التخرج:</strong> {{ app.graduate.graduation_year }}</p>
-                    <p class="small mb-1"><strong>المعدل GPA:</strong> {{ app.graduate.gpa|default:"-" }}</p>
-                </div>
-                
-                <!-- العمود الثاني: المهارات والخبرات -->
-                <div class="col-md-4">
-                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-code"></i> المهارات والخبرات</div>
-                    <p class="small mb-1"><strong>التخصص:</strong> {{ app.graduate.major }}</p>
-                    <p class="small mb-1"><strong>التخصص الفرعي:</strong> {{ app.graduate.minor|default:"-" }}</p>
-                    <p class="small mb-1"><strong>المهارات:</strong> 
-                        {% for skill in app.graduate.skills.all|slice:":5" %}
-                            <span class="badge bg-secondary me-1">{{ skill.name }}</span>
-                        {% empty %}لا توجد مهارات مضافة{% endfor %}
-                    </p>
-                    <p class="small mb-1"><strong>الخبرات:</strong> 
-                        {% for exp in app.graduate.work_experiences.all|slice:":2" %}
-                            <span class="d-block">{{ exp.job_title }} @ {{ exp.company }}</span>
-                        {% empty %}لا توجد خبرات{% endfor %}
-                    </p>
-                    <p class="small mb-1"><strong>الشهادات:</strong> 
-                        {% for cert in app.graduate.certifications.all|slice:":2" %}
-                            <span class="d-block">{{ cert.name }} ({{ cert.issuing_organization }})</span>
-                        {% empty %}لا توجد شهادات{% endfor %}
-                    </p>
-                </div>
-                
-                <!-- العمود الثالث: معلومات التقديم -->
-                <div class="col-md-4">
-                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-file-alt"></i> معلومات التقديم</div>
-                    <p class="small mb-1"><strong>الراتب المتوقع:</strong> {{ app.expected_salary|default:"-" }} ريال</p>
-                    <p class="small mb-1"><strong>تاريخ التقديم:</strong> {{ app.applied_at|date:"Y-m-d H:i" }}</p>
-                    <p class="small mb-1"><strong>تقييم الشركة:</strong> 
-                        {% if app.graduate.employer_reviews.all %}
-                            {% for review in app.graduate.employer_reviews.all %}
-                                {% if review.employer == job.employer %}
-                                    <span class="text-warning">⭐ {{ review.rating }}/5</span>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}لم يقيم بعد{% endif %}
-                    </p>
-                    <p class="small mb-1"><strong>السيرة الذاتية:</strong> 
-                        {% if app.graduate.cv_file %}
-                            <a href="{{ app.graduate.cv_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">📄 تحميل CV</a>
-                        {% else %}
-                            غير مرفوعة
-                        {% endif %}
-                    </p>
-                    <p class="small mb-1"><strong>الرسالة التعريفية:</strong></p>
-                    <p class="small bg-light p-2 rounded">{{ app.cover_letter|default:"لا توجد رسالة"|truncatechars:100 }}</p>
-                </div>
+{% for job in active_jobs %}
+<div class="job-card-giant">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <!-- ✅ الرابط الصحيح -->
+            <h5 class="mb-1">
+                <a href="{% url 'jobs:job_detail' job.pk %}" class="text-decoration-none text-dark">
+    {{ job.title }}
+</a>
+            </h5>
+            <div class="text-muted">
+                <i class="fas fa-map-marker-alt"></i> {{ job.location }} | 
+                <i class="fas fa-calendar"></i> {{ job.deadline|date:"Y-m-d" }}
             </div>
         </div>
-        {% endfor %}
-    {% empty %}
-    <div class="alert alert-info text-center py-3">لا توجد طلبات</div>
-    {% endfor %}
+        <div class="mt-2 mt-sm-0">
+            <span class="badge bg-success fs-6 me-2">{{ job.get_job_type_display }}</span>
+            {% if user.is_authenticated and user.graduate_profile %}
+<a href="{% url 'jobs:apply_for_job' job.pk %}" class="btn btn-success btn-sm rounded-pill px-3">تقدم الآن</a>            {% endif %}
+        </div>
+    </div>
 </div>
-
-            <!-- ========== قسم التقييمات (التحفة الفنية الجديدة) ========== -->
-            <div class="info-card-giant mt-4">
-                <h5 class="fw-bold"><i class="fas fa-star text-warning"></i> تقييم الخريجين للشركة</h5>
-                <div class="row mt-3">
-                    <div class="col-md-4 text-center">
-                        <div class="bg-light rounded-4 p-3">
-                            <h1 class="display-4 fw-bold text-warning">{{ employer.avg_rating|default:"0" }}<span class="fs-4">/5</span></h1>
-                            <div class="text-warning">
-                                {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= employer.avg_rating|default:0 %}
-                                        <i class="fas fa-star"></i>
-                                    {% else %}
-                                        <i class="far fa-star"></i>
-                                    {% endif %}
-                                {% endfor %}
+{% empty %}
+<div class="alert alert-info text-center py-3">لا توجد وظائف حالياً</div>
+{% endfor %}
+                <!-- طلبات التوظيف -->
+                <div class="tab-pane fade tab-pane-giant" id="applications">
+                    <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-primary"></i> طلبات التوظيف</h4>
+                    {% for job in active_jobs %}
+                        {% for app in job.applications.all|slice:":15" %}
+                        <div class="application-card-giant mb-3">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                <div>
+                                    <h5 class="mb-1">{{ app.graduate.user.get_full_name }}</h5>
+                                    <div class="text-muted small">{{ job.title }} - قدم: {{ app.applied_at|date:"Y-m-d" }}</div>
+                                </div>
+                                <div class="mt-2 mt-sm-0">
+                                    {% if app.status == 'pending' %}
+                                    <a href="{% url 'accept_application_page' app.id %}" class="btn-giant-accept me-1">
+                                        <i class="fas fa-check"></i> قبول
+                                    </a>
+                                    <a href="{% url 'interview_application_page' app.id %}" class="btn-giant-interview me-1">
+                                        <i class="fas fa-calendar-alt"></i> مقابلة
+                                    </a>
+                                    <a href="{% url 'reject_application' app.id %}" class="btn-giant-reject" onclick="return confirm('❌ رفض الطلب؟')">
+                                        <i class="fas fa-times"></i> رفض
+                                    </a>
+                                    {% elif app.status == 'accepted' %}<span class="badge bg-success fs-6"><i class="fas fa-check-circle"></i> مقبول</span>
+                                    {% elif app.status == 'interview' %}<span class="badge bg-info fs-6"><i class="fas fa-calendar-alt"></i> تم تحديد مقابلة</span>
+                                    {% elif app.status == 'rejected' %}<span class="badge bg-danger fs-6"><i class="fas fa-times-circle"></i> مرفوض</span>
+                                    {% else %}<span class="badge bg-secondary fs-6">{{ app.get_status_display }}</span>{% endif %}
+                                </div>
                             </div>
-                            <small class="text-muted">بناءً على {{ employer.reviews.count }} تقييم</small>
+
+                            <!-- بيانات المتقدم الكاملة -->
+                            <div class="row mt-3 pt-2 border-top">
+                                <div class="col-md-4">
+                                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-user"></i> المعلومات الشخصية</div>
+                                    <p class="small mb-1"><strong>الاسم:</strong> {{ app.graduate.user.get_full_name }}</p>
+                                    <p class="small mb-1"><strong>البريد:</strong> {{ app.graduate.user.email }}</p>
+                                    <p class="small mb-1"><strong>الجوال:</strong> {{ app.graduate.phone|default:"غير مضاف" }}</p>
+                                    <p class="small mb-1"><strong>الرقم الجامعي:</strong> {{ app.graduate.university_id }}</p>
+                                    <p class="small mb-1"><strong>سنة التخرج:</strong> {{ app.graduate.graduation_year }}</p>
+                                    <p class="small mb-1"><strong>المعدل GPA:</strong> {{ app.graduate.gpa|default:"-" }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-code"></i> المهارات والخبرات</div>
+                                    <p class="small mb-1"><strong>التخصص:</strong> {{ app.graduate.major }}</p>
+                                    <p class="small mb-1"><strong>التخصص الفرعي:</strong> {{ app.graduate.minor|default:"-" }}</p>
+                                    <p class="small mb-1"><strong>المهارات:</strong> 
+                                        {% for skill in app.graduate.skills.all|slice:":5" %}
+                                            <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+                                        {% empty %}لا توجد مهارات مضافة{% endfor %}
+                                    </p>
+                                    <p class="small mb-1"><strong>الخبرات:</strong> 
+                                        {% for exp in app.graduate.work_experiences.all|slice:":2" %}
+                                            <span class="d-block">{{ exp.job_title }} @ {{ exp.company }}</span>
+                                        {% empty %}لا توجد خبرات{% endfor %}
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-file-alt"></i> معلومات التقديم</div>
+                                    <p class="small mb-1"><strong>الراتب المتوقع:</strong> {{ app.expected_salary|default:"-" }} ريال</p>
+                                    <p class="small mb-1"><strong>تاريخ التقديم:</strong> {{ app.applied_at|date:"Y-m-d H:i" }}</p>
+                                    <p class="small mb-1"><strong>السيرة الذاتية:</strong> 
+                                        {% if app.graduate.cv_file %}
+                                            <a href="{{ app.graduate.cv_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">📄 تحميل CV</a>
+                                        {% else %}غير مرفوعة{% endif %}
+                                    </p>
+                                    <p class="small mb-1"><strong>الرسالة التعريفية:</strong></p>
+                                    <p class="small bg-light p-2 rounded">{{ app.cover_letter|default:"لا توجد رسالة"|truncatechars:100 }}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-8">
-                        <a href="#addReview" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="collapse">+ أضف تقييمك</a>
-                        <div id="addReview" class="collapse mt-3">
-                            <form method="post" action="{% url 'add_review' employer.pk %}">
-                                {% csrf_token %}
-                                <select name="rating" class="form-select mb-2">
-                                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-                                </select>
-                                <textarea name="comment" class="form-control mb-2" rows="2" placeholder="شارك تجربتك مع الشركة..."></textarea>
-                                <button type="submit" class="btn btn-primary btn-sm">إرسال التقييم</button>
-                            </form>
-                        </div>
-                    </div>
+                        {% endfor %}
+                    {% empty %}
+                    <div class="alert alert-info text-center py-3">لا توجد طلبات</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- نافذة اتصال بنا المنبثقة -->
+<!-- نافذة اتصال بنا -->
 <div class="modal fade" id="contactModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4">

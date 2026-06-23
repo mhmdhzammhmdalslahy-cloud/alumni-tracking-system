@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>📅 دعوة لمقابلة</title>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #f8f9fa; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: #f39c12; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
+        .content { padding: 20px; }
+        .info-box { background: #f8f9fa; padding: 15px; border-radius: 10px; border-right: 4px solid #f39c12; }
+        .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 دعوة لمقابلة شخصية</h1>
+        </div>
+        <div class="content">
+            <h3>عزيزي/عزيزتي {{ graduate.user.get_full_name }},</h3>
+            <p>يسعدنا دعوتك لإجراء مقابلة شخصية لوظيفة <strong>{{ job.title }}</strong> في شركة <strong>{{ company.company_name }}</strong>.</p>
+            <div class="info-box">
+                <p><strong>📅 التاريخ:</strong> {{ interview_date }}</p>
+                {% if interview_link %}
+                <p><strong>🔗 رابط المقابلة:</strong> <a href="{{ interview_link }}">{{ interview_link }}</a></p>
+                {% endif %}
+                {% if interview_notes %}
+                <p><strong>📝 ملاحظات:</strong> {{ interview_notes }}</p>
+                {% endif %}
+            </div>
+            <p>نتمنى لك التوفيق،</p>
+            <p><strong>فريق {{ company.company_name }}</strong></p>
+        </div>
+        <div class="footer">
+            هذا البريد إلكتروني آلي، يرجى عدم الرد عليه.
+        </div>
+    </div>
+</body>
+</html>

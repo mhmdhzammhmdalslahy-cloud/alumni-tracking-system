@@ -40,5 +40,6 @@ urlpatterns = [
     path('pending-requests/', views.pending_requests, name='pending_requests'),
     path('approve-graduate/<int:pk>/', views.approve_graduate, name='approve_graduate'),
     path('update-notification-preferences/', views.update_notification_preferences, name='update_notification_preferences'),
+    path('survey/<int:survey_id>/publish/', views.publish_survey, name='publish_survey'),
     
 ]

@@ -21,6 +21,7 @@
                         <th>التوقيت</th>
                         <th>تاريخ الإرسال</th>
                         <th>الحالة</th>
+                        <th>النشر</th>
                         <th>تاريخ الإنشاء</th>
                         <th>الإجراءات</th>
                     </tr>
@@ -39,19 +40,48 @@
                             <span class="badge bg-secondary">غير نشط</span>
                             {% endif %}
                         </td>
+                        <td>
+                            {% if survey.is_published %}
+                            <span class="badge bg-info text-dark">
+                                <i class="fas fa-check-double"></i> منشور
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-clock"></i> غير منشور
+                            </span>
+                            {% endif %}
+                        </td>
                         <td>{{ survey.created_at|date:"Y-m-d" }}</td>
                         <td>
+                            <!-- ✅ زر النشر (يظهر فقط إذا كان الاستبيان نشطاً وغير منشور) -->
+                            {% if not survey.is_published and survey.is_active %}
+                            <a href="{% url 'dashboard:publish_survey' survey.id %}" 
+                               class="btn btn-success btn-sm" 
+                               onclick="return confirm('✅ نشر هذا الاستبيان وإشعار جميع الخريجين؟')">
+                                <i class="fas fa-bullhorn"></i> نشر
+                            </a>
+                            {% endif %}
+
+                            <!-- زر التعديل -->
                             <a href="{% url 'dashboard:edit_survey' survey.id %}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="{% url 'dashboard:delete_survey' survey.id %}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">
+
+                            <!-- زر الحذف -->
+                            <a href="{% url 'dashboard:delete_survey' survey.id %}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذا الاستبيان؟')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center">لا توجد استبيانات</td>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-file-alt fa-2x text-muted d-block mb-2"></i>
+                            <p class="text-muted">لا توجد استبيانات</p>
+                            <a href="{% url 'dashboard:create_survey' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> إنشاء استبيان جديد
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -59,4 +89,32 @@
         </div>
     </div>
 </div>
+
+<!-- ✅ الترقيم (إذا كان هناك أكثر من 20 استبيان) -->
+{% if surveys.has_other_pages %}
+<div class="mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if surveys.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ surveys.previous_page_number }}">السابق</a>
+            </li>
+            {% endif %}
+
+            {% for num in surveys.paginator.page_range %}
+            <li class="page-item {% if surveys.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if surveys.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ surveys.next_page_number }}">التالي</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
 {% endblock %}

@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.db.models import Q
+from dashboard.models import Survey, SurveyResponse
 from .models import Graduate, WorkExperience, Skill, Certification, AcademicProject
 from .forms import GraduateForm, VerificationForm
 from .filters import GraduateFilter
@@ -39,14 +40,6 @@ class GraduateListView(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # ✅ فقط الخريجين الموثقين في الإحصائيات
-        context['working_count'] = Graduate.objects.filter(is_verified=True, current_job_status='working').count()
-        context['total_count'] = Graduate.objects.filter(is_verified=True).count()
-        return context
-
-
 class GraduateProfileView(DetailView):
     model = Graduate
     template_name = 'graduates/graduate_profile.html'
@@ -54,11 +47,20 @@ class GraduateProfileView(DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        # ✅ يمكن عرض الملف حتى لو غير موثق (لكن يمكن منع الوصول إذا أردت)
         obj.profile_views += 1
         obj.save()
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # ✅ الاستبيانات المتاحة
+        
+        answered_ids = SurveyResponse.objects.filter(graduate=self.object).values_list('survey_id', flat=True)
+        available_surveys = Survey.objects.filter(is_active=True, is_published=True).exclude(id__in=answered_ids)
+        context['available_surveys'] = available_surveys
+        
+        return context
 
 class GraduateCreateView(CreateView):
     model = Graduate
@@ -202,3 +204,33 @@ def home(request):
         'success_stories': SuccessStory.objects.filter(status='approved', is_active=True)[:3],
     }
     return render(request, 'index.html', context)
+
+# ============================================================
+# ====== تحديث تفضيلات الإشعارات ======
+# ============================================================
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def update_notification_preferences(request):
+    """تحديث تفضيلات الإشعارات للخريج"""
+    if request.method == 'POST':
+        # التحقق من وجود ملف خريج
+        if not hasattr(request.user, 'graduate_profile'):
+            messages.error(request, '⚠️ يرجى إكمال ملفك الشخصي أولاً.')
+            return redirect('graduate_create')
+        
+        graduate = request.user.graduate_profile
+        
+        # تحديث الإعداد (checkbox يعطي 'on' إذا كان محدداً)
+        receive_email = request.POST.get('receive_email_notifications') == 'on'
+        graduate.receive_email_notifications = receive_email
+        graduate.save()
+        
+        messages.success(request, '✅ تم تحديث تفضيلات الإشعارات بنجاح!')
+        return redirect('graduate_profile', pk=graduate.pk)
+    
+    # إذا لم يكن POST، إعادة التوجيه إلى الملف الشخصي
+    if hasattr(request.user, 'graduate_profile'):
+        return redirect('graduate_profile', pk=request.user.graduate_profile.pk)
+    return redirect('graduate_create')

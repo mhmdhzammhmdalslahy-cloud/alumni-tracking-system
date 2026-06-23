@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>🎉 تهانينا!</title>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #f8f9fa; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: #1A5F7A; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
+        .content { padding: 20px; }
+        .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 تهانينا!</h1>
+        </div>
+        <div class="content">
+            <h3>عزيزي/عزيزتي {{ graduate.user.get_full_name }},</h3>
+            <p>يسعدنا إبلاغك بأن شركة <strong>{{ company.company_name }}</strong> قد قامت بقبول طلبك لوظيفة <strong>{{ job.title }}</strong>.</p>
+            <p>نرحب بك في فريق العمل ونتمنى لك مسيرة مهنية موفقة.</p>
+            <p>سيتم التواصل معك قريباً لترتيب خطوات الانضمام.</p>
+            <p>مع أطيب التحيات،</p>
+            <p><strong>فريق {{ company.company_name }}</strong></p>
+        </div>
+        <div class="footer">
+            هذا البريد إلكتروني آلي، يرجى عدم الرد عليه.
+        </div>
+    </div>
+</body>
+</html>

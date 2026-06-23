@@ -4,181 +4,389 @@
 {% block title %}لوحة التحكم - الإدارة{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="h3 mb-4">لوحة التحكم</h1>
+<div class="container-fluid px-4">
+    <!-- ====== رأس الصفحة + زر العودة ====== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-0">
+                <i class="fas fa-chart-pie text-primary me-2"></i> لوحة التحكم
+            </h1>
+            <p class="text-muted small mt-1">نظرة عامة على أداء المنصة وإحصائياتها</p>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- ✅ زر العودة إلى الرئيسية -->
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-right me-2"></i> العودة للرئيسية
+            </a>
+            <span class="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
+                <i class="far fa-calendar-alt me-1"></i> {{ now|date:"Y-m-d" }}
+            </span>
         </div>
     </div>
-    
-    <!-- بطاقات الإحصائيات -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">الخريجين</h6>
-                            <h2 class="mb-0">{{ total_graduates }}</h2>
-                        </div>
-                        <i class="fas fa-user-graduate fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">الشركات</h6>
-                            <h2 class="mb-0">{{ total_employers }}</h2>
-                        </div>
-                        <i class="fas fa-building fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">الوظائف النشطة</h6>
-                            <h2 class="mb-0">{{ total_jobs }}</h2>
-                        </div>
-                        <i class="fas fa-briefcase fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">طلبات التوظيف</h6>
-                            <h2 class="mb-0">{{ total_applications }}</h2>
-                        </div>
-                        <i class="fas fa-file-alt fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- طلبات التحقق المعلقة -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i> طلبات توثيق الخريجين المعلقة</h6>
-                </div>
-                <div class="card-body">
-                    {% if pending_graduates > 0 %}
-                        <h2 class="text-center mb-3">{{ pending_graduates }}</h2>
-                        <a href="{% url 'dashboard:manage_graduates' %}?status=pending" class="btn btn-danger w-100">مراجعة الطلبات</a>
-                    {% else %}
-                        <p class="text-center text-muted mb-0">لا توجد طلبات معلقة</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i> طلبات توثيق الشركات المعلقة</h6>
-                </div>
-                <div class="card-body">
-                    {% if pending_employers > 0 %}
-                        <h2 class="text-center mb-3">{{ pending_employers }}</h2>
-                        <a href="{% url 'dashboard:manage_employers' %}?status=pending" class="btn btn-warning w-100">مراجعة الطلبات</a>
-                    {% else %}
-                        <p class="text-center text-muted mb-0">لا توجد طلبات معلقة</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- نسبة التوظيف وأكثر التخصصات طلباً -->
+
+    <!-- ====== تنبيهات النظام ====== -->
+    {% if alerts %}
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">نسبة التوظيف</h6>
-                </div>
-                <div class="card-body text-center">
-                    <div class="progress mb-3" style="height: 30px;">
-                        <div class="progress-bar bg-success" style="width: {{ employment_rate }}%;">
-                            {{ employment_rate }}%
-                        </div>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fas fa-bell text-warning"></i>
+                        <h6 class="fw-bold mb-0">تنبيهات النظام</h6>
                     </div>
-                    <p class="text-muted">من إجمالي {{ total_graduates }} خريج</p>
+                    <div class="row g-2">
+                        {% for alert in alerts %}
+                        <div class="col-md-4 col-sm-6">
+                            <div class="alert alert-{{ alert.type }} rounded-3 mb-0 d-flex align-items-center gap-2 p-2">
+                                <i class="fas {{ alert.icon }}"></i>
+                                <div class="small flex-grow-1">
+                                    <strong>{{ alert.title }}</strong>
+                                    <span class="text-muted d-block small">{{ alert.message }}</span>
+                                </div>
+                                {% if alert.link %}
+                                <a href="{{ alert.link }}" class="btn btn-sm btn-outline-{{ alert.type }} rounded-pill">عرض</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">أكثر التخصصات طلباً</h6>
-                </div>
-                <div class="card-body">
-                    {% for major in popular_majors %}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ major.major }}</span>
-                        <span class="badge bg-primary">{{ major.count }} خريج</span>
+    </div>
+    {% endif %}
+
+    <!-- ====== بطاقات الإحصائيات (محسنة للجوال) ====== -->
+    <div class="row g-3 g-md-4 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden stat-card">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">الخريجين</span>
+                            <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_graduates }}</h2>
+                        </div>
+                        <div class="stat-icon bg-primary-soft rounded-3 p-2 p-md-3">
+                            <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                        </div>
                     </div>
-                    {% endfor %}
+                    <div class="mt-2 mt-md-3">
+                        <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+12%</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #1A5F7A, #2ecc71);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden stat-card">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">الشركات</span>
+                            <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_employers }}</h2>
+                        </div>
+                        <div class="stat-icon bg-success-soft rounded-3 p-2 p-md-3">
+                            <i class="fas fa-building fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 mt-md-3">
+                        <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+8%</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #27ae60, #2ecc71);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden stat-card">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">الوظائف النشطة</span>
+                            <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_jobs }}</h2>
+                        </div>
+                        <div class="stat-icon bg-warning-soft rounded-3 p-2 p-md-3">
+                            <i class="fas fa-briefcase fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 mt-md-3">
+                        <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+5%</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #f39c12, #f1c40f);"></div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden stat-card">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small fw-semibold text-uppercase">طلبات التوظيف</span>
+                            <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_applications }}</h2>
+                        </div>
+                        <div class="stat-icon bg-info-soft rounded-3 p-2 p-md-3">
+                            <i class="fas fa-file-alt fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 mt-md-3">
+                        <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+15%</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #3498db, #5dade2);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== طلبات التحقق المعلقة (صف واحد على الجوال) ====== -->
+    <div class="row g-3 g-md-4 mb-4">
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold small">
+                            <i class="fas fa-user-clock text-danger me-2"></i> طلبات توثيق الخريجين
+                        </h6>
+                        <span class="badge bg-danger rounded-pill px-3 py-2">{{ pending_graduates }}</span>
+                    </div>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
+                    {% if pending_graduates > 0 %}
+                        <div class="text-center py-3">
+                            <h2 class="display-4 fw-bold text-danger">{{ pending_graduates }}</h2>
+                            <p class="text-muted small">طلب توثيق معلق</p>
+                            <a href="{% url 'dashboard:manage_graduates' %}?status=pending" class="btn btn-danger rounded-pill px-4">
+                                <i class="fas fa-chevron-left me-1"></i> مراجعة
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-muted mb-0">✅ لا توجد طلبات</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold small">
+                            <i class="fas fa-building-clock text-warning me-2"></i> طلبات توثيق الشركات
+                        </h6>
+                        <span class="badge bg-warning rounded-pill px-3 py-2">{{ pending_employers }}</span>
+                    </div>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
+                    {% if pending_employers > 0 %}
+                        <div class="text-center py-3">
+                            <h2 class="display-4 fw-bold text-warning">{{ pending_employers }}</h2>
+                            <p class="text-muted small">طلب توثيق معلق</p>
+                            <a href="{% url 'dashboard:manage_employers' %}?status=pending" class="btn btn-warning rounded-pill px-4">
+                                <i class="fas fa-chevron-left me-1"></i> مراجعة
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-muted mb-0">✅ لا توجد طلبات</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========== قصص نجاح قيد المراجعة (جديد) ========== -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <h6 class="mb-0"><i class="fas fa-star me-2"></i> قصص نجاح قيد المراجعة</h6>
+    <!-- ====== نسبة التوظيف وأكثر التخصصات طلباً + أعلى الشركات ====== -->
+    <div class="row g-3 g-md-4 mb-4">
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <h6 class="mb-0 fw-bold small"><i class="fas fa-chart-line text-success me-2"></i> نسبة التوظيف</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body px-3 px-md-4 pb-4 text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <div class="progress-circle" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#2ecc71 {{ employment_rate }}%, #e9ecef 0%); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <div class="bg-white rounded-circle" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <span class="display-6 fw-bold text-success">{{ employment_rate }}%</span>
+                                <small class="text-muted">موظفين</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-0">من إجمالي {{ total_graduates }} خريج</p>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: {{ employment_rate }}%; border-radius: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <h6 class="mb-0 fw-bold small"><i class="fas fa-graduation-cap text-primary me-2"></i> التخصصات الأكثر طلباً</h6>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
+                    {% if popular_majors %}
+                        {% for major in popular_majors|slice:":5" %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                            <span class="small">{{ major.major }}</span>
+                            <span class="badge bg-primary rounded-pill px-3">{{ major.count }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted py-3 small">لا توجد تخصصات</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <h6 class="mb-0 fw-bold small"><i class="fas fa-trophy text-warning me-2"></i> أعلى الشركات توظيفاً</h6>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
+                    {% if top_employers %}
+                        {% for employer in top_employers %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                            <span class="small">{{ employer.company_name }}</span>
+                            <span class="badge bg-warning text-dark rounded-pill px-3">{{ employer.job_count }} وظيفة</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted py-3 small">لا توجد شركات</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== قصص نجاح قيد المراجعة + آخر النشاطات ====== -->
+    <div class="row g-3 g-md-4 mb-4">
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold small">
+                            <i class="fas fa-star text-warning me-2"></i> قصص نجاح قيد المراجعة
+                        </h6>
+                        <span class="badge bg-warning rounded-pill px-3 py-2">{{ pending_stories_count }}</span>
+                    </div>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
                     {% if pending_success_stories %}
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover align-middle small">
+                                <thead class="table-light">
                                     <tr>
                                         <th>العنوان</th>
-                                        <th>الخريج</th>
-                                        <th>التاريخ</th>
+                                        <th class="d-none d-sm-table-cell">الخريج</th>
+                                        <th class="d-none d-md-table-cell">التاريخ</th>
                                         <th>الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for story in pending_success_stories %}
+                                    {% for story in pending_success_stories|slice:":5" %}
                                     <tr>
-                                        <td>{{ story.title }}</td>
-                                        <td>{{ story.graduate.user.get_full_name|default:story.graduate.user.username }}</td>
-                                        <td>{{ story.created_at|date:"Y-m-d" }}</td>
+                                        <td class="fw-medium">{{ story.title|truncatechars:20 }}</td>
+                                        <td class="d-none d-sm-table-cell">{{ story.graduate.user.get_full_name|default:story.graduate.user.username|truncatechars:15 }}</td>
+                                        <td class="d-none d-md-table-cell">{{ story.created_at|date:"Y-m-d" }}</td>
                                         <td>
-                                            <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-sm btn-success">
-                                                <i class="fas fa-check"></i> قبول
-                                            </a>
-                                            <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-times"></i> رفض
-                                            </a>
+                                            <div class="d-flex gap-1">
+                                                <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-sm btn-success rounded-pill px-2" onclick="return confirm('قبول القصة؟')">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-sm btn-danger rounded-pill px-2" onclick="return confirm('رفض القصة؟')">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        {% if pending_success_stories|length > 5 %}
+                        <div class="text-center mt-2">
+                            <a href="{% url 'dashboard:pending_requests' %}" class="small">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                        {% endif %}
                     {% else %}
-                        <p class="text-center text-muted mb-0">لا توجد قصص نجاح قيد المراجعة.</p>
+                        <div class="text-center py-4">
+                            <i class="fas fa-star fa-3x text-warning opacity-25 mb-3"></i>
+                            <p class="text-muted small mb-0">✨ لا توجد قصص قيد المراجعة</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
+                    <h6 class="mb-0 fw-bold small">
+                        <i class="fas fa-history text-info me-2"></i> آخر النشاطات
+                    </h6>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-4">
+                    {% if recent_activities %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in recent_activities|slice:":7" %}
+                            <div class="list-group-item d-flex align-items-center gap-3 border-0 px-0 py-2">
+                                <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="fas {% if activity.action == 'create' %}fa-plus text-success{% elif activity.action == 'delete' %}fa-trash text-danger{% elif activity.action == 'approve' %}fa-check text-primary{% elif activity.action == 'reject' %}fa-times text-warning{% else %}fa-edit text-info{% endif %}"></i>
+                                </div>
+                                <div class="flex-grow-1 small">
+                                    <div class="fw-semibold">{{ activity.get_action_display }}</div>
+                                    <div class="text-muted">{{ activity.target_type }} - {{ activity.details.name|default:activity.target_id }}</div>
+                                </div>
+                                <div class="text-muted small">{{ activity.created_at|timesince }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-2">
+                            <a href="{% url 'dashboard:audit_log' %}" class="small">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
+                            <p class="text-muted small mb-0">لا توجد نشاطات حديثة</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ====== ستايل إضافي للجوال ====== -->
+<style>
+    /* تحسين الجوال */
+    @media (max-width: 576px) {
+        .stat-icon { width: 44px; height: 44px; }
+        .stat-icon i { font-size: 1.2rem !important; }
+        .display-6 { font-size: 1.5rem; }
+        .fs-2 { font-size: 1.6rem !important; }
+        .alert { font-size: 0.8rem; padding: 8px 12px; }
+        .table-responsive .btn { padding: 4px 8px; font-size: 0.7rem; }
+        .list-group-item { padding: 8px 0; }
+    }
+    
+    /* تأثيرات hover */
+    .stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.08) !important; }
+    .stat-icon { transition: 0.3s; }
+    .stat-card:hover .stat-icon { transform: scale(1.05); }
+    
+    /* ألوان الخلفيات */
+    .bg-primary-soft { background: rgba(26, 95, 122, 0.10); }
+    .bg-success-soft { background: rgba(46, 204, 113, 0.10); }
+    .bg-warning-soft { background: rgba(243, 156, 18, 0.10); }
+    .bg-info-soft { background: rgba(52, 152, 219, 0.10); }
+    .bg-success-subtle { background: rgba(46, 204, 113, 0.15); color: #1a8a4a; }
+    
+    /* دائرة النسبة */
+    .progress-circle { display: inline-flex; align-items: center; justify-content: center; position: relative; }
+</style>
 {% endblock %}

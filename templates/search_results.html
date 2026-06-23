@@ -68,7 +68,7 @@
                         <div class="border-bottom pb-2 mb-2">
                             <h6>{{ j.title }}</h6>
                             <p class="small text-muted">{{ j.employer.company_name }} - {{ j.location }}</p>
-                            <a href="{% url 'job_detail' j.id %}" class="btn btn-sm btn-outline-success">التفاصيل</a>
+                            <a href="{% url 'jobs:job_detail' j.id %}" class="btn btn-sm btn-outline-success">التفاصيل</a>
                         </div>
                         {% empty %}
                         <p class="text-muted">لا توجد نتائج للوظائف</p>

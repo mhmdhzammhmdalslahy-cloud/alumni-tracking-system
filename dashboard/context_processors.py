@@ -1,14 +1,19 @@
+# dashboard/context_processors.py
 from .models import Notification
 
 def notifications_processor(request):
+    """إضافة الإشعارات غير المقروءة إلى جميع القوالب"""
     if request.user.is_authenticated:
-        unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
-        recent_notifications = Notification.objects.filter(recipient=request.user)[:5]
+        notifications = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).order_by('-created_at')[:10]
+        unread_count = notifications.count()
         return {
-            'unread_notifications_count': unread_count,
-            'recent_notifications': recent_notifications,
+            'notifications': notifications,
+            'unread_count': unread_count,
         }
     return {
-        'unread_notifications_count': 0,
-        'recent_notifications': [],
+        'notifications': [],
+        'unread_count': 0,
     }

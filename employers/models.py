@@ -63,6 +63,19 @@ class Employer(models.Model):
         for job in self.jobs.all():
             total += job.applications.count()
         return total
+    
+    # ✅ هذه الدوال يجب أن تكون هنا (داخل نموذج Employer)
+    @property
+    def avg_rating(self):
+        """حساب متوسط التقييم"""
+        reviews = self.reviews.all()
+        if reviews.exists():
+            return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+        return 0
+    
+    @property
+    def reviews_count(self):
+        return self.reviews.count()
 
 
 class EmployerVerificationRequest(models.Model):
@@ -85,7 +98,7 @@ class EmployerVerificationRequest(models.Model):
         return f"{self.employer.company_name} - {self.status}"
 
 
-# ✅ النموذج الصحيح لتقييم الشركة (بدون is_live هنا)
+# ✅ النموذج الصحيح لتقييم الشركة
 class CompanyReview(models.Model):
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='reviews')
     graduate = models.ForeignKey('graduates.Graduate', on_delete=models.CASCADE)

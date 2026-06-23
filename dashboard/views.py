@@ -12,6 +12,9 @@ from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Count, Q
+from django.utils import timezone
+from datetime import timedelta
 import json
 
 from .models import (
@@ -35,72 +38,152 @@ from groups.models import Group
 
 @staff_member_required
 def admin_dashboard(request):
-    # حساب الأعداد الأساسية
+    # ============================================================
+    # 1. حساب الأعداد الأساسية
+    # ============================================================
     total_graduates = Graduate.objects.count()
     total_employers = Employer.objects.count()
     total_jobs = Job.objects.filter(is_active=True).count()
     total_applications = JobApplication.objects.count()
     
-    # حساب الطلبات المعلقة
+    # ============================================================
+    # 2. حساب الطلبات المعلقة
+    # ============================================================
     pending_graduates_count = VerificationRequest.objects.filter(status='pending').count()
     pending_employers_count = EmployerVerificationRequest.objects.filter(status='pending').count()
     pending_stories_count = SuccessStory.objects.filter(status='pending').count()
     pending_groups_count = Group.objects.filter(status='pending', is_active=True).count()
     
-    # جلب قصص النجاح المعلقة
+    # جلب قصص النجاح المعلقة (للعرض)
     pending_success_stories = SuccessStory.objects.filter(status='pending')
     
+    # ============================================================
+    # 3. تنبيهات النظام (System Alerts)
+    # ============================================================
+    alerts = []
+    
+    # 3.1 الوظائف المنتهية الصلاحية (آخر 7 أيام)
+    expired_jobs = Job.objects.filter(
+        deadline__lt=timezone.now(),
+        is_active=True
+    ).count()
+    if expired_jobs > 0:
+        alerts.append({
+            'type': 'warning',
+            'icon': 'fa-clock',
+            'title': f'⚠️ {expired_jobs} وظائف منتهية الصلاحية',
+            'message': 'بعض الوظائف تجاوزت تاريخ انتهائها، يُرجى مراجعتها.',
+            'link': '/jobs/?expired=true'
+        })
+    
+    # 3.2 طلبات توثيق قديمة (أكثر من 7 أيام)
+    old_verifications = VerificationRequest.objects.filter(
+        status='pending',
+        created_at__lt=timezone.now() - timedelta(days=7)
+    ).count()
+    if old_verifications > 0:
+        alerts.append({
+            'type': 'danger',
+            'icon': 'fa-hourglass-half',
+            'title': f'⏳ {old_verifications} طلبات توثيق قديمة',
+            'message': 'هناك طلبات توثيق معلقة منذ أكثر من 7 أيام.',
+            'link': '/dashboard/pending-requests/'
+        })
+    
+    # 3.3 قصص نجاح معلقة
+    if pending_stories_count > 0:
+        alerts.append({
+            'type': 'info',
+            'icon': 'fa-star',
+            'title': f'⭐ {pending_stories_count} قصص نجاح بانتظار المراجعة',
+            'message': 'يُرجى مراجعة قصص النجاح الجديدة.',
+            'link': '/dashboard/pending-requests/'
+        })
+    
+    # ============================================================
+    # 4. دوال مساعدة لحساب البيانات
+    # ============================================================
+    def calculate_employment_rate():
+        total = Graduate.objects.count()
+        if total == 0:
+            return 0
+        working = Graduate.objects.filter(current_job_status='working').count()
+        return round((working / total) * 100, 1)
+    
+    def get_popular_majors():
+        return Graduate.objects.values('major').annotate(count=Count('id')).order_by('-count')[:5]
+    
+    def get_top_employers():
+        return Employer.objects.annotate(
+            job_count=Count('jobs', filter=Q(jobs__is_active=True))
+        ).filter(job_count__gt=0).order_by('-job_count')[:5]
+    
+    def get_monthly_jobs():
+        months = []
+        counts = []
+        for i in range(6):
+            month = timezone.now() - timedelta(days=30*i)
+            count = Job.objects.filter(
+                created_at__month=month.month,
+                created_at__year=month.year
+            ).count()
+            months.append(month.strftime('%B'))
+            counts.append(count)
+        return {'months': months[::-1], 'counts': counts[::-1]}
+    
+    # ============================================================
+    # 5. جلب البيانات الإضافية
+    # ============================================================
+    # 5.1 أعلى الشركات توظيفاً
+    top_employers = get_top_employers()
+    
+    # 5.2 آخر النشاطات (من AuditLog)
+    recent_activities = AuditLog.objects.select_related('admin__user').order_by('-created_at')[:10]
+    
+    # 5.3 البيانات الأخرى المطلوبة في القالب
+    recent_graduates = Graduate.objects.all().order_by('-created_at')[:5]
+    recent_employers = Employer.objects.all().order_by('-created_at')[:5]
+    recent_applications = JobApplication.objects.all().order_by('-applied_at')[:5]
+    popular_majors = get_popular_majors()
+    monthly_jobs = get_monthly_jobs()
+    
+    # ============================================================
+    # 6. تجهيز السياق (Context) للإرسال إلى القالب
+    # ============================================================
     context = {
+        # الإحصائيات الأساسية
         'total_graduates': total_graduates,
         'total_employers': total_employers,
         'total_jobs': total_jobs,
         'total_applications': total_applications,
+        
+        # الطلبات المعلقة
         'pending_graduates': pending_graduates_count,
         'pending_employers': pending_employers_count,
-        'employment_rate': calculate_employment_rate(),
-        'recent_graduates': Graduate.objects.all().order_by('-created_at')[:5],
-        'recent_employers': Employer.objects.all().order_by('-created_at')[:5],
-        'recent_applications': JobApplication.objects.all().order_by('-applied_at')[:5],
-        'popular_majors': get_popular_majors(),
-        'top_employers': get_top_employers(),
-        'monthly_jobs': get_monthly_jobs(),
-        'pending_success_stories': pending_success_stories,
-        # متغيرات لعرض الأرقام في لوحة التحكم
         'pending_graduates_count': pending_graduates_count,
         'pending_employers_count': pending_employers_count,
         'pending_stories_count': pending_stories_count,
         'pending_groups_count': pending_groups_count,
+        
+        # البيانات الخاصة بالنشاطات
+        'employment_rate': calculate_employment_rate(),
+        'popular_majors': popular_majors,
+        'top_employers': top_employers,
+        'monthly_jobs': monthly_jobs,
+        'recent_graduates': recent_graduates,
+        'recent_employers': recent_employers,
+        'recent_applications': recent_applications,
+        
+        # قصص النجاح
+        'pending_success_stories': pending_success_stories,
+        
+        # ✅ الإضافات الجديدة
+        'alerts': alerts,
+        'recent_activities': recent_activities,
+        'now': timezone.now(),  # للاستخدام في القالب (التاريخ الحالي)
     }
+    
     return render(request, 'dashboard/admin_dashboard.html', context)
-
-
-def calculate_employment_rate():
-    total = Graduate.objects.count()
-    if total == 0:
-        return 0
-    working = Graduate.objects.filter(current_job_status='working').count()
-    return round((working / total) * 100, 1)
-
-
-def get_popular_majors():
-    return Graduate.objects.values('major').annotate(count=Count('id')).order_by('-count')[:5]
-
-
-def get_top_employers():
-    return Employer.objects.annotate(job_count=Count('jobs')).order_by('-job_count')[:5]
-
-
-def get_monthly_jobs():
-    from datetime import datetime, timedelta
-    months = []
-    counts = []
-    for i in range(6):
-        month = timezone.now() - timedelta(days=30*i)
-        count = Job.objects.filter(created_at__month=month.month, created_at__year=month.year).count()
-        months.append(month.strftime('%B'))
-        counts.append(count)
-    return {'months': months[::-1], 'counts': counts[::-1]}
-
 
 # ========== إدارة الخريجين ==========
 
@@ -355,8 +438,14 @@ def manage_surveys(request):
     paginator = Paginator(surveys, 20)
     page_number = request.GET.get('page', 1)
     surveys_page = paginator.get_page(page_number)
-    return render(request, 'dashboard/manage_surveys.html', {'surveys': surveys_page})
-
+    
+    # ✅ إضافة عدد الاستبيانات المنشورة وغير المنشورة (اختياري)
+    context = {
+        'surveys': surveys_page,
+        'published_count': Survey.objects.filter(is_published=True).count(),
+        'unpublished_count': Survey.objects.filter(is_published=False).count(),
+    }
+    return render(request, 'dashboard/manage_surveys.html', context)
 
 @staff_member_required
 def create_survey(request):
@@ -923,3 +1012,39 @@ def update_notification_preferences(request):
         graduate.save()
         messages.success(request, '✅ تم تحديث تفضيلات الإشعارات بنجاح.')
     return redirect('graduate_profile', pk=graduate.pk)
+
+def publish_survey(request, survey_id):
+    """نشر استبيان (إرسال إشعارات للخريجين)"""
+    survey = get_object_or_404(Survey, id=survey_id, is_active=True)
+    
+    # ✅ إرسال إشعار لجميع الخريجين
+    graduates = Graduate.objects.filter(is_active=True)
+    notification_count = 0
+    
+    for grad in graduates:
+        Notification.objects.create(
+            recipient=grad.user,
+            title=f'📝 استبيان جديد: {survey.title}',
+            message=f'يسعدنا دعوتك للمشاركة في استبيان "{survey.title}"',
+            link=f'/surveys/{survey.id}/',
+            notification_type='info'
+        )
+        notification_count += 1
+        
+        # ✅ إرسال بريد إلكتروني (اختياري)
+        if grad.user.email:
+            send_mail(
+                f'📝 استبيان جديد: {survey.title}',
+                f'يسعدنا دعوتك للمشاركة في استبيان "{survey.title}".\nرابط الاستبيان: /surveys/{survey.id}/',
+                settings.DEFAULT_FROM_EMAIL,
+                [grad.user.email],
+                fail_silently=True
+            )
+    
+    # ✅ ✅ ✅ أهم جزء: تحديث حالة النشر
+    survey.is_published = True
+    survey.published_at = timezone.now()
+    survey.save()
+    
+    messages.success(request, f'✅ تم نشر الاستبيان "{survey.title}" وإشعار {notification_count} خريج.')
+    return redirect('dashboard:manage_surveys')

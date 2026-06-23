@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Survey, SurveyResponse
+
+# ✅ قم بتغيير هذا السطر
+from dashboard.models import Survey, SurveyResponse  # بدلاً من .models
 from graduates.models import Graduate
 
 def survey_list(request):
     surveys = Survey.objects.filter(is_active=True)
     return render(request, 'surveys/survey_list.html', {'surveys': surveys})
-
 
 def take_survey(request, pk):
     survey = get_object_or_404(Survey, pk=pk, is_active=True)
@@ -17,7 +18,6 @@ def take_survey(request, pk):
         messages.error(request, 'يجب أن تكون مسجلاً كخريج للإجابة على الاستبيان')
         return redirect('graduate_create')
     
-    # التحقق من أن الخريج لم يجب من قبل
     if SurveyResponse.objects.filter(survey=survey, graduate=request.user.graduate_profile).exists():
         messages.warning(request, 'لقد أجبت على هذا الاستبيان مسبقاً')
         return redirect('survey_list')
@@ -45,13 +45,11 @@ def take_survey(request, pk):
     
     return render(request, 'surveys/take_survey.html', {'survey': survey})
 
-
 @staff_member_required
 def survey_results(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
     responses = survey.responses.all()
     
-    # تحليل الإجابات
     results = {}
     for response in responses:
         for answer in response.answers:

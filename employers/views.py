@@ -11,6 +11,10 @@ from jobs.models import Job, JobApplication
 from graduates.models import Graduate
 from dashboard.models import Notification
 import re
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from dashboard.decorators import employer_required
 
 
@@ -194,7 +198,6 @@ def verify_employer(request, pk):
 
 
 # ========== إدارة طلبات التوظيف (القبول - الرفض - المقابلة) ==========
-
 def accept_application(request, app_id):
     application = get_object_or_404(JobApplication, id=app_id)
     
@@ -205,6 +208,7 @@ def accept_application(request, app_id):
     application.status = 'accepted'
     application.save()
     
+    # ✅ إشعار في التطبيق
     Notification.objects.create(
         recipient=application.graduate.user,
         title='🎉 تم قبول طلبك الوظيفي',
@@ -212,9 +216,34 @@ def accept_application(request, app_id):
         link=f'/jobs/{application.job.id}/'
     )
     
-    messages.success(request, f'✅ تم قبول طلب {application.graduate.user.get_full_name()} بنجاح!')
+    # ✅ إرسال بريد إلكتروني ترحيبي للخريج
+    subject = f'🎉 تهانينا! تم قبول طلبك لوظيفة {application.job.title}'
+    html_message = render_to_string('emails/application_accepted.html', {
+        'graduate': application.graduate,
+        'job': application.job,
+        'company': application.job.employer,
+    })
+    plain_message = strip_tags(html_message)
+    send_mail(
+        subject,
+        plain_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [application.graduate.user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+    
+    # ✅ إرسال بريد إلكتروني للشركة (تأكيد)
+    send_mail(
+        f'✅ تم قبول طلب {application.graduate.user.get_full_name()}',
+        f'تم قبول طلب الخريج {application.graduate.user.get_full_name()} لوظيفة {application.job.title}.',
+        settings.DEFAULT_FROM_EMAIL,
+        [application.job.employer.email],
+        fail_silently=True,
+    )
+    
+    messages.success(request, f'🎉 تم قبول طلب {application.graduate.user.get_full_name()} بنجاح! وتم إرسال بريد ترحيبي.')
     return redirect('employer_profile', pk=application.job.employer.pk)
-
 
 def reject_application(request, app_id):
     application = get_object_or_404(JobApplication, id=app_id)
@@ -225,30 +254,38 @@ def reject_application(request, app_id):
     
     application.status = 'rejected'
     application.save()
-    messages.warning(request, f'📝 تم رفض طلب {application.graduate.user.get_full_name()}. نتمنى له التوفيق!')
-    return redirect('employer_profile', pk=application.job.employer.pk)
-
-
-def call_for_interview(request, app_id):
-    application = get_object_or_404(JobApplication, id=app_id)
     
-    if request.user != application.job.employer.user:
-        messages.error(request, '⚠️ غير مصرح لك بالتعامل مع هذا الطلب.')
-        return redirect('employer_list')
-    
-    application.status = 'interview'
-    application.save()
-    
+    # ✅ إشعار في التطبيق
     Notification.objects.create(
         recipient=application.graduate.user,
-        title='📅 دعوة لإجراء مقابلة',
-        message=f'تمت دعوتك لإجراء مقابلة مع شركة {application.job.employer.company_name} لوظيفة {application.job.title}.',
+        title='📝 تحديث بخصوص طلبك الوظيفي',
+        message=f'نأسف لإبلاغك بأن طلبك لوظيفة {application.job.title} لم يتم قبوله في هذه المرحلة. نتمنى لك التوفيق.',
         link=f'/jobs/{application.job.id}/'
     )
     
-    messages.info(request, f'📅 تم تحديد مقابلة مع {application.graduate.user.get_full_name()}.')
+    # ✅ إرسال بريد إلكتروني للخريج
+    subject = f'📝 تحديث بخصوص طلبك لوظيفة {application.job.title}'
+    html_message = render_to_string('emails/application_rejected.html', {
+        'graduate': application.graduate,
+        'job': application.job,
+        'company': application.job.employer,
+    })
+    plain_message = strip_tags(html_message)
+    send_mail(
+        subject,
+        plain_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [application.graduate.user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+    
+    messages.warning(request, f'📝 تم رفض طلب {application.graduate.user.get_full_name()}. تم إرسال إشعار بالرفض.')
     return redirect('employer_profile', pk=application.job.employer.pk)
 
+def call_for_interview(request, app_id):
+    """اختصار سريع لتحديد مقابلة (يعيد التوجيه إلى صفحة تحديد الموعد)"""
+    return interview_application_page(request, app_id)
 
 def accept_application_page(request, app_id):
     application = get_object_or_404(JobApplication, id=app_id)
@@ -277,7 +314,6 @@ def accept_application_page(request, app_id):
     
     return render(request, 'employers/accept_application.html', {'application': application})
 
-
 def interview_application_page(request, app_id):
     application = get_object_or_404(JobApplication, id=app_id)
     
@@ -295,6 +331,7 @@ def interview_application_page(request, app_id):
         application.notes = f"موعد المقابلة: {interview_date}\nالرابط: {interview_link}\nملاحظات: {interview_notes}"
         application.save()
         
+        # ✅ إشعار في التطبيق
         Notification.objects.create(
             recipient=application.graduate.user,
             title='📅 دعوة لإجراء مقابلة',
@@ -302,36 +339,79 @@ def interview_application_page(request, app_id):
             link=f'/jobs/{application.job.id}/'
         )
         
-        messages.success(request, '📅 تم تحديد المقابلة وإشعار الخريج')
+        # ✅ إرسال بريد إلكتروني للخريج
+        subject = f'📅 دعوة لمقابلة شخصية - {application.job.title}'
+        html_message = render_to_string('emails/interview_invitation.html', {
+            'graduate': application.graduate,
+            'job': application.job,
+            'company': application.job.employer,
+            'interview_date': interview_date,
+            'interview_link': interview_link,
+            'interview_notes': interview_notes,
+        })
+        plain_message = strip_tags(html_message)
+        send_mail(
+            subject,
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [application.graduate.user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        messages.success(request, f'📅 تم تحديد المقابلة مع {application.graduate.user.get_full_name()} وإشعاره عبر البريد الإلكتروني.')
         return redirect('employer_profile', pk=application.job.employer.pk)
     
     return render(request, 'employers/interview_application.html', {'application': application})
 
-
 # ========== إضافة تقييم للشركة ==========
 
-def add_review(request, pk):
-    employer = get_object_or_404(Employer, pk=pk)
-    if request.method == 'POST' and hasattr(request.user, 'graduate_profile'):
-        rating = request.POST.get('rating')
-        comment = request.POST.get('comment')
-        
-        existing_review = CompanyReview.objects.filter(employer=employer, graduate=request.user.graduate_profile).first()
-        if existing_review:
-            existing_review.rating = rating
-            existing_review.comment = comment
-            existing_review.save()
-            messages.success(request, '✅ تم تحديث تقييمك بنجاح')
-        else:
-            CompanyReview.objects.create(
-                employer=employer,
-                graduate=request.user.graduate_profile,
-                rating=rating,
-                comment=comment
-            )
-            messages.success(request, '✅ تم إضافة تقييمك بنجاح')
-    return redirect('employer_profile', pk=pk)
+from django.contrib.auth.decorators import login_required
 
+@login_required
+def add_review(request, pk):
+    """إضافة أو تحديث تقييم للشركة"""
+    employer = get_object_or_404(Employer, pk=pk)
+    
+    # ✅ التحقق من أن المستخدم خريج
+    if not hasattr(request.user, 'graduate_profile'):
+        messages.error(request, '⚠️ يجب أن تكون خريجاً لتقييم الشركات.')
+        return redirect('employer_profile', pk=pk)
+    
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
+        
+        # ✅ التحقق من صحة التقييم
+        if not rating or not rating.isdigit() or int(rating) < 1 or int(rating) > 5:
+            messages.error(request, '⚠️ الرجاء اختيار تقييم من 1 إلى 5 نجوم.')
+            return redirect('employer_profile', pk=pk)
+        
+        # ✅ حفظ أو تحديث التقييم
+        review, created = CompanyReview.objects.get_or_create(
+            employer=employer,
+            graduate=request.user.graduate_profile,
+            defaults={'rating': rating, 'comment': comment}
+        )
+        if not created:
+            review.rating = rating
+            review.comment = comment
+            review.save()
+            messages.success(request, '✅ تم تحديث تقييمك للشركة بنجاح.')
+        else:
+            messages.success(request, '✅ تم إضافة تقييمك للشركة بنجاح.')
+        
+        # ✅ إشعار للشركة
+        Notification.objects.create(
+            recipient=employer.user,
+            title='⭐ تقييم جديد لشركتك',
+            message=f'قام {request.user.get_full_name()} بتقييم شركتك بـ {rating} نجوم.',
+            link=f'/employers/{employer.pk}/'
+        )
+        
+        return redirect('employer_profile', pk=pk)
+    
+    return redirect('employer_profile', pk=pk)
 
 # ========== البحث عن الخريجين ==========
 

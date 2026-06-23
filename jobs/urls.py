@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'jobs'  # ✅ أضف هذا السطر
+
 urlpatterns = [
     path('', views.JobListView.as_view(), name='job_list'),
     path('<int:pk>/', views.JobDetailView.as_view(), name='job_detail'),

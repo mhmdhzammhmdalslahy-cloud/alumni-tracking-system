@@ -69,7 +69,7 @@ class Survey(models.Model):
         ('after_6_months', 'بعد 6 أشهر'),
         ('after_12_months', 'بعد 12 شهر'),
         ('after_18_months', 'بعد 18 شهر'),
-    ]
+          ]
     
     title = models.CharField("عنوان الاستبيان", max_length=200)
     timing = models.CharField("التوقيت", max_length=30, choices=TIMING_CHOICES)
@@ -78,11 +78,13 @@ class Survey(models.Model):
     is_active = models.BooleanField("نشط", default=True)
     created_by = models.ForeignKey(AdminProfile, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    is_published = models.BooleanField("تم النشر", default=False)
+    published_at = models.DateTimeField("تاريخ النشر", null=True, blank=True)
+
     def __str__(self):
         return self.title
 
-
+ 
 class SurveyResponse(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='responses')
     graduate = models.ForeignKey('graduates.Graduate', on_delete=models.CASCADE)

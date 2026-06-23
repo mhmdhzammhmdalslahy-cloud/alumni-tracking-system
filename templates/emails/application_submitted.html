@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>✅ تأكيد تقديم الطلب</title>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #f8f9fa; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; }
+        .header { background: #1A5F7A; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
+        .content { padding: 20px; }
+        .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ تأكيد تقديم الطلب</h1>
+        </div>
+        <div class="content">
+            <h3>عزيزي/عزيزتي {{ graduate.user.get_full_name }},</h3>
+            <p>تم استلام طلبك لوظيفة <strong>{{ job.title }}</strong> في شركة <strong>{{ company.company_name }}</strong>.</p>
+            <p>سيتم مراجعة طلبك من قبل الشركة وسيتم إشعارك بأي تحديثات.</p>
+            <p>يمكنك متابعة حالة طلبك من خلال <a href="{{ job.get_absolute_url }}">صفحة الوظيفة</a>.</p>
+            <p>مع أطيب التحيات،<br><strong>فريق نظام متابعة الخريجين</strong></p>
+        </div>
+        <div class="footer">
+            هذا البريد إلكتروني آلي، يرجى عدم الرد عليه.
+        </div>
+    </div>
+</body>
+</html>
