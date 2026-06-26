@@ -15,6 +15,14 @@ from django.conf import settings
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
+from django.http import HttpResponse
+from django.db.models import Count, Avg
+import json
+import csv
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
 import json
 
 from .models import (
@@ -604,19 +612,44 @@ def system_settings(request):
     if not request.user.admin_profile.admin_level == 'super_admin':
         messages.error(request, 'غير مصرح لك بالوصول إلى هذه الصفحة')
         return redirect('dashboard:admin_dashboard')
+    
     settings = SystemSetting.objects.all()
+    
+    # ✅ تحويل الإعدادات إلى dict للاستخدام في القالب
+    settings_dict = {s.key: s for s in settings}
+    
     if request.method == 'POST':
         for setting in settings:
             new_value = request.POST.get(setting.key)
-            if new_value:
+            if new_value is not None:
                 setting.value = new_value
                 setting.updated_by = request.user.admin_profile
                 setting.save()
+        
+        # ✅ حفظ الإعدادات الجديدة إذا لم تكن موجودة
+        contact_keys = ['contact_phone', 'contact_email', 'contact_address', 'contact_whatsapp']
+        for key in contact_keys:
+            if key in request.POST:
+                setting, created = SystemSetting.objects.get_or_create(
+                    key=key,
+                    defaults={
+                        'value': request.POST.get(key),
+                        'setting_type': 'general',
+                        'description': f'إعداد التواصل - {key}'
+                    }
+                )
+                if not created:
+                    setting.value = request.POST.get(key)
+                    setting.save()
+        
         messages.success(request, '✅ تم حفظ الإعدادات بنجاح')
         return redirect('dashboard:system_settings')
-    return render(request, 'dashboard/system_settings.html', {'settings': settings})
-
-
+    
+    context = {
+        'settings': settings,
+        'settings_dict': settings_dict,  # ✅ تمرير الـ dict للقالب
+    }
+    return render(request, 'dashboard/system_settings.html', context)
 # ========== إدارة المشرفين ==========
 
 @staff_member_required
@@ -1048,3 +1081,105 @@ def publish_survey(request, survey_id):
     
     messages.success(request, f'✅ تم نشر الاستبيان "{survey.title}" وإشعار {notification_count} خريج.')
     return redirect('dashboard:manage_surveys')
+
+def get_dashboard_stats(request):
+    """إحصائيات لوحة التحكم (API)"""
+    from graduates.models import Graduate
+    from employers.models import Employer
+    from jobs.models import Job, JobApplication
+    from dashboard.models import Survey, SurveyResponse
+    
+    total_graduates = Graduate.objects.filter(is_verified=True).count()
+    total_employers = Employer.objects.filter(is_verified=True).count()
+    total_jobs = Job.objects.filter(is_active=True).count()
+    total_applications = JobApplication.objects.count()
+    
+    working = Graduate.objects.filter(is_verified=True, current_job_status='working').count()
+    employment_rate = round((working / total_graduates) * 100, 1) if total_graduates > 0 else 0
+    
+    # توزيع الخريجين حسب التخصص
+    majors = Graduate.objects.filter(is_verified=True).values('major').annotate(count=Count('id')).order_by('-count')[:5]
+    
+    # طلبات التوظيف حسب الشهر (آخر 6 أشهر)
+    from django.utils import timezone
+    from datetime import timedelta
+    monthly_applications = []
+    for i in range(6):
+        month = timezone.now() - timedelta(days=30*i)
+        count = JobApplication.objects.filter(
+            applied_at__month=month.month,
+            applied_at__year=month.year
+        ).count()
+        monthly_applications.append({
+            'month': month.strftime('%B'),
+            'count': count
+        })
+    
+    return JsonResponse({
+        'total_graduates': total_graduates,
+        'total_employers': total_employers,
+        'total_jobs': total_jobs,
+        'total_applications': total_applications,
+        'employment_rate': employment_rate,
+        'majors': list(majors),
+        'monthly_applications': monthly_applications[::-1],
+    })
+
+
+def export_excel(request):
+    """تصدير بيانات الخريجين إلى Excel"""
+    import pandas as pd
+    from graduates.models import Graduate
+    
+    graduates = Graduate.objects.filter(is_verified=True).select_related('user')
+    
+    data = []
+    for g in graduates:
+        data.append({
+            'الاسم': g.user.get_full_name(),
+            'البريد': g.user.email,
+            'التخصص': g.major,
+            'سنة التخرج': g.graduation_year,
+            'المعدل': float(g.gpa) if g.gpa else '',
+            'الحالة الوظيفية': g.get_current_job_status_display(),
+            'الشركة الحالية': g.current_company or '',
+        })
+    
+    df = pd.DataFrame(data)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="graduates_data.xlsx"'
+    df.to_excel(response, index=False, engine='openpyxl')
+    return response
+
+
+def export_pdf(request):
+    """تصدير تقرير إلى PDF"""
+    from graduates.models import Graduate
+    
+    graduates = Graduate.objects.filter(is_verified=True).select_related('user')[:20]
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+    
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    
+    # عنوان
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(2*cm, height-2*cm, "تقرير الخريجين")
+    
+    y = height - 3.5*cm
+    p.setFont("Helvetica", 12)
+    for g in graduates:
+        p.drawString(2*cm, y, f"{g.user.get_full_name()} - {g.major} - {g.graduation_year}")
+        y -= 0.8*cm
+        if y < 2*cm:
+            p.showPage()
+            y = height - 2*cm
+    
+    p.save()
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response

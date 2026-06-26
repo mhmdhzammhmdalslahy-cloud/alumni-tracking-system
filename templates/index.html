@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     {% load static %}
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>نظام متابعة الخريجين</title>
@@ -204,47 +205,81 @@ body.dark-mode .notification-footer {
             </form>
             
             <div class="d-flex align-items-center gap-4">
-              <!-- أيقونة الإشعارات مع القائمة المنسدلة (نسخة محسنة) -->
-<div class="dropdown">
-<a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">        <i class="fas fa-bell fa-lg"></i>
-        {% if unread_notifications_count > 0 %}
-        <span class="notification-badge">{{ unread_notifications_count }}</span>
-        {% endif %}
-    </a>
-    <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0" aria-labelledby="notificationBell">
-        <div class="notification-header">
-            <h6><i class="fas fa-bell me-2"></i> الإشعارات</h6>
-            <span class="badge">{{ unread_notifications_count }} غير مقروء</span>
-        </div>
-        <div class="notification-list">
-            {% for notif in recent_notifications %}
-            <a href="{{ notif.link }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
-                <div class="notification-icon-circle">
-                    <i class="fas fa-bell-slash"></i>
+                <!-- أيقونة الإشعارات -->
+                <div class="dropdown">
+                    <a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell fa-lg"></i>
+                        {% if unread_notifications_count > 0 %}
+                        <span class="notification-badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0" aria-labelledby="notificationBell">
+                        <div class="notification-header">
+                            <h6><i class="fas fa-bell me-2"></i> الإشعارات</h6>
+                            <span class="badge">{{ unread_notifications_count }} غير مقروء</span>
+                        </div>
+                        <div class="notification-list">
+                            {% for notif in recent_notifications %}
+                            <a href="{{ notif.link }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
+                                <div class="notification-icon-circle">
+                                    <i class="fas fa-bell-slash"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">{{ notif.title }}</div>
+                                    <div class="notification-message">{{ notif.message|truncatechars:60 }}</div>
+                                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} مضى</div>
+                                </div>
+                                {% if not notif.is_read %}
+                                <div class="notification-dot"></div>
+                                {% endif %}
+                            </a>
+                            {% empty %}
+                            <div class="text-center py-4 px-3">
+                                <i class="fas fa-bell-slash fa-2x text-muted mb-2 d-block"></i>
+                                <span class="text-muted">لا توجد إشعارات حالياً</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="notification-footer">
+                            <a href="{% url 'dashboard:notification_list' %}">عرض جميع الإشعارات <i class="fas fa-arrow-left ms-1"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div class="notification-content">
-                    <div class="notification-title">{{ notif.title }}</div>
-                    <div class="notification-message">{{ notif.message|truncatechars:60 }}</div>
-                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} مضى</div>
+
+                <!-- ====== 🌍 أيقونة اللغة (مدمجة في الـ Navbar) ====== -->
+                <div class="dropdown d-inline-block">
+                    <a href="#" class="text-white text-decoration-none d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" title="تغيير اللغة" style="padding: 4px 8px; border-radius: 50px; transition: 0.3s;">
+                        <i class="fas fa-globe fa-lg"></i>
+                        <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.6rem; padding: 2px 8px;">
+                            {% get_current_language as LANG %}
+                            {% if LANG == 'ar' %}عربي{% else %}EN{% endif %}
+                        </span>
+                        <i class="fas fa-chevron-down fa-xs text-white-50"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" style="min-width: 140px; border-radius: 16px; padding: 8px;">
+                        <li class="px-2 py-1">
+                            <div class="text-muted small fw-bold mb-1" style="font-size: 0.7rem;">اختر اللغة</div>
+                        </li>
+                        <li>
+                            <a href="#" onclick="setLanguage('ar'); return false;" class="btn btn-sm w-100 d-flex align-items-center justify-content-between {% if LANG == 'ar' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius: 50px; transition: 0.3s;">
+                                <span>🇸🇦 العربية</span>
+                                {% if LANG == 'ar' %}
+                                <i class="fas fa-check-circle"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="setLanguage('en'); return false;" class="btn btn-sm w-100 d-flex align-items-center justify-content-between {% if LANG == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius: 50px; transition: 0.3s;">
+                                <span>🇬🇧 English</span>
+                                {% if LANG == 'en' %}
+                                <i class="fas fa-check-circle"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                {% if not notif.is_read %}
-                <div class="notification-dot"></div>
-                {% endif %}
-            </a>
-            {% empty %}
-            <div class="text-center py-4 px-3">
-                <i class="fas fa-bell-slash fa-2x text-muted mb-2 d-block"></i>
-                <span class="text-muted">لا توجد إشعارات حالياً</span>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="notification-footer">
-            <a href="{% url 'dashboard:notification_list' %}">عرض جميع الإشعارات <i class="fas fa-arrow-left ms-1"></i></a>
-        </div>
-    </div>
-</div>
-                <!-- نهاية الإشعارات -->
-                
+
+                <!-- قائمة المستخدم -->
                 <div class="dropdown">
                     <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle fa-lg"></i>
@@ -268,7 +303,7 @@ body.dark-mode .notification-footer {
         </div>
     </nav>
 
-    <!-- باقي محتوى الصفحة (لم يتغير) -->
+    <!-- باقي محتوى الصفحة -->
     <div class="container my-4">
         <div class="row">
             <div class="col-lg-3">
@@ -353,7 +388,8 @@ body.dark-mode .notification-footer {
                 <!-- أحدث الخريجين -->
                 <div class="section-header mt-5">
                     <h5 class="section-title">🎓 أحدث الخريجين</h5>
-                <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>                </div>
+                    <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
                 <div class="row g-3">
                     {% for graduate in latest_graduates %}
                     <div class="col-md-4 col-6 mb-3">
@@ -374,73 +410,76 @@ body.dark-mode .notification-footer {
                     {% endfor %}
                 </div>
                 
-
                 <!-- آخر الوظائف -->
-<div class="section-header mt-5">
-    <h5 class="section-title">💼 آخر الوظائف</h5>
-    <a href="{% url 'jobs:job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-</div>
-<div class="row g-3">
-    {% for job in latest_jobs %}
-    <div class="col-md-4 col-6 mb-3">
-        <div class="job-card text-center" onclick="location.href='{%url 'jobs:job_detail' job.id %}'">
-            <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
-            <h6 class="mt-2">{{ job.title }}</h6>
-            <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
-            <span class="badge-job">{{ job.get_job_type_display }}</span>
-        </div>
-    </div>
-    {% empty %}
-    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
-    {% endfor %}
-</div>
+                <div class="section-header mt-5">
+                    <h5 class="section-title">💼 آخر الوظائف</h5>
+                    <a href="{% url 'jobs:job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
+                <div class="row g-3">
+                    {% for job in latest_jobs %}
+                    <div class="col-md-4 col-6 mb-3">
+                        <!-- ✅ تم إصلاح {%url إلى {% url -->
+                        <div class="job-card text-center" onclick="location.href='{% url 'jobs:job_detail' job.id %}'">
+                            <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
+                            <h6 class="mt-2">{{ job.title }}</h6>
+                            <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
+                            <span class="badge-job">{{ job.get_job_type_display }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
+                    {% endfor %}
+                </div>
 
+                <!-- قصص نجاح -->
+                <div class="section-header mt-5">
+                    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
+                    <div class="d-flex gap-2">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> أضف قصتك
+                        </a>
+                        {% endif %}
+                        <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                    </div>
+                </div>
 
-              <!-- قصص نجاح -->
-<div class="section-header mt-5">
-    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
-    <div class="d-flex gap-2">
-        {% if user.is_authenticated %}
-        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-plus"></i> أضف قصتك
-        </a>
-        {% endif %}
-<a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>    </div>
-</div>
-
-<div class="row g-4">
-    {% for story in success_stories %}
-    <div class="col-md-4 col-6 mb-4">
-        <div class="card success-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-            {% if story.image %}
-            <img src="{{ story.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
-            {% else %}
-            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
-                <i class="fas fa-quote-right fa-3x text-primary opacity-50"></i>
-            </div>
-            {% endif %}
-            <div class="card-body">
-                <i class="fas fa-quote-right fa-2x text-primary opacity-25 mb-2 d-block"></i>
-                <p class="card-text small">"{{ story.content|truncatechars:120 }}"</p>
-                <div class="mt-3">
-                    <h6 class="mb-0">{{ story.graduate.user.get_full_name|default:story.graduate.user.username }}</h6>
-                    <small class="text-muted">{{ story.graduate.major }} - {{ story.graduate.graduation_year }}</small>
+                <div class="row g-4">
+                    {% for story in success_stories %}
+                    <div class="col-md-4 col-6 mb-4">
+                        <div class="card success-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                            {% if story.image %}
+                            <img src="{{ story.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                <i class="fas fa-quote-right fa-3x text-primary opacity-50"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <i class="fas fa-quote-right fa-2x text-primary opacity-25 mb-2 d-block"></i>
+                                <p class="card-text small">"{{ story.content|truncatechars:120 }}"</p>
+                                <div class="mt-3">
+                                    <h6 class="mb-0">{{ story.graduate.user.get_full_name|default:story.graduate.user.username }}</h6>
+                                    <small class="text-muted">{{ story.graduate.major }} - {{ story.graduate.graduation_year }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-star-of-life fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد قصص نجاح بعد</h5>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-primary mt-2">كن أول من يضيف قصته!</a>
+                        {% else %}
+                        <p class="text-muted">سجل الدخول لمشاركة قصتك الملهمة</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <i class="fas fa-star-of-life fa-3x text-muted mb-3"></i>
-        <h5 class="text-muted">لا توجد قصص نجاح بعد</h5>
-        {% if user.is_authenticated %}
-        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-primary mt-2">كن أول من يضيف قصته!</a>
-        {% else %}
-        <p class="text-muted">سجل الدخول لمشاركة قصتك الملهمة</p>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
 
     <!-- Footer -->
     <footer>
@@ -487,6 +526,12 @@ body.dark-mode .notification-footer {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
+        // ✅ دالة تغيير اللغة
+        function setLanguage(lang) {
+            document.cookie = "django_language=" + lang + "; path=/";
+            location.reload();
+        }
+
         var swiper = new Swiper('.mySwiper', {
             loop: true,
             autoplay: { delay: 5000, disableOnInteraction: false },
@@ -556,9 +601,6 @@ body.dark-mode .notification-footer {
         setTimeout(() => {
             showNotification('مرحباً بك', 'نتمنى لك تجربة ممتعة على منصة متابعة الخريجين');
         }, 3000);
-
-
-        
     </script>
     {% include 'includes/chat_widget.html' %}
 </body>

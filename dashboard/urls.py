@@ -41,5 +41,9 @@ urlpatterns = [
     path('approve-graduate/<int:pk>/', views.approve_graduate, name='approve_graduate'),
     path('update-notification-preferences/', views.update_notification_preferences, name='update_notification_preferences'),
     path('survey/<int:survey_id>/publish/', views.publish_survey, name='publish_survey'),
+    # أضف هذه المسارات
+    path('stats/', views.get_dashboard_stats, name='stats'),
+    path('export/excel/', views.export_excel, name='export_excel'),
+    path('export/pdf/', views.export_pdf, name='export_pdf'),
     
 ]

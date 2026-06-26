@@ -1,3 +1,4 @@
+{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
 
 {% block title %}إعدادات النظام{% endblock %}
@@ -5,12 +6,13 @@
 {% block content %}
 <div class="card">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">إعدادات النظام</h5>
+        <h5 class="mb-0"><i class="fas fa-cogs"></i> إعدادات النظام</h5>
     </div>
     <div class="card-body">
         <form method="post">
             {% csrf_token %}
             
+            <!-- ====== الإعدادات العامة ====== -->
             {% regroup settings by setting_type as setting_groups %}
             {% for group in setting_groups %}
             <h5 class="mt-3 mb-3">
@@ -30,7 +32,7 @@
             <div class="row">
                 {% for setting in group.list %}
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">{{ setting.key }}</label>
+                    <label class="form-label fw-bold">{{ setting.key }}</label>
                     <input type="text" name="{{ setting.key }}" class="form-control" value="{{ setting.value }}">
                     <small class="text-muted">{{ setting.description|default:"لا يوجد وصف" }}</small>
                 </div>
@@ -38,8 +40,51 @@
             </div>
             {% endfor %}
             
+            <!-- ============================================================ -->
+            <!-- ====== ✅ إعدادات التواصل (مدمجة داخل النموذج) ====== -->
+            <!-- ============================================================ -->
+            <div class="card mt-4 border border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-phone"></i> إعدادات التواصل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">📞 رقم الهاتف</label>
+                            <input type="text" name="contact_phone" class="form-control" 
+                                   value="{{ settings_dict.contact_phone.value|default:'+967 777 123 456' }}">
+                            <small class="text-muted">رقم الهاتف للتواصل</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">📧 البريد الإلكتروني</label>
+                            <input type="email" name="contact_email" class="form-control" 
+                                   value="{{ settings_dict.contact_email.value|default:'info@alsalahi.com' }}">
+                            <small class="text-muted">البريد الإلكتروني للتواصل</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">📍 العنوان</label>
+                            <input type="text" name="contact_address" class="form-control" 
+                                   value="{{ settings_dict.contact_address.value|default:'اليمن - صنعاء' }}">
+                            <small class="text-muted">العنوان الرئيسي للشركة</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">💬 رابط واتساب</label>
+                            <input type="url" name="contact_whatsapp" class="form-control" 
+                                   value="{{ settings_dict.contact_whatsapp.value|default:'https://wa.me/967777123456' }}">
+                            <small class="text-muted">رابط حساب واتساب (اختياري)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ====== زر الحفظ ====== -->
             <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-save"></i> حفظ جميع الإعدادات
+                </button>
+                <a href="{% url 'dashboard:admin_dashboard' %}" class="btn btn-secondary btn-lg px-4">
+                    <i class="fas fa-arrow-right"></i> العودة
+                </a>
             </div>
         </form>
     </div>

@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from graduates.views import home
 from . import views
+from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -22,6 +23,7 @@ urlpatterns = [
     path('groups/', include('groups.urls')),   # <-- جديد
     path('chatbot/', include('chatbot.urls')),
     path('api/', include('api.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
     
 ]
 

@@ -13,6 +13,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# ========== التطبيقات المثبتة ==========
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,6 +30,10 @@ INSTALLED_APPS = [
     'django_filters',
     'whitenoise.runserver_nostatic',
     
+    # Celery & WebPush
+    'django_celery_beat',
+    'webpush',   # ✅ تم حذف التكرار (كان مكرراً في الأسفل)
+    
     # Local apps
     'accounts',
     'graduates',
@@ -38,20 +43,21 @@ INSTALLED_APPS = [
     'dashboard',
     'groups',
     'chatbot',
-    
 ]
 
+# ========== الـ Middleware (تم إصلاح الترتيب) ==========
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # ✅ بعد SessionMiddleware وقبل CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
+]
 
 ROOT_URLCONF = 'alumni_system.urls'
 
@@ -74,6 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alumni_system.wsgi.application'
 
+# ========== قاعدة البيانات ==========
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -81,6 +88,7 @@ DATABASES = {
     }
 }
 
+# ========== التحقق من كلمة المرور ==========
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -88,11 +96,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ========== اللغة والوقت ==========
 LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Aden'
 USE_I18N = True
 USE_TZ = True
 
+# ========== تعدد اللغات (دعم العربية والإنجليزية) ==========
+LANGUAGES = [
+    ('ar', 'العربية'),
+    ('en', 'English'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
+USE_I18N = True
+
+# ========== الملفات الثابتة والوسائط ==========
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -105,20 +123,23 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
 DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
 
+# ========== Crispy Forms ==========
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
+# ========== تسجيل الدخول والخروج ==========
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# ========== النماذج الافتراضية ==========
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings (للسماح لتطبيق الجوال بالاتصال بالـ API)
-CORS_ALLOW_ALL_ORIGINS = True  # في التطوير، يمكنك تضييقها لاحقاً
+# ========== CORS (للتطبيقات الجوالة) ==========
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# REST Framework settings
+# ========== Django REST Framework ==========
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -130,6 +151,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+# ========== JWT ==========
 from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
@@ -144,3 +166,22 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = f'نظام متابعة الخريجين <{EMAIL_HOST_USER}>'
+
+# ============================================================
+# ========== ✅ إعدادات Celery (جدولة المهام) ==========
+# ============================================================
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# ============================================================
+# ========== ✅ إعدادات WebPush ==========
+# ============================================================
+WEBPUSH_SETTINGS = {
+    "VAPID_PRIVATE_KEY": "your_private_key",
+    "VAPID_PUBLIC_KEY": "your_public_key",
+    "VAPID_CLAIMS": {
+        "sub": "mailto:your-email@example.com"
+    }
+}

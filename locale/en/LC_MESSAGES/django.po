@@ -1,0 +1,136 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-26 04:00+0300\n"
+"PO-Revision-Date: 2026-06-26 04:00+0300\n"
+"Last-Translator: Your Name <email@example.com>\n"
+"Language-Team: English <en@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "نظام متابعة الخريجين"
+msgstr "Alumni Tracking System"
+
+msgid "الرئيسية"
+msgstr "Home"
+
+msgid "الخريجين"
+msgstr "Graduates"
+
+msgid "الشركات"
+msgstr "Companies"
+
+msgid "الوظائف"
+msgstr "Jobs"
+
+msgid "لوحة الإدارة"
+msgstr "Admin Dashboard"
+
+msgid "القائمة"
+msgstr "Menu"
+
+msgid "حسابي"
+msgstr "My Account"
+
+msgid "تسجيل دخول"
+msgstr "Login"
+
+msgid "تسجيل خروج"
+msgstr "Logout"
+
+msgid "إنشاء حساب"
+msgstr "Register"
+
+msgid "الوضع الداكن"
+msgstr "Dark Mode"
+
+msgid "ملفي الشخصي"
+msgstr "My Profile"
+
+msgid "عرض الكل"
+msgstr "View All"
+
+msgid "أضف قصتك"
+msgstr "Add Your Story"
+
+msgid "كن أول من يضيف قصته!"
+msgstr "Be the first to add your story!"
+
+msgid "سجل الآن"
+msgstr "Register Now"
+
+msgid "استعرض الوظائف"
+msgstr "Browse Jobs"
+
+msgid "تعرف أكثر"
+msgstr "Learn More"
+
+msgid "ابحث عن خريج، تخصص، شركة..."
+msgstr "Search for graduate, major, company..."
+
+msgid "خريج"
+msgstr "Graduate"
+
+msgid "شركة"
+msgstr "Company"
+
+msgid "وظيفة"
+msgstr "Job"
+
+msgid "نسبة التوظيف"
+msgstr "Employment Rate"
+
+msgid "أحدث الخريجين"
+msgstr "Latest Graduates"
+
+msgid "آخر الوظائف"
+msgstr "Latest Jobs"
+
+msgid "قصص نجاح خريجينا"
+msgstr "Our Graduates' Success Stories"
+
+msgid "منصتك الأولى للتواصل مع الخريجين وفرص العمل"
+msgstr "Your first platform to connect with graduates and job opportunities"
+
+msgid "روابط سريعة"
+msgstr "Quick Links"
+
+msgid "تواصل معنا"
+msgstr "Contact Us"
+
+msgid "جميع الحقوق محفوظة"
+msgstr "All Rights Reserved"
+
+msgid "لا يوجد خريجين"
+msgstr "No graduates found"
+
+msgid "لا توجد وظائف حالياً"
+msgstr "No jobs available"
+
+msgid "لا توجد قصص نجاح بعد"
+msgstr "No success stories yet"
+
+msgid "سجل الدخول لمشاركة قصتك الملهمة"
+msgstr "Login to share your inspiring story"
+
+msgid "مرحباً بك"
+msgstr "Welcome"
+
+msgid "نتمنى لك تجربة ممتعة على منصة متابعة الخريجين"
+msgstr "We hope you have a great experience on the Alumni Tracking System"
+
+msgid "منصة متابعة الخريجين"
+msgstr "Alumni Tracking System"
+
+msgid "تواصل مع خريجين الجامعة واكتشف فرص العمل"
+msgstr "Connect with university graduates and discover job opportunities"

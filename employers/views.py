@@ -45,7 +45,17 @@ class EmployerListView(ListView):
         context = super().get_context_data(**kwargs)
         context['total_companies'] = Employer.objects.filter(is_active=True, is_verified=True).count()
         context['verified_companies'] = Employer.objects.filter(is_verified=True).count()
+        
+        # ✅ أعلى الشركات توظيفاً
+        from django.db.models import Count, Q
+        context['top_employers'] = Employer.objects.filter(
+            is_active=True, is_verified=True
+        ).annotate(
+            job_count=Count('jobs', filter=Q(jobs__is_active=True))
+        ).filter(job_count__gt=0).order_by('-job_count')[:5]
+        
         return context
+
 
 
 class EmployerDetailView(DetailView):

@@ -1,16 +1,86 @@
+{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load static %}
 
 {% block title %}التقارير{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">التقارير</h1>
-    <a href="{% url 'dashboard:generate_report' %}" class="btn btn-primary">
-        <i class="fas fa-chart-line"></i> تقرير جديد
-    </a>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="h3"><i class="fas fa-chart-bar"></i> التقارير</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:export_excel' %}" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> تصدير Excel
+        </a>
+        <a href="{% url 'dashboard:export_pdf' %}" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> تصدير PDF
+        </a>
+        <a href="{% url 'dashboard:generate_report' %}" class="btn btn-primary">
+            <i class="fas fa-chart-line"></i> تقرير جديد
+        </a>
+    </div>
 </div>
 
-<div class="card">
+<!-- ====== نسبة التوظيف ====== -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-percentage text-success"></i> نسبة التوظيف</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="position-relative d-inline-block">
+                    <div class="progress-circle" style="width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(#2ecc71 35%, #e9ecef 0%); display: flex; align-items: center; justify-content: center;">
+                        <div class="bg-white rounded-circle" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                            <span class="display-6 fw-bold text-success" id="employmentRate">35%</span>
+                            <small class="text-muted">موظفين</small>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mt-3">من إجمالي <span id="totalGraduates">0</span> خريج</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary"></i> التخصصات الأكثر طلباً</h5>
+            </div>
+            <div class="card-body" id="majorsChart">
+                <canvas id="majorsCanvas" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== المخططات البيانية ====== -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-chart-line text-primary"></i> طلبات التوظيف الشهرية</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="applicationsChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-building text-warning"></i> أعلى الشركات توظيفاً</h5>
+            </div>
+            <div class="card-body" id="topEmployersList">
+                <div class="text-center text-muted">جاري التحميل...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== قائمة التقارير ====== -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-list"></i> التقارير المحفوظة</h5>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -29,25 +99,79 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ report.report_name }}</td>
-                        <td>{{ report.get_report_type_display }}</td>
+                        <td><span class="badge bg-info">{{ report.get_report_type_display }}</span></td>
                         <td>{{ report.generated_at|date:"Y-m-d H:i" }}</td>
                         <td>{{ report.generated_by.user.get_full_name|default:"-" }}</td>
                         <td>
                             {% if report.file_path %}
-                            <a href="{{ report.file_path.url }}" class="btn btn-sm btn-info" target="_blank">
-                                <i class="fas fa-download"></i> تحميل
+                            <a href="{{ report.file_path.url }}" class="btn btn-sm btn-info rounded-pill" target="_blank">
+                                <i class="fas fa-download"></i>
                             </a>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">لا توجد تقارير</td>
-                    </tr>
+                    <tr><td colspan="6" class="text-center py-4 text-muted">لا توجد تقارير</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<!-- ====== سكربتات المخططات ====== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // جلب البيانات من API
+        fetch('/dashboard/stats/')
+            .then(response => response.json())
+            .then(data => {
+                // نسبة التوظيف
+                document.getElementById('employmentRate').textContent = data.employment_rate + '%';
+                document.getElementById('totalGraduates').textContent = data.total_graduates;
+                
+                // مخطط التخصصات
+                const majorsCtx = document.getElementById('majorsCanvas').getContext('2d');
+                new Chart(majorsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.majors.map(m => m.major),
+                        datasets: [{
+                            data: data.majors.map(m => m.count),
+                            backgroundColor: ['#1A5F7A', '#F39C12', '#27ae60', '#e74c3c', '#3498db'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+                
+                // مخطط الطلبات الشهرية
+                const appsCtx = document.getElementById('applicationsChart').getContext('2d');
+                new Chart(appsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.monthly_applications.map(m => m.month),
+                        datasets: [{
+                            label: 'طلبات التوظيف',
+                            data: data.monthly_applications.map(m => m.count),
+                            borderColor: '#1A5F7A',
+                            backgroundColor: 'rgba(26,95,122,0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            })
+            .catch(err => console.error('Error loading stats:', err));
+    });
+</script>
 {% endblock %}
