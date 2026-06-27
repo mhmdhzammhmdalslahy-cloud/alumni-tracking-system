@@ -14,7 +14,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
         </div>
     </nav>
 
@@ -28,15 +28,15 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label fw-bold">عنوان الموضوع <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" required placeholder="مثال: اقتراحات لتطوير المهارات">
+                        <input type="text" name="title" class="form-control" required placeholder="مثال: اقتراحات لتطوير {% trans "المهارات" %}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">المحتوى <span class="text-danger">*</span></label>
                         <textarea name="content" class="form-control" rows="6" required placeholder="اكتب موضوعك هنا..."></textarea>
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success flex-grow-1">نشر الموضوع</button>
-                        <a href="{% url 'groups:topic_list' group.id %}" class="btn btn-secondary flex-grow-1">إلغاء</a>
+                        <button type="submit" class="btn btn-success flex-grow-1">{% trans "نشر" %} الموضوع</button>
+                        <a href="{% url 'groups:topic_list' group.id %}" class="btn btn-secondary flex-grow-1">{% trans "إلغاء" %}</a>
                     </div>
                 </form>
             </div>

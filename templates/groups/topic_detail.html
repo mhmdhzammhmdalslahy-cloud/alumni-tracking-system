@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav class="navbar"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a></div></nav>
+    <nav class="navbar"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a></div></nav>
     <div class="container my-4">
         <div class="card mb-4">
             <div class="card-header">
@@ -39,7 +39,7 @@
                 <form method="post">
                     {% csrf_token %}
                     <textarea name="content" class="form-control" rows="3" required></textarea>
-                    <button type="submit" class="btn btn-primary mt-2">إرسال</button>
+                    <button type="submit" class="btn btn-primary mt-2">{% trans "إرسال" %}</button>
                 </form>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>{% if form.instance.pk %}تعديل{% else %}إضافة{% endif %} وظيفة</title>
+    <title>{% if form.instance.pk %}{% trans "تعديل" %}{% else %}{% trans "إضافة" %}{% endif %} {% trans "وظيفة" %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,15 +18,15 @@
 <body class="bg-light">
 <div class="container">
     <div class="form-container">
-        <h2 class="mb-4">{% if form.instance.pk %}تعديل{% else %}إضافة{% endif %} وظيفة جديدة</h2>
+        <h2 class="mb-4">{% if form.instance.pk %}{% trans "تعديل" %}{% else %}{% trans "إضافة" %}{% endif %} {% trans "وظيفة" %} جديدة</h2>
         <form method="post">
             {% csrf_token %}
             
             <div class="form-section">
-                <h6 class="section-title">معلومات الوظيفة</h6>
+                <h6 class="section-title">معلومات ال{% trans "وظيفة" %}</h6>
                 <div class="row">
                     <div class="col-md-6 mb-3"><label>المسمى الوظيفي</label>{{ form.title }}</div>
-                    <div class="col-md-6 mb-3"><label>نوع الوظيفة</label>{{ form.job_type }}</div>
+                    <div class="col-md-6 mb-3"><label>نوع ال{% trans "وظيفة" %}</label>{{ form.job_type }}</div>
                     <div class="col-md-6 mb-3"><label>مستوى الخبرة</label>{{ form.experience_level }}</div>
                     <div class="col-md-6 mb-3"><label>الموقع</label>{{ form.location }}</div>
                 </div>
@@ -42,9 +42,9 @@
             </div>
             
             <div class="form-section">
-                <h6 class="section-title">المهارات والوصف</h6>
-                <div class="mb-3"><label>المهارات المطلوبة (كل مهارة في سطر)</label>{{ form.required_skills }}</div>
-                <div class="mb-3"><label>المهارات المفضلة</label>{{ form.preferred_skills }}</div>
+                <h6 class="section-title">{% trans "المهارات" %} والوصف</h6>
+                <div class="mb-3"><label>{% trans "المهارات" %} المطلوبة (كل مهارة في سطر)</label>{{ form.required_skills }}</div>
+                <div class="mb-3"><label>{% trans "المهارات" %} المفضلة</label>{{ form.preferred_skills }}</div>
                 <div class="mb-3"><label>الوصف الوظيفي</label>{{ form.description }}</div>
                 <div class="mb-3"><label>المسؤوليات</label>{{ form.responsibilities }}</div>
                 <div class="mb-3"><label>المزايا</label>{{ form.benefits }}</div>
@@ -52,8 +52,8 @@
             </div>
             
             <div class="d-flex justify-content-between">
-                <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">إلغاء</a>
-                <button type="submit" class="btn btn-primary-custom">حفظ الوظيفة</button>
+                <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                <button type="submit" class="btn btn-primary-custom">{% trans "حفظ" %} ال{% trans "وظيفة" %}</button>
             </div>
         </form>
     </div>

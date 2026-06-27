@@ -1,5 +1,5 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
 {% block title %}إنشاء تقرير جديد{% endblock %}
 
@@ -17,7 +17,7 @@
                     <label class="form-label">نوع التقرير</label>
                     <select name="report_type" class="form-select" required>
                         <option value="employment">تقرير التوظيف</option>
-                        <option value="skill_gap">تقرير فجوات المهارات</option>
+                        <option value="skill_gap">تقرير فجوات {% trans "المهارات" %}</option>
                         <option value="general">تقرير عام</option>
                     </select>
                 </div>
@@ -32,7 +32,7 @@
             </div>
             
             <div class="d-flex gap-2">
-                <a href="{% url 'dashboard:reports' %}" class="btn btn-secondary">إلغاء</a>
+                <a href="{% url 'dashboard:reports' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
                 <button type="submit" class="btn btn-primary">إنشاء التقرير</button>
             </div>
         </form>

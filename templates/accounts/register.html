@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>انضم إلينا - نظام متابعة الخريجين</title>
+    <title>انضم إلينا - {% trans "نظام متابعة الخريجين" %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -259,8 +259,8 @@
     <div class="register-card">
         <div class="card-header-custom">
             <i class="fas fa-graduation-cap"></i>
-            <h2>مرحباً بك! 🌟</h2>
-            <p>انضم إلى عائلة الخريجين وابدأ رحلتك المهنية</p>
+            <h2>{% trans "مرحباً بك" %}! 🌟</h2>
+            <p>انضم إلى عائلة {% trans "الخريجين" %} وابدأ رحلتك المهنية</p>
         </div>
         
         <div class="card-body-custom">
@@ -299,12 +299,12 @@
                 </div>
                 
                 <div class="input-group-custom">
-                    <label><i class="fas fa-check-circle"></i> تأكيد كلمة المرور</label>
+                    <label><i class="fas fa-check-circle"></i> {% trans "تأكيد" %} كلمة المرور</label>
                     <input type="password" name="password_confirm" placeholder="أعد كتابة كلمة المرور" required>
                 </div>
                 
                 <button type="submit" class="btn-register">
-                    <i class="fas fa-user-plus"></i> إنشاء حساب
+                    <i class="fas fa-user-plus"></i> {% trans "إنشاء حساب" %}
                 </button>
                 
                 <div class="features">
@@ -314,7 +314,7 @@
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-users"></i>
-                        <span>تواصل مع الخريجين</span>
+                        <span>تواصل مع {% trans "الخريجين" %}</span>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-certificate"></i>
@@ -333,9 +333,9 @@
 
 <script>
     // تأثير كتابة تلقائي
-    const text = "انضم إلى أكثر من 1000 خريج";
+    const text = "انضم إلى أكثر من 1000 {% trans "خريج" %}";
     let i = 0;
-    // يمكن إضافة تأثيرات إضافية هنا
+    // يمكن {% trans "إضافة" %} تأثيرات إضافية هنا
 </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
-{% load i18n %}
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ survey.title }}{% endblock %}
 
@@ -52,8 +52,8 @@
                         
                         <hr>
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'survey_list' %}" class="btn btn-secondary">إلغاء</a>
-                            <button type="submit" class="btn btn-success">إرسال الإجابات</button>
+                            <a href="{% url 'survey_list' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                            <button type="submit" class="btn btn-success">{% trans "إرسال" %} الإجابات</button>
                         </div>
                     </form>
                 </div>

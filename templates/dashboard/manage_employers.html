@@ -1,26 +1,26 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}إدارة الشركات{% endblock %}
+{% block title %}إدارة {% trans "الشركات" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">إدارة الشركات</h1>
+    <h1 class="h3">إدارة {% trans "الشركات" %}</h1>
 </div>
 
-<!-- بحث وفلاتر -->
+<!-- {% trans "بحث" %} وفلاتر -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="🔍 بحث باسم الشركة..." value="{{ request.GET.search }}">
+                <input type="text" name="search" class="form-control" placeholder="🔍 {% trans "بحث" %} باسم ال{% trans "شركة" %}..." value="{{ request.GET.search }}">
             </div>
             <div class="col-md-3">
                 <select name="status" class="form-select">
                     <option value="">جميع الحالات</option>
-                    <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>موثقة</option>
-                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>غير موثقة</option>
+                    <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>{% trans "موثق" %}ة</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>غير {% trans "موثق" %}ة</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -32,13 +32,13 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">بحث <i class="fas fa-search"></i></button>
+                <button type="submit" class="btn btn-primary w-100">{% trans "بحث" %} <i class="fas fa-search"></i></button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- قائمة الشركات -->
+<!-- قائمة {% trans "الشركات" %} -->
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -47,7 +47,7 @@
                     <tr>
                         <th>#</th>
                         <th>الشعار</th>
-                        <th>اسم الشركة</th>
+                        <th>اسم ال{% trans "شركة" %}</th>
                         <th>القطاع</th>
                         <th>الموظفين</th>
                         <th>الحالة</th>
@@ -71,9 +71,9 @@
                         <td>{{ emp.get_employee_count_display|default:"-" }}</td>
                         <td>
                             {% if emp.is_verified %}
-                            <span class="badge bg-success">موثقة</span>
+                            <span class="badge bg-success">{% trans "موثق" %}ة</span>
                             {% else %}
-                            <span class="badge bg-warning">غير موثقة</span>
+                            <span class="badge bg-warning">غير {% trans "موثق" %}ة</span>
                             {% endif %}
                         </td>
                         <td>{{ emp.created_at|date:"Y-m-d" }}</td>
@@ -109,10 +109,10 @@
                                             <p><strong>🏭 القطاع:</strong> {{ emp.get_industry_display }}</p>
                                             <p><strong>👥 عدد الموظفين:</strong> {{ emp.get_employee_count_display|default:"-" }}</p>
                                             <p><strong>📅 التأسيس:</strong> {{ emp.founded_year|default:"-" }}</p>
-                                            <p><strong>📊 الوظائف:</strong> {{ emp.get_jobs_count }}</p>
+                                            <p><strong>📊 {% trans "الوظائف" %}:</strong> {{ emp.get_jobs_count }}</p>
                                         </div>
                                         <div class="col-12">
-                                            <p><strong>📝 نبذة عن الشركة:</strong></p>
+                                            <p><strong>📝 نبذة عن ال{% trans "شركة" %}:</strong></p>
                                             <p>{{ emp.about|default:"-"|linebreaks }}</p>
                                         </div>
                                     </div>

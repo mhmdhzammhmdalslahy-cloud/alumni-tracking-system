@@ -11,7 +11,7 @@
 <div class="container mt-5">
     <div class="card shadow mx-auto" style="max-width: 600px;">
         <div class="card-header bg-success text-white">
-            <h4><i class="fas fa-check-circle"></i> قبول الطلب وإرسال عرض وظيفي</h4>
+            <h4><i class="fas fa-check-circle"></i> قبول الطلب و{% trans "إرسال" %} عرض وظيفي</h4>
         </div>
         <div class="card-body">
             <h5>{{ application.graduate.user.get_full_name }}</h5>
@@ -28,8 +28,8 @@
                     <input type="number" name="salary_offered" class="form-control" placeholder="مثال: 5000">
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{% url 'employer_profile' application.job.employer.pk %}" class="btn btn-secondary">إلغاء</a>
-                    <button type="submit" class="btn btn-success">إرسال العرض وقبول الطلب</button>
+                    <a href="{% url 'employer_profile' application.job.employer.pk %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                    <button type="submit" class="btn btn-success">{% trans "إرسال" %} العرض وقبول الطلب</button>
                 </div>
             </form>
         </div>

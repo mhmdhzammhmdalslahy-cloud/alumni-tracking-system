@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقديم على وظيفة - {{ job.title }}</title>
+    <title>تقديم على {% trans "وظيفة" %} - {{ job.title }}</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -90,7 +90,7 @@
             margin: 0;
         }
         
-        /* معلومات الوظيفة */
+        /* معلومات ال{% trans "وظيفة" %} */
         .job-summary {
             background: #f8faff;
             padding: 18px 24px;
@@ -120,7 +120,7 @@
             padding: 30px 32px 36px;
         }
         
-        /* بطاقة تفاصيل الوظيفة */
+        /* بطاقة تفاصيل ال{% trans "وظيفة" %} */
         .job-details-box {
             background: #f3f7fc;
             border-radius: 24px;
@@ -195,7 +195,7 @@
             margin-left: 6px;
         }
         
-        /* زر الإرسال */
+        /* زر ال{% trans "إرسال" %} */
         .btn-submit {
             background: linear-gradient(135deg, #1A5F7A, #0d3b4f);
             color: #fff;
@@ -232,7 +232,7 @@
             color: #27ae60;
         }
         
-        /* الوضع الداكن (اختياري) */
+        /* {% trans "الوضع الداكن" %} (اختياري) */
         body.dark-mode .apply-card {
             background: #1e2a3a;
         }
@@ -268,11 +268,11 @@
         <!-- الهيدر -->
         <div class="apply-header">
             <div class="icon-big"><i class="fas fa-paper-plane"></i></div>
-            <h2>تقديم على وظيفة</h2>
+            <h2>تقديم على {% trans "وظيفة" %}</h2>
             <p>أكمل بياناتك لتقديم طلبك</p>
         </div>
         
-        <!-- معلومات الوظيفة -->
+        <!-- معلومات ال{% trans "وظيفة" %} -->
         <div class="job-summary">
             <span class="summary-item"><i class="fas fa-briefcase"></i> {{ job.title }}</span>
             <span class="summary-item"><i class="fas fa-building"></i> {{ job.employer.company_name }}</span>
@@ -283,11 +283,11 @@
         <!-- النموذج -->
         <div class="apply-form">
             
-            <!-- ملخص الوظيفة -->
+            <!-- ملخص ال{% trans "وظيفة" %} -->
             <div class="job-details-box">
-                <h6><i class="fas fa-info-circle"></i> ملخص الوظيفة</h6>
-                <p><strong>نوع الوظيفة:</strong> {{ job.get_job_type_display }}</p>
-                <p><strong>المهارات المطلوبة:</strong> {{ job.required_skills|truncatechars:120 }}</p>
+                <h6><i class="fas fa-info-circle"></i> ملخص ال{% trans "وظيفة" %}</h6>
+                <p><strong>نوع ال{% trans "وظيفة" %}:</strong> {{ job.get_job_type_display }}</p>
+                <p><strong>{% trans "المهارات" %} المطلوبة:</strong> {{ job.required_skills|truncatechars:120 }}</p>
                 <p><strong>الراتب:</strong> 
                     {% if job.is_salary_negotiable %}
                         قابل للتفاوض
@@ -317,11 +317,11 @@
                     <div class="form-text"><i class="fas fa-pencil-alt"></i> تحدث عن نفسك، خبراتك، ولماذا أنت المرشح المناسب</div>
                 </div>
                 
-                <!-- ✅ تم حذف حقل الراتب المتوقع ✅ -->
-                <!-- ✅ تم حذف تقييم الشركة ✅ -->
+                <!-- ✅ تم {% trans "حذف" %} حقل الراتب المتوقع ✅ -->
+                <!-- ✅ تم {% trans "حذف" %} تقييم ال{% trans "شركة" %} ✅ -->
                 
                 <button type="submit" class="btn-submit">
-                    <i class="fas fa-paper-plane"></i> إرسال الطلب
+                    <i class="fas fa-paper-plane"></i> {% trans "إرسال" %} الطلب
                 </button>
                 
                 <div class="security-note">

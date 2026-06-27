@@ -20,7 +20,7 @@
         </div>
         <div class="content">
             <h3>عزيزي/عزيزتي {{ graduate.user.get_full_name }},</h3>
-            <p>يسعدنا دعوتك لإجراء مقابلة شخصية لوظيفة <strong>{{ job.title }}</strong> في شركة <strong>{{ company.company_name }}</strong>.</p>
+            <p>يسعدنا دعوتك لإجراء مقابلة شخصية ل{% trans "وظيفة" %} <strong>{{ job.title }}</strong> في {% trans "شركة" %} <strong>{{ company.company_name }}</strong>.</p>
             <div class="info-box">
                 <p><strong>📅 التاريخ:</strong> {{ interview_date }}</p>
                 {% if interview_link %}

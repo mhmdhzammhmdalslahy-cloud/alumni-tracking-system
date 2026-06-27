@@ -89,7 +89,7 @@
         }
 
         /* ============================================================
-           البطاقة الرئيسية مع تأثيرات
+           البطاقة {% trans "الرئيسية" %} مع تأثيرات
            ============================================================ */
         .group-card {
             background: #fff;
@@ -847,7 +847,7 @@
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين
+                <i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -856,7 +856,7 @@
                 <ul class="navbar-nav ms-auto align-items-center gap-2">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">
-                            <i class="fas fa-home"></i> الرئيسية
+                            <i class="fas fa-home"></i> {% trans "الرئيسية" %}
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1144,7 +1144,7 @@
         function shareGroup() {
             const link = window.location.href;
             const title = '{{ group.name }}';
-            const text = 'انضم إلى مجموعة "{{ group.name }}" على نظام متابعة الخريجين';
+            const text = 'انضم إلى مجموعة "{{ group.name }}" على {% trans "نظام متابعة الخريجين" %}';
             
             if (navigator.share) {
                 navigator.share({
@@ -1239,7 +1239,7 @@
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             // عرض إشعار ترحيبي
-            showToast('👋 مرحباً!', 'مرحباً بك في مجموعة "{{ group.name }}"', 'info');
+            showToast('👋 مرحباً!', '{% trans "مرحباً بك" %} في مجموعة "{{ group.name }}"', 'info');
             
             // التحقق من وجود بث نشط
             checkActiveCall();

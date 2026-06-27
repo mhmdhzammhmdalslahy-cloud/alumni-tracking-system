@@ -72,13 +72,13 @@
 
 <nav class="navbar">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
         <div class="dropdown">
             <a href="#" class="user-dropdown text-white" data-bs-toggle="dropdown">
-                <i class="fas fa-user-circle fa-lg"></i> حسابي
+                <i class="fas fa-user-circle fa-lg"></i> {% trans "حسابي" %}
             </a>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon"></i> الوضع الداكن</a></li>
+                <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon"></i> {% trans "الوضع الداكن" %}</a></li>
             </ul>
         </div>
     </div>
@@ -88,20 +88,20 @@
     <div class="row">
         <div class="col-lg-3">
             <div class="sidebar">
-                <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
+                <h5 class="sidebar-title"><i class="fas fa-bars"></i> {% trans "القائمة" %}</h5>
                 <div class="nav flex-column">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i> الرئيسية</a>
-                    <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
-                    <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
-                    <!-- ✅ تم تعديل الرابط هنا -->
-                    <a class="nav-link active" href="{% url 'jobs:job_list' %}"><i class="fas fa-briefcase"></i> الوظائف</a>
-                    <a class="nav-link" href="/admin/"><i class="fas fa-crown"></i> لوحة الإدارة</a>
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> {% trans "الرئيسية" %}</a>
+                    <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> {% trans "الخريجين" %}</a>
+                    <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> {% trans "الشركات" %}</a>
+                    <!-- ✅ تم {% trans "تعديل" %} الرابط هنا -->
+                    <a class="nav-link active" href="{% url 'jobs:job_list' %}"><i class="fas fa-briefcase"></i> {% trans "الوظائف" %}</a>
+                    <a class="nav-link" href="/admin/"><i class="fas fa-crown"></i> {% trans "لوحة الإدارة" %}</a>
                 </div>
             </div>
         </div>
         
         <div class="col-lg-9">
-            <!-- رأس الوظيفة -->
+            <!-- رأس ال{% trans "وظيفة" %} -->
             <div class="job-header">
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center">
@@ -118,7 +118,7 @@
                     </div>
                     <div class="col-md-3 text-center">
                         {% if user.is_authenticated and user.graduate_profile and not has_applied %}
-                        <!-- ✅ تم تعديل الرابط هنا -->
+                        <!-- ✅ تم {% trans "تعديل" %} الرابط هنا -->
                         <a href="{% url 'jobs:apply_for_job' job.pk %}" class="btn apply-btn">
                             <i class="fas fa-paper-plane"></i> تقدم الآن
                         </a>
@@ -137,7 +137,7 @@
                     <div class="info-box text-center">
                         <i class="fas fa-clock fa-2x"></i>
                         <h5>{{ job.get_job_type_display }}</h5>
-                        <small>نوع الوظيفة</small>
+                        <small>نوع ال{% trans "وظيفة" %}</small>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
@@ -163,7 +163,7 @@
                 </div>
             </div>
             
-            <!-- تفاصيل الوظيفة -->
+            <!-- تفاصيل ال{% trans "وظيفة" %} -->
             <div class="info-box">
                 <h6 class="info-title"><i class="fas fa-align-right"></i> الوصف الوظيفي</h6>
                 <p>{{ job.description|linebreaks }}</p>
@@ -175,7 +175,7 @@
             </div>
             
             <div class="info-box">
-                <h6 class="info-title"><i class="fas fa-code"></i> المهارات المطلوبة</h6>
+                <h6 class="info-title"><i class="fas fa-code"></i> {% trans "المهارات" %} المطلوبة</h6>
                 <div>
                     {% for skill in job.required_skills.splitlines %}
                     <span class="skill-tag">{{ skill }}</span>
@@ -185,7 +185,7 @@
             
             {% if job.preferred_skills %}
             <div class="info-box">
-                <h6 class="info-title"><i class="fas fa-star"></i> المهارات المفضلة</h6>
+                <h6 class="info-title"><i class="fas fa-star"></i> {% trans "المهارات" %} المفضلة</h6>
                 <div>
                     {% for skill in job.preferred_skills.splitlines %}
                     <span class="skill-tag">{{ skill }}</span>

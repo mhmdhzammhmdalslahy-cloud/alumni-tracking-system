@@ -1,12 +1,12 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}توثيق الخريج{% endblock %}
+{% block title %}توثيق ال{% trans "خريج" %}{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">مراجعة طلب توثيق الخريج</h5>
+        <h5 class="mb-0">مراجعة طلب توثيق ال{% trans "خريج" %}</h5>
     </div>
     <div class="card-body">
         <div class="row mb-4">
@@ -48,8 +48,8 @@
                 </div>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'dashboard:manage_graduates' %}" class="btn btn-secondary">إلغاء</a>
-                <button type="submit" class="btn btn-primary">تأكيد</button>
+                <a href="{% url 'dashboard:manage_graduates' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "تأكيد" %}</button>
             </div>
         </form>
     </div>

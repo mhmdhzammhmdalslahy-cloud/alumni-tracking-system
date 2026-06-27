@@ -5,20 +5,19 @@
     {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نظام متابعة الخريجين</title>
-    
+<title>{% trans "نظام متابعة الخريجين" %}</title>    
     <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1A5F7A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="متابعة الخريجين">
+    <meta name="apple-mobile-web-app-title" content="{% trans "متابعة الخريجين" %}">
     <link rel="apple-touch-icon" href="{% static 'images/icons/apple-touch-icon.png' %}">
 
     <!-- SEO -->
-    <meta name="description" content="منصة متابعة الخريجين - تواصل مع خريجين الجامعة واكتشف فرص العمل. نظام متابعة الخريجين والتوظيف">
-    <meta name="keywords" content="خريجين, توظيف, وظائف, شركات, جامعة, متابعة خريجين">
-    <meta name="author" content="نظام متابعة الخريجين">
+    <meta name="description" content="{% trans "منصة متابعة الخريجين - تواصل مع خريجين الجامعة واكتشف فرص العمل. نظام متابعة الخريجين والتوظيف" %}">
+    <meta name="keywords" content="{% trans "خريجين, توظيف, وظائف, شركات, جامعة, متابعة خريجين" %}">
+    <meta name="author" content="{% trans "نظام متابعة الخريجين" %}">
     <meta name="robots" content="index, follow">
 
     <!-- Favicon -->
@@ -191,16 +190,16 @@ body.dark-mode .notification-footer {
 
 <body>
     <button class="menu-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i> القائمة
+        <i class="fas fa-bars"></i> {% trans "القائمة" %}
     </button>
 
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
             
             <form class="search-bar d-flex" action="{% url 'search_all' %}" method="get">
-                <input class="form-control" type="search" name="q" placeholder="ابحث عن خريج، تخصص، شركة...">
+                <input class="form-control" type="search" name="q" placeholder="{% trans "ابحث عن خريج، تخصص، شركة..." %}">
                 <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
             </form>
             
@@ -215,8 +214,8 @@ body.dark-mode .notification-footer {
                     </a>
                     <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0" aria-labelledby="notificationBell">
                         <div class="notification-header">
-                            <h6><i class="fas fa-bell me-2"></i> الإشعارات</h6>
-                            <span class="badge">{{ unread_notifications_count }} غير مقروء</span>
+                            <h6><i class="fas fa-bell me-2"></i> {% trans "الإشعارات" %}</h6>
+                            <span class="badge">{{ unread_notifications_count }} {% trans "غير مقروء" %}</span>
                         </div>
                         <div class="notification-list">
                             {% for notif in recent_notifications %}
@@ -227,7 +226,7 @@ body.dark-mode .notification-footer {
                                 <div class="notification-content">
                                     <div class="notification-title">{{ notif.title }}</div>
                                     <div class="notification-message">{{ notif.message|truncatechars:60 }}</div>
-                                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} مضى</div>
+                                    <div class="notification-time"><i class="far fa-clock me-1"></i> {{ notif.created_at|timesince }} {% trans "مضى" %}</div>
                                 </div>
                                 {% if not notif.is_read %}
                                 <div class="notification-dot"></div>
@@ -236,33 +235,33 @@ body.dark-mode .notification-footer {
                             {% empty %}
                             <div class="text-center py-4 px-3">
                                 <i class="fas fa-bell-slash fa-2x text-muted mb-2 d-block"></i>
-                                <span class="text-muted">لا توجد إشعارات حالياً</span>
+                                <span class="text-muted">{% trans "لا توجد إشعارات حالياً" %}</span>
                             </div>
                             {% endfor %}
                         </div>
                         <div class="notification-footer">
-                            <a href="{% url 'dashboard:notification_list' %}">عرض جميع الإشعارات <i class="fas fa-arrow-left ms-1"></i></a>
+                            <a href="{% url 'dashboard:notification_list' %}">{% trans "عرض جميع الإشعارات" %} <i class="fas fa-arrow-left ms-1"></i></a>
                         </div>
                     </div>
                 </div>
 
                 <!-- ====== 🌍 أيقونة اللغة (مدمجة في الـ Navbar) ====== -->
                 <div class="dropdown d-inline-block">
-                    <a href="#" class="text-white text-decoration-none d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" title="تغيير اللغة" style="padding: 4px 8px; border-radius: 50px; transition: 0.3s;">
+                    <a href="#" class="text-white text-decoration-none d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans "تغيير اللغة" %}" style="padding: 4px 8px; border-radius: 50px; transition: 0.3s;">
                         <i class="fas fa-globe fa-lg"></i>
                         <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.6rem; padding: 2px 8px;">
                             {% get_current_language as LANG %}
-                            {% if LANG == 'ar' %}عربي{% else %}EN{% endif %}
+                            {% if LANG == 'ar' %}{% trans "عربي" %}{% else %}EN{% endif %}
                         </span>
                         <i class="fas fa-chevron-down fa-xs text-white-50"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" style="min-width: 140px; border-radius: 16px; padding: 8px;">
                         <li class="px-2 py-1">
-                            <div class="text-muted small fw-bold mb-1" style="font-size: 0.7rem;">اختر اللغة</div>
+                            <div class="text-muted small fw-bold mb-1" style="font-size: 0.7rem;">{% trans "اختر اللغة" %}</div>
                         </li>
                         <li>
                             <a href="#" onclick="setLanguage('ar'); return false;" class="btn btn-sm w-100 d-flex align-items-center justify-content-between {% if LANG == 'ar' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border-radius: 50px; transition: 0.3s;">
-                                <span>🇸🇦 العربية</span>
+                                <span>🇸🇦 {% trans "العربية" %}</span>
                                 {% if LANG == 'ar' %}
                                 <i class="fas fa-check-circle"></i>
                                 {% endif %}
@@ -288,15 +287,15 @@ body.dark-mode .notification-footer {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                         {% if user.is_authenticated %}
-                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> ملفي الشخصي</a></li>
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> {% trans "ملفي الشخصي" %}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> تسجيل خروج</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> {% trans "تسجيل خروج" %}</a></li>
                         {% else %}
-                            <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> تسجيل دخول</a></li>
-                            <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> إنشاء حساب</a></li>
+                            <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> {% trans "تسجيل دخول" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> {% trans "إنشاء حساب" %}</a></li>
                         {% endif %}
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> الوضع الداكن</a></li>
+                        <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> {% trans "الوضع الداكن" %}</a></li>
                     </ul>
                 </div>
             </div>
@@ -308,13 +307,13 @@ body.dark-mode .notification-footer {
         <div class="row">
             <div class="col-lg-3">
                 <div class="sidebar">
-                    <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
+                    <h5 class="sidebar-title"><i class="fas fa-bars"></i> {% trans "القائمة" %}</h5>
                     <div class="nav flex-column">
-                        <a class="nav-link active" href="/"><i class="fas fa-home"></i> الرئيسية</a>
-                        <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
-                        <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
-                        <a class="nav-link" href="{% url 'jobs:job_list' %}"><i class="fas fa-briefcase"></i> الوظائف</a>
-                        <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> لوحة الإدارة</a>
+                        <a class="nav-link active" href="/"><i class="fas fa-home"></i> {% trans "الرئيسية" %}</a>
+                        <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> {% trans "الخريجين" %}</a>
+                        <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> {% trans "الشركات" %}</a>
+                        <a class="nav-link" href="{% url 'jobs:job_list' %}"><i class="fas fa-briefcase"></i> {% trans "الوظائف" %}</a>
+                        <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> {% trans "لوحة الإدارة" %}</a>
                     </div>
                 </div>
             </div>
@@ -325,23 +324,23 @@ body.dark-mode .notification-footer {
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
                             <div class="ad-banner" style="background: linear-gradient(135deg, #1A5F7A, #0d3b4f);">
-                                <h3><i class="fas fa-graduation-cap"></i> منصة متابعة الخريجين</h3>
-                                <p>تواصل مع خريجين الجامعة واكتشف فرص العمل</p>
-                                <a href="#" class="btn-ad">سجل الآن <i class="fas fa-arrow-left"></i></a>
+                                <h3><i class="fas fa-graduation-cap"></i> {% trans "منصة متابعة الخريجين" %}</h3>
+                                <p>{% trans "تواصل مع خريجين الجامعة واكتشف فرص العمل" %}</p>
+                                <a href="#" class="btn-ad">{% trans "سجل الآن" %} <i class="fas fa-arrow-left"></i></a>
                             </div>
                         </div>
                         <div class="swiper-slide">
                             <div class="ad-banner" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
-                                <h3><i class="fas fa-briefcase"></i> أكثر من {{ total_jobs|default:"0" }} وظيفة متاحة</h3>
-                                <p>قدم الآن على فرص العمل المناسبة لك</p>
-                                <a href="{% url 'jobs:job_list' %}" class="btn-ad">استعرض الوظائف <i class="fas fa-arrow-left"></i></a>
+                                <h3><i class="fas fa-briefcase"></i> {% trans "أكثر من" %} {{ total_jobs|default:"0" }} {% trans "وظيفة" %} {% trans "متاحة" %}</h3>
+                                <p>{% trans "قدم الآن على فرص العمل المناسبة لك" %}</p>
+                                <a href="{% url 'jobs:job_list' %}" class="btn-ad">{% trans "استعرض الوظائف" %} <i class="fas fa-arrow-left"></i></a>
                             </div>
                         </div>
                         <div class="swiper-slide">
                             <div class="ad-banner" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
-                                <h3><i class="fas fa-chart-line"></i> نسبة التوظيف {{ employment_rate|default:"0" }}%</h3>
-                                <p>خريجونا هم الأفضل في سوق العمل</p>
-                                <a href="#" class="btn-ad">تعرف أكثر <i class="fas fa-arrow-left"></i></a>
+                                <h3><i class="fas fa-chart-line"></i> {% trans "نسبة التوظيف" %} {{ employment_rate|default:"0" }}%</h3>
+                                <p>{% trans "خريجونا هم الأفضل في سوق العمل" %}</p>
+                                <a href="#" class="btn-ad">{% trans "تعرف أكثر" %} <i class="fas fa-arrow-left"></i></a>
                             </div>
                         </div>
                     </div>
@@ -352,43 +351,43 @@ body.dark-mode .notification-footer {
                 
                 <!-- إحصائيات المنصة -->
                 <div class="section-header mt-2">
-                    <h5 class="section-title">📊 إحصائيات المنصة</h5>
+                    <h5 class="section-title">📊 {% trans "إحصائيات المنصة" %}</h5>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-3 col-6">
                         <div class="stat-box text-center">
                             <i class="fas fa-user-graduate fa-2x"></i>
                             <h3>{{ total_graduates|default:"0" }}</h3>
-                            <p>خريج</p>
+                            <p>{% trans "خريج" %}</p>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="stat-box text-center">
                             <i class="fas fa-building fa-2x"></i>
                             <h3>{{ total_employers|default:"0" }}</h3>
-                            <p>شركة</p>
+                            <p>{% trans "شركة" %}</p>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="stat-box text-center">
                             <i class="fas fa-briefcase fa-2x"></i>
                             <h3>{{ total_jobs|default:"0" }}</h3>
-                            <p>وظيفة</p>
+                            <p>{% trans "وظيفة" %}</p>
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
                         <div class="stat-box text-center">
                             <i class="fas fa-chart-line fa-2x"></i>
                             <h3>{{ employment_rate|default:"0" }}%</h3>
-                            <p>نسبة التوظيف</p>
+                            <p>{% trans "نسبة التوظيف" %}</p>
                         </div>
                     </div>
                 </div>
                 
                 <!-- أحدث الخريجين -->
                 <div class="section-header mt-5">
-                    <h5 class="section-title">🎓 أحدث الخريجين</h5>
-                    <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                    <h5 class="section-title">🎓 {% trans "أحدث الخريجين" %}</h5>
+                    <a href="#" class="view-all">{% trans "عرض الكل" %} <i class="fas fa-arrow-left"></i></a>
                 </div>
                 <div class="row g-3">
                     {% for graduate in latest_graduates %}
@@ -401,24 +400,23 @@ body.dark-mode .notification-footer {
                             <h6 class="mt-2">{{ graduate.user.get_full_name|default:graduate.user.username }}</h6>
                             <p class="text-muted small">{{ graduate.major }} - {{ graduate.graduation_year }}</p>
                             {% if graduate.is_verified %}
-                            <span class="badge-verified"><i class="fas fa-check-circle"></i> موثق</span>
+                            <span class="badge-verified"><i class="fas fa-check-circle"></i> {% trans "موثق" %}</span>
                             {% endif %}
                         </div>
                     </div>
                     {% empty %}
-                    <div class="col-12 text-center">لا يوجد خريجين</div>
+                    <div class="col-12 text-center">{% trans "لا يوجد خريجين" %}</div>
                     {% endfor %}
                 </div>
                 
                 <!-- آخر الوظائف -->
                 <div class="section-header mt-5">
-                    <h5 class="section-title">💼 آخر الوظائف</h5>
-                    <a href="{% url 'jobs:job_list' %}" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                    <h5 class="section-title">💼 {% trans "آخر الوظائف" %}</h5>
+                    <a href="{% url 'jobs:job_list' %}" class="view-all">{% trans "عرض الكل" %} <i class="fas fa-arrow-left"></i></a>
                 </div>
                 <div class="row g-3">
                     {% for job in latest_jobs %}
                     <div class="col-md-4 col-6 mb-3">
-                        <!-- ✅ تم إصلاح {%url إلى {% url -->
                         <div class="job-card text-center" onclick="location.href='{% url 'jobs:job_detail' job.id %}'">
                             <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
                             <h6 class="mt-2">{{ job.title }}</h6>
@@ -427,20 +425,20 @@ body.dark-mode .notification-footer {
                         </div>
                     </div>
                     {% empty %}
-                    <div class="col-12 text-center">لا توجد وظائف حالياً</div>
+                    <div class="col-12 text-center">{% trans "لا توجد وظائف حالياً" %}</div>
                     {% endfor %}
                 </div>
 
                 <!-- قصص نجاح -->
                 <div class="section-header mt-5">
-                    <h5 class="section-title">⭐ قصص نجاح خريجينا</h5>
+                    <h5 class="section-title">⭐ {% trans "قصص نجاح خريجينا" %}</h5>
                     <div class="d-flex gap-2">
                         {% if user.is_authenticated %}
                         <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-plus"></i> أضف قصتك
+                            <i class="fas fa-plus"></i> {% trans "أضف قصتك" %}
                         </a>
                         {% endif %}
-                        <a href="#" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                        <a href="#" class="view-all">{% trans "عرض الكل" %} <i class="fas fa-arrow-left"></i></a>
                     </div>
                 </div>
 
@@ -468,11 +466,11 @@ body.dark-mode .notification-footer {
                     {% empty %}
                     <div class="col-12 text-center py-5">
                         <i class="fas fa-star-of-life fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">لا توجد قصص نجاح بعد</h5>
+                        <h5 class="text-muted">{% trans "لا توجد قصص نجاح بعد" %}</h5>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-primary mt-2">كن أول من يضيف قصته!</a>
+                        <a href="{% url 'dashboard:create_success_story' %}" class="btn btn-primary mt-2">{% trans "كن أول من يضيف قصته!" %}</a>
                         {% else %}
-                        <p class="text-muted">سجل الدخول لمشاركة قصتك الملهمة</p>
+                        <p class="text-muted">{% trans "سجل الدخول لمشاركة قصتك الملهمة" %}</p>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -486,8 +484,8 @@ body.dark-mode .notification-footer {
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <h5><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</h5>
-                    <p class="small">منصتك الأولى للتواصل مع الخريجين وفرص العمل</p>
+                    <h5><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</h5>
+                    <p class="small">{% trans "منصتك الأولى للتواصل مع الخريجين وفرص العمل" %}</p>
                     <div class="social-icons mt-2">
                         <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
                         <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
@@ -497,24 +495,24 @@ body.dark-mode .notification-footer {
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <h5>روابط سريعة</h5>
+                    <h5>{% trans "روابط سريعة" %}</h5>
                     <ul class="list-unstyled small">
-                        <li><a href="/">الرئيسية</a></li>
-                        <li><a href="{% url 'graduate_list' %}">الخريجين</a></li>
-                        <li><a href="{% url 'employer_list' %}">الشركات</a></li>
-                        <li><a href="{% url 'dashboard:admin_dashboard' %}">لوحة الإدارة</a></li>
+                        <li><a href="/">{% trans "الرئيسية" %}</a></li>
+                        <li><a href="{% url 'graduate_list' %}">{% trans "الخريجين" %}</a></li>
+                        <li><a href="{% url 'employer_list' %}">{% trans "الشركات" %}</a></li>
+                        <li><a href="{% url 'dashboard:admin_dashboard' %}">{% trans "لوحة الإدارة" %}</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <h5>تواصل معنا</h5>
+                    <h5>{% trans "تواصل معنا" %}</h5>
                     <p><i class="fas fa-phone ms-2"></i> +967 123 456 789</p>
                     <p><i class="fas fa-envelope ms-2"></i> info@alumni.com</p>
-                    <p><i class="fas fa-map-marker-alt ms-2"></i> اليمن - مأرب</p>
+                    <p><i class="fas fa-map-marker-alt ms-2"></i> {% trans "اليمن - مأرب" %}</p>
                 </div>
             </div>
             <hr>
             <div class="text-center">
-                <p>© 2026 نظام متابعة الخريجين - جميع الحقوق محفوظة</p>
+                <p>© 2026 {% trans "نظام متابعة الخريجين" %} - {% trans "جميع الحقوق محفوظة" %}</p>
             </div>
         </div>
     </footer>
@@ -599,7 +597,7 @@ body.dark-mode .notification-footer {
         }
         
         setTimeout(() => {
-            showNotification('مرحباً بك', 'نتمنى لك تجربة ممتعة على منصة متابعة الخريجين');
+            showNotification('{% trans "مرحباً بك" %}', '{% trans "نتمنى لك تجربة ممتعة على منصة متابعة الخريجين" %}');
         }, 3000);
     </script>
     {% include 'includes/chat_widget.html' %}

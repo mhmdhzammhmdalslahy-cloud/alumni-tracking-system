@@ -1,11 +1,11 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}إدارة الاستبيانات{% endblock %}
+{% block title %}إدارة {% trans "الاستبيانات" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">إدارة الاستبيانات</h1>
+    <h1 class="h3">إدارة {% trans "الاستبيانات" %}</h1>
     <a href="{% url 'dashboard:create_survey' %}" class="btn btn-primary">
         <i class="fas fa-plus"></i> استبيان جديد
     </a>
@@ -20,9 +20,9 @@
                         <th>#</th>
                         <th>العنوان</th>
                         <th>التوقيت</th>
-                        <th>تاريخ الإرسال</th>
+                        <th>تاريخ ال{% trans "إرسال" %}</th>
                         <th>الحالة</th>
-                        <th>النشر</th>
+                        <th>ال{% trans "نشر" %}</th>
                         <th>تاريخ الإنشاء</th>
                         <th>الإجراءات</th>
                     </tr>
@@ -54,22 +54,22 @@
                         </td>
                         <td>{{ survey.created_at|date:"Y-m-d" }}</td>
                         <td>
-                            <!-- ✅ زر النشر (يظهر فقط إذا كان الاستبيان نشطاً وغير منشور) -->
+                            <!-- ✅ زر ال{% trans "نشر" %} (يظهر فقط إذا كان الاستبيان نشطاً وغير منشور) -->
                             {% if not survey.is_published and survey.is_active %}
                             <a href="{% url 'dashboard:publish_survey' survey.id %}" 
                                class="btn btn-success btn-sm" 
-                               onclick="return confirm('✅ نشر هذا الاستبيان وإشعار جميع الخريجين؟')">
-                                <i class="fas fa-bullhorn"></i> نشر
+                               onclick="return confirm('✅ {% trans "نشر" %} هذا الاستبيان وإشعار جميع {% trans "الخريجين" %}؟')">
+                                <i class="fas fa-bullhorn"></i> {% trans "نشر" %}
                             </a>
                             {% endif %}
 
-                            <!-- زر التعديل -->
+                            <!-- زر ال{% trans "تعديل" %} -->
                             <a href="{% url 'dashboard:edit_survey' survey.id %}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
 
-                            <!-- زر الحذف -->
-                            <a href="{% url 'dashboard:delete_survey' survey.id %}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذا الاستبيان؟')">
+                            <!-- زر ال{% trans "حذف" %} -->
+                            <a href="{% url 'dashboard:delete_survey' survey.id %}" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من {% trans "حذف" %} هذا الاستبيان؟')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>

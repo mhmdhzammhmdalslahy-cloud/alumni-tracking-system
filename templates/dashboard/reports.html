@@ -1,12 +1,12 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}التقارير{% endblock %}
+{% block title %}{% trans "التقارير" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h1 class="h3"><i class="fas fa-chart-bar"></i> التقارير</h1>
+    <h1 class="h3"><i class="fas fa-chart-bar"></i> {% trans "التقارير" %}</h1>
     <div class="d-flex gap-2">
         <a href="{% url 'dashboard:export_excel' %}" class="btn btn-success">
             <i class="fas fa-file-excel"></i> تصدير Excel
@@ -20,12 +20,12 @@
     </div>
 </div>
 
-<!-- ====== نسبة التوظيف ====== -->
+<!-- ====== {% trans "نسبة التوظيف" %} ====== -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent border-0">
-                <h5 class="mb-0"><i class="fas fa-percentage text-success"></i> نسبة التوظيف</h5>
+                <h5 class="mb-0"><i class="fas fa-percentage text-success"></i> {% trans "نسبة التوظيف" %}</h5>
             </div>
             <div class="card-body text-center">
                 <div class="position-relative d-inline-block">
@@ -36,14 +36,14 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-muted mt-3">من إجمالي <span id="totalGraduates">0</span> خريج</p>
+                <p class="text-muted mt-3">من إجمالي <span id="totalGraduates">0</span> {% trans "خريج" %}</p>
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent border-0">
-                <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary"></i> التخصصات الأكثر طلباً</h5>
+                <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary"></i> {% trans "التخصصات" %} الأكثر طلباً</h5>
             </div>
             <div class="card-body" id="majorsChart">
                 <canvas id="majorsCanvas" height="200"></canvas>
@@ -67,7 +67,7 @@
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-transparent border-0">
-                <h5 class="mb-0"><i class="fas fa-building text-warning"></i> أعلى الشركات توظيفاً</h5>
+                <h5 class="mb-0"><i class="fas fa-building text-warning"></i> أعلى {% trans "الشركات" %} توظيفاً</h5>
             </div>
             <div class="card-body" id="topEmployersList">
                 <div class="text-center text-muted">جاري التحميل...</div>
@@ -76,10 +76,10 @@
     </div>
 </div>
 
-<!-- ====== قائمة التقارير ====== -->
+<!-- ====== قائمة {% trans "التقارير" %} ====== -->
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-transparent border-0">
-        <h5 class="mb-0"><i class="fas fa-list"></i> التقارير المحفوظة</h5>
+        <h5 class="mb-0"><i class="fas fa-list"></i> {% trans "التقارير" %} المحفوظة</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -127,11 +127,11 @@
         fetch('/dashboard/stats/')
             .then(response => response.json())
             .then(data => {
-                // نسبة التوظيف
+                // {% trans "نسبة التوظيف" %}
                 document.getElementById('employmentRate').textContent = data.employment_rate + '%';
                 document.getElementById('totalGraduates').textContent = data.total_graduates;
                 
-                // مخطط التخصصات
+                // مخطط {% trans "التخصصات" %}
                 const majorsCtx = document.getElementById('majorsCanvas').getContext('2d');
                 new Chart(majorsCtx, {
                     type: 'doughnut',

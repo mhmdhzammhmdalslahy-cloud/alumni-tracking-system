@@ -4,20 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام متابعة الخريجين - منصتك الأولى</title>
+    <title>{% trans "نظام متابعة الخريجين" %} - منصتك الأولى</title>
     
     <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1A5F7A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="متابعة الخريجين">
+    <meta name="apple-mobile-web-app-title" content="متابعة {% trans "الخريجين" %}">
     <link rel="apple-touch-icon" href="/static/images/icon-152x152.png">
     
-    <!-- ========== SEO (محركات البحث) ========== -->
-    <meta name="description" content="منصة متابعة الخريجين - تواصل مع خريجين الجامعة واكتشف فرص العمل. نظام متابعة الخريجين والتوظيف">
-    <meta name="keywords" content="خريجين, توظيف, وظائف, شركات, جامعة, متابعة خريجين">
-    <meta name="author" content="نظام متابعة الخريجين">
+    <!-- ========== SEO (محركات ال{% trans "بحث" %}) ========== -->
+    <meta name="description" content="منصة متابعة {% trans "الخريجين" %} - تواصل مع {% trans "خريجين" %} الجامعة واكتشف فرص العمل. {% trans "نظام متابعة الخريجين" %} والتوظيف">
+    <meta name="keywords" content="{% trans "خريجين" %}, توظيف, وظائف, شركات, جامعة, متابعة {% trans "خريجين" %}">
+    <meta name="author" content="{% trans "نظام متابعة الخريجين" %}">
     <meta name="robots" content="index, follow">
     
     <!-- CSS -->
@@ -119,8 +119,8 @@
     <div class="container">
         <div class="hero-content">
             <i class="fas fa-graduation-cap fa-4x mb-3"></i>
-            <h1 class="hero-title">نظام متابعة الخريجين</h1>
-            <p class="hero-subtitle">منصتك الأولى للتواصل مع الخريجين وفرص العمل</p>
+            <h1 class="hero-title">{% trans "نظام متابعة الخريجين" %}</h1>
+            <p class="hero-subtitle">منصتك الأولى للتواصل مع {% trans "الخريجين" %} وفرص العمل</p>
             <button class="btn btn-light btn-lg rounded-pill px-5" onclick="openLoginModal()">
                 <i class="fas fa-sign-in-alt"></i> دخول / تسجيل
             </button>
@@ -133,29 +133,29 @@
     <div class="row text-center mb-5">
         <div class="col-12">
             <h2 class="fw-bold">ماذا نقدم لك؟</h2>
-            <p class="text-muted">منصة متكاملة تجمع الخريجين وأصحاب العمل</p>
+            <p class="text-muted">منصة متكاملة تجمع {% trans "الخريجين" %} وأصحاب العمل</p>
         </div>
     </div>
     <div class="row g-4">
         <div class="col-md-4">
             <div class="feature-card">
                 <i class="fas fa-users"></i>
-                <h5>تواصل مع الخريجين</h5>
-                <p class="text-muted">ابحث عن خريجين متميزين في تخصصات مختلفة</p>
+                <h5>تواصل مع {% trans "الخريجين" %}</h5>
+                <p class="text-muted">ا{% trans "بحث" %} عن {% trans "خريجين" %} متميزين في تخصصات مختلفة</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="feature-card">
                 <i class="fas fa-briefcase"></i>
                 <h5>فرص عمل مميزة</h5>
-                <p class="text-muted">أحدث الوظائف من كبرى الشركات</p>
+                <p class="text-muted">أحدث {% trans "الوظائف" %} من كبرى {% trans "الشركات" %}</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="feature-card">
                 <i class="fas fa-chart-line"></i>
                 <h5>إحصائيات دقيقة</h5>
-                <p class="text-muted">تقارير عن نسب التوظيف والتخصصات المطلوبة</p>
+                <p class="text-muted">تقارير عن نسب التوظيف و{% trans "التخصصات" %} المطلوبة</p>
             </div>
         </div>
     </div>
@@ -166,7 +166,7 @@
     <div class="login-card">
         <div class="text-center mb-4">
             <i class="fas fa-graduation-cap fa-3x" style="color: #1A5F7A;"></i>
-            <h3 class="mt-2">مرحباً بك</h3>
+            <h3 class="mt-2">{% trans "مرحباً بك" %}</h3>
             <p class="text-muted">سجل دخولك أو أنشئ حساباً جديداً</p>
         </div>
         
@@ -178,7 +178,7 @@
         
         <ul class="nav nav-pills nav-pills-custom justify-content-center mb-4" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#login" type="button">تسجيل دخول</button>
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#login" type="button">{% trans "تسجيل دخول" %}</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#register" type="button">تسجيل جديد</button>
@@ -222,7 +222,7 @@
                         <label class="form-label">كلمة المرور</label>
                         <input type="password" name="password" class="form-control" placeholder="أدخل كلمة المرور" required>
                     </div>
-                    <button type="submit" class="btn btn-login">إنشاء حساب</button>
+                    <button type="submit" class="btn btn-login">{% trans "إنشاء حساب" %}</button>
                 </form>
             </div>
         </div>
@@ -235,7 +235,7 @@
 
 <footer>
     <div class="container text-center">
-        <p>© 2026 نظام متابعة الخريجين - جميع الحقوق محفوظة</p>
+        <p>© 2026 {% trans "نظام متابعة الخريجين" %} - {% trans "جميع الحقوق محفوظة" %}</p>
     </div>
 </footer>
 
@@ -251,7 +251,7 @@
             closeLoginModal();
         }
     }
-     // تسجيل Service Worker لتفعيل PWA
+     // تسجيل Service Worker ل{% trans "تفعيل" %} PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/sw.js')
             .then(reg => console.log('✅ Service Worker registered', reg))

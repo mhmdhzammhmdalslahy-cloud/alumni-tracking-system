@@ -690,7 +690,7 @@
         }
 
         // ============================================================
-        // ========== حفظ حالة البث ==========
+        // ========== {% trans "حفظ" %} حالة البث ==========
         // ============================================================
         function saveStreamStatus(isActive) {
             fetch(`/groups/${GROUP_ID}/save-stream-status/`, {
@@ -700,11 +700,11 @@
                     'X-CSRFToken': CSRF_TOKEN
                 },
                 body: JSON.stringify({ is_active: isActive })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ حالة البث:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} حالة البث:', err));
         }
 
         // ============================================================
-        // ========== PeerJS - استقبال المكالمات ==========
+        // ========== PeerJS - {% trans "استقبال" %} المكالمات ==========
         // ============================================================
         peer.on('call', (incomingCall) => {
             if (!isStreaming || !localStream) {
@@ -749,7 +749,7 @@
                     'X-CSRFToken': CSRF_TOKEN
                 },
                 body: JSON.stringify({ peer_id: id })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ Peer ID:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} Peer ID:', err));
         });
 
         // ============================================================
@@ -765,8 +765,8 @@
                         '<i class="fas fa-microphone-slash"></i> <span>الغاء</span>' :
                         '<i class="fas fa-microphone"></i> <span>كتم</span>';
                     this.classList.toggle('active');
-                    showToast(isMuted ? '🔇 كتم' : '🔊 إلغاء الكتم',
-                        isMuted ? 'تم كتم صوتك' : 'تم إلغاء كتم صوتك',
+                    showToast(isMuted ? '🔇 كتم' : '🔊 {% trans "إلغاء" %} الكتم',
+                        isMuted ? 'تم كتم صوتك' : 'تم {% trans "إلغاء" %} كتم صوتك',
                         isMuted ? 'warning' : 'info');
                 }
             }

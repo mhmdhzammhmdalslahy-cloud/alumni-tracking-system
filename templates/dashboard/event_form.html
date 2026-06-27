@@ -1,5 +1,5 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -56,8 +56,8 @@
             </div>
             
             <div class="d-flex gap-2">
-                <a href="{% url 'dashboard:manage_events' %}" class="btn btn-secondary">إلغاء</a>
-                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'dashboard:manage_events' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "حفظ" %}</button>
             </div>
         </form>
     </div>

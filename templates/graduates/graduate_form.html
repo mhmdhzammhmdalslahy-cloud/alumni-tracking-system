@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if form.instance.pk %}تعديل{% else %}إضافة{% endif %} خريج - نظام متابعة الخريجين</title>
+    <title>{% if form.instance.pk %}{% trans "تعديل" %}{% else %}{% trans "إضافة" %}{% endif %} {% trans "خريج" %} - {% trans "نظام متابعة الخريجين" %}</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -254,8 +254,8 @@
         <!-- الهيدر الترحيبي -->
         <div class="form-header">
             <i class="fas fa-user-graduate"></i>
-            <h2>{% if form.instance.pk %}تعديل بيانات الخريج{% else %}انضم إلى عائلة الخريجين 🌟{% endif %}</h2>
-            <p>{% if form.instance.pk %}حدث معلوماتك لتظل على تواصل{% else %}سجل الآن لتتمكن من إدارة ملفك المهني والتواصل مع الشركات{% endif %}</p>
+            <h2>{% if form.instance.pk %}{% trans "تعديل" %} بيانات ال{% trans "خريج" %}{% else %}انضم إلى عائلة {% trans "الخريجين" %} 🌟{% endif %}</h2>
+            <p>{% if form.instance.pk %}حدث معلوماتك لتظل على تواصل{% else %}{% trans "سجل الآن" %} لتتمكن من إدارة ملفك المهني والتواصل مع {% trans "الشركات" %}{% endif %}</p>
         </div>
         
         <!-- جسم الفورم -->
@@ -338,9 +338,9 @@
                             <div class="hint-text">مثال: مطور ويب، مهندس شبكات</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">الشركة الحالية</label>
+                            <label class="form-label">ال{% trans "شركة" %} الحالية</label>
                             {{ form.current_company }}
-                            <div class="hint-text">مثال: شركة تقنية، بنك</div>
+                            <div class="hint-text">مثال: {% trans "شركة" %} تقنية، بنك</div>
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">نبذة تعريفية عنك</label>
@@ -412,10 +412,10 @@
                 <!-- الأزرار -->
                 <div class="d-flex justify-content-between gap-3">
                     <a href="{% url 'graduate_list' %}" class="btn btn-cancel">
-                        <i class="fas fa-arrow-right"></i> إلغاء
+                        <i class="fas fa-arrow-right"></i> {% trans "إلغاء" %}
                     </a>
                     <button type="submit" class="btn-submit">
-                        <i class="fas fa-save"></i> {% if form.instance.pk %}تحديث البيانات{% else %}حفظ البيانات ونشر الملف{% endif %}
+                        <i class="fas fa-save"></i> {% if form.instance.pk %}تحديث البيانات{% else %}{% trans "حفظ" %} البيانات و{% trans "نشر" %} الملف{% endif %}
                     </button>
                 </div>
                 

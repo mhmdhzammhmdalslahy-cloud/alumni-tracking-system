@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ employer.company_name }} - ملف شركة</title>
+    <title>{{ employer.company_name }} - ملف {% trans "شركة" %}</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -197,13 +197,13 @@
 
 <nav class="navbar">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
         <div class="dropdown">
             <a href="#" class="user-dropdown text-white" data-bs-toggle="dropdown">
-                <i class="fas fa-user-circle fa-lg"></i> حسابي
+                <i class="fas fa-user-circle fa-lg"></i> {% trans "حسابي" %}
             </a>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon"></i> الوضع الداكن</a></li>
+                <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon"></i> {% trans "الوضع الداكن" %}</a></li>
             </ul>
         </div>
     </div>
@@ -213,12 +213,12 @@
     <div class="row">
         <div class="col-lg-3">
             <div class="sidebar">
-                <h5 class="sidebar-title"><i class="fas fa-bars"></i> القائمة</h5>
+                <h5 class="sidebar-title"><i class="fas fa-bars"></i> {% trans "القائمة" %}</h5>
                 <div class="nav flex-column">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i> الرئيسية</a>
-                    <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> الخريجين</a>
-                    <a class="nav-link active" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> الشركات</a>
-                    <a class="nav-link" href="/admin/"><i class="fas fa-crown"></i> لوحة الإدارة</a>
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> {% trans "الرئيسية" %}</a>
+                    <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> {% trans "الخريجين" %}</a>
+                    <a class="nav-link active" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> {% trans "الشركات" %}</a>
+                    <a class="nav-link" href="/admin/"><i class="fas fa-crown"></i> {% trans "لوحة الإدارة" %}</a>
                 </div>
             </div>
         </div>
@@ -241,9 +241,9 @@
                         <p class="lead mb-2"><i class="fas fa-tag"></i> {{ employer.get_industry_display }}</p>
                         <p class="mb-2"><i class="fas fa-map-marker-alt"></i> {{ employer.headquarters }}</p>
                         {% if employer.is_verified %}
-                        <span class="badge bg-success fs-6 p-2"><i class="fas fa-check-circle"></i> شركة موثقة</span>
+                        <span class="badge bg-success fs-6 p-2"><i class="fas fa-check-circle"></i> {% trans "شركة" %} {% trans "موثق" %}ة</span>
                         {% else %}
-                        <span class="badge bg-warning fs-6 p-2"><i class="fas fa-clock"></i> قيد المراجعة</span>
+                        <span class="badge bg-warning fs-6 p-2"><i class="fas fa-clock"></i> {% trans "قيد المراجعة" %}</span>
                         {% endif %}
                     </div>
                     <div class="col-md-3 text-center">
@@ -252,7 +252,7 @@
                         </div>
                         <small class="d-block text-white-50">اتصل بنا</small>
                         <a href="{% url 'employer_update' employer.pk %}" class="btn btn-light btn-sm w-100 mt-3">
-                            <i class="fas fa-edit"></i> تعديل الملف
+                            <i class="fas fa-edit"></i> {% trans "تعديل" %} الملف
                         </a>
                     </div>
                 </div>
@@ -277,7 +277,7 @@
                         <small class="text-muted">({{ employer.reviews.count }} تقييم)</small>
                     </div>
                     <div class="col-md-6">
-                        <h5 class="fw-bold mb-2"><i class="fas fa-comment-dots"></i> تقييم الخريجين</h5>
+                        <h5 class="fw-bold mb-2"><i class="fas fa-comment-dots"></i> تقييم {% trans "الخريجين" %}</h5>
                         {% if employer.reviews.exists %}
                             {% for review in employer.reviews.all|slice:":3" %}
                             <div class="review-item">
@@ -314,8 +314,8 @@
                                     <option value="2">⭐⭐ مقبول</option>
                                     <option value="1">⭐ ضعيف</option>
                                 </select>
-                                <textarea name="comment" class="form-control mb-2" rows="2" placeholder="شارك تجربتك مع الشركة..."></textarea>
-                                <button type="submit" class="btn btn-primary btn-sm w-100">إرسال التقييم</button>
+                                <textarea name="comment" class="form-control mb-2" rows="2" placeholder="شارك تجربتك مع ال{% trans "شركة" %}..."></textarea>
+                                <button type="submit" class="btn btn-primary btn-sm w-100">{% trans "إرسال" %} التقييم</button>
                             </form>
                         </div>
                     </div>
@@ -332,27 +332,27 @@
 
             <!-- ====== تبويبات ====== -->
             <ul class="nav nav-tabs nav-tabs-giant" id="companyTab">
-                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#about">🏢 عن الشركة</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#jobs">💼 الوظائف</button></li>
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#about">🏢 عن ال{% trans "شركة" %}</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#jobs">💼 {% trans "الوظائف" %}</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#applications">📋 طلبات التوظيف</button></li>
             </ul>
 
             <div class="tab-content">
-                <!-- عن الشركة -->
+                <!-- عن ال{% trans "شركة" %} -->
                 <div class="tab-pane fade show active tab-pane-giant" id="about">
-                    <div class="info-card-giant"><h4 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary"></i> نبذة عن الشركة</h4><p class="fs-5">{{ employer.about|default:"لا توجد نبذة تعريفية" }}</p></div>
+                    <div class="info-card-giant"><h4 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary"></i> نبذة عن ال{% trans "شركة" %}</h4><p class="fs-5">{{ employer.about|default:"لا توجد نبذة تعريفية" }}</p></div>
                     <div class="row">
                         <div class="col-md-6"><div class="info-card-giant"><h5 class="fw-bold"><i class="fas fa-building"></i> معلومات أساسية</h5><p class="mb-1"><strong>الاسم:</strong> {{ employer.company_name }}</p><p class="mb-1"><strong>التأسيس:</strong> {{ employer.founded_year|default:"-" }}</p><p class="mb-1"><strong>الموظفين:</strong> {{ employer.get_employee_count_display|default:"-" }}</p><p class="mb-0"><strong>المقر:</strong> {{ employer.headquarters }}</p></div></div>
                         <div class="col-md-6"><div class="info-card-giant"><h5 class="fw-bold"><i class="fas fa-map-marker-alt"></i> العنوان</h5><p>{{ employer.address|default:"لا يوجد عنوان" }}</p><h5 class="fw-bold mt-3"><i class="fas fa-globe"></i> الموقع الإلكتروني</h5><p>{% if employer.website %}<a href="{{ employer.website }}" target="_blank">{{ employer.website }}</a>{% else %}غير مضاف{% endif %}</p></div></div>
                     </div>
                 </div>
 
-                <!-- الوظائف -->
+                <!-- {% trans "الوظائف" %} -->
                 <div class="tab-pane fade tab-pane-giant" id="jobs">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold m-0"><i class="fas fa-briefcase text-primary"></i> الوظائف الشاغرة</h4>
+                        <h4 class="fw-bold m-0"><i class="fas fa-briefcase text-primary"></i> {% trans "الوظائف" %} الشاغرة</h4>
                         {% if user == employer.user %}
-                        <a href="{% url 'job_create' %}?employer={{ employer.pk }}" class="btn btn-primary btn-lg rounded-pill px-4"><i class="fas fa-plus"></i> إضافة وظيفة</a>
+                        <a href="{% url 'job_create' %}?employer={{ employer.pk }}" class="btn btn-primary btn-lg rounded-pill px-4"><i class="fas fa-plus"></i> {% trans "إضافة" %} {% trans "وظيفة" %}</a>
                         {% endif %}
                     </div>
 {% for job in active_jobs %}
@@ -378,7 +378,7 @@
     </div>
 </div>
 {% empty %}
-<div class="alert alert-info text-center py-3">لا توجد وظائف حالياً</div>
+<div class="alert alert-info text-center py-3">{% trans "لا توجد وظائف حالياً" %}</div>
 {% endfor %}
                 <!-- طلبات التوظيف -->
                 <div class="tab-pane fade tab-pane-giant" id="applications">
@@ -421,10 +421,10 @@
                                     <p class="small mb-1"><strong>المعدل GPA:</strong> {{ app.graduate.gpa|default:"-" }}</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-code"></i> المهارات والخبرات</div>
+                                    <div class="small fw-bold text-primary mb-2"><i class="fas fa-code"></i> {% trans "المهارات" %} والخبرات</div>
                                     <p class="small mb-1"><strong>التخصص:</strong> {{ app.graduate.major }}</p>
                                     <p class="small mb-1"><strong>التخصص الفرعي:</strong> {{ app.graduate.minor|default:"-" }}</p>
-                                    <p class="small mb-1"><strong>المهارات:</strong> 
+                                    <p class="small mb-1"><strong>{% trans "المهارات" %}:</strong> 
                                         {% for skill in app.graduate.skills.all|slice:":5" %}
                                             <span class="badge bg-secondary me-1">{{ skill.name }}</span>
                                         {% empty %}لا توجد مهارات مضافة{% endfor %}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نتائج البحث - نظام متابعة الخريجين</title>
+    <title>نتائج ال{% trans "بحث" %} - {% trans "نظام متابعة الخريجين" %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,18 +15,18 @@
     <!-- نسخة مبسطة من Navbar (أو يمكنك نسخها من index.html) -->
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
             <form class="search-bar d-flex" action="{% url 'search_all' %}" method="get">
-                <input class="form-control" type="search" name="q" placeholder="ابحث عن خريج، تخصص، شركة..." value="{{ request.GET.q }}">
+                <input class="form-control" type="search" name="q" placeholder="{% trans "ابحث عن خريج، تخصص، شركة..." %}" value="{{ request.GET.q }}">
                 <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
             </form>
             <div class="d-flex align-items-center gap-4">
                 <div class="dropdown">
                     <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle fa-lg"></i>
-                        <span>حسابي</span>
+                        <span>{% trans "حسابي" %}</span>
                     </a>
-                    <!-- بقية القائمة المنسدلة -->
+                    <!-- بقية {% trans "القائمة" %} المنسدلة -->
                 </div>
             </div>
         </div>
@@ -34,15 +34,15 @@
 
     <div class="container my-4">
         <div class="section-header">
-            <h4 class="section-title">🔍 نتائج البحث عن "{{ query|default:request.GET.q }}"</h4>
+            <h4 class="section-title">🔍 نتائج ال{% trans "بحث" %} عن "{{ query|default:request.GET.q }}"</h4>
         </div>
         
         <div class="row">
-            <!-- الخريجين -->
+            <!-- {% trans "الخريجين" %} -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-user-graduate"></i> الخريجين ({{ graduates|length }})</h5>
+                        <h5 class="mb-0"><i class="fas fa-user-graduate"></i> {% trans "الخريجين" %} ({{ graduates|length }})</h5>
                     </div>
                     <div class="card-body">
                         {% for g in graduates %}
@@ -52,17 +52,17 @@
                             <a href="{% url 'graduate_profile' g.id %}" class="btn btn-sm btn-outline-primary">عرض الملف</a>
                         </div>
                         {% empty %}
-                        <p class="text-muted">لا توجد نتائج للخريجين</p>
+                        <p class="text-muted">لا توجد نتائج لل{% trans "خريجين" %}</p>
                         {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <!-- الوظائف -->
+            <!-- {% trans "الوظائف" %} -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-briefcase"></i> الوظائف ({{ jobs|length }})</h5>
+                        <h5 class="mb-0"><i class="fas fa-briefcase"></i> {% trans "الوظائف" %} ({{ jobs|length }})</h5>
                     </div>
                     <div class="card-body">
                         {% for j in jobs %}

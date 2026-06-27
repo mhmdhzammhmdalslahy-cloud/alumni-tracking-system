@@ -9,7 +9,7 @@ from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),  # ← هذا السطر المعدل
+    path('', home, name='home'),
     path('home/', home, name='home_url'),
     path('graduates/', include('graduates.urls')),
     path('accounts/', include('accounts.urls')),
@@ -20,11 +20,10 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='application/xml')),
     path('search/', views.search_all, name='search_all'),
-    path('groups/', include('groups.urls')),   # <-- جديد
+    path('groups/', include('groups.urls')),
     path('chatbot/', include('chatbot.urls')),
     path('api/', include('api.urls')),
-    path('i18n/', include('django.conf.urls.i18n')),
-    
+path('setlang/<str:language_code>/', views.set_language, name='set_language'),    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 if settings.DEBUG:

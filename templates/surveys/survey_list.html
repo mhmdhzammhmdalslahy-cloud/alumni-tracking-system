@@ -1,7 +1,7 @@
-{% load i18n %}
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}الاستبيانات{% endblock %}
+{% block title %}{% trans "الاستبيانات" %}{% endblock %}
 
 {% block content %}
 <div class="container my-4">
@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-chart-line"></i> الاستبيانات المتاحة</h4>
+                    <h4 class="mb-0"><i class="fas fa-chart-line"></i> {% trans "الاستبيانات" %} المتاحة</h4>
                 </div>
                 <div class="card-body">
                     {% if surveys %}

@@ -1,11 +1,11 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}إدارة الفعاليات{% endblock %}
+{% block title %}إدارة {% trans "الفعاليات" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">إدارة الفعاليات</h1>
+    <h1 class="h3">إدارة {% trans "الفعاليات" %}</h1>
     <a href="{% url 'dashboard:create_event' %}" class="btn btn-primary">
         <i class="fas fa-plus"></i> فعالية جديدة
     </a>

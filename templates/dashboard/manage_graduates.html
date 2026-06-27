@@ -1,31 +1,33 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
+
+
 {% load static %}
 
-{% block title %}إدارة الخريجين{% endblock %}
+{% block title %}إدارة {% trans "الخريجين" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">إدارة الخريجين</h1>
+    <h1 class="h3">إدارة {% trans "الخريجين" %}</h1>
 </div>
 
-<!-- بحث وفلاتر -->
+<!-- {% trans "بحث" %} وفلاتر -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="🔍 بحث بالاسم أو الرقم الجامعي..." value="{{ request.GET.search }}">
+                <input type="text" name="search" class="form-control" placeholder="🔍 {% trans "بحث" %} بالاسم أو الرقم الجامعي..." value="{{ request.GET.search }}">
             </div>
             <div class="col-md-2">
                 <select name="status" class="form-select">
                     <option value="">جميع الحالات</option>
-                    <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>موثق</option>
-                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>غير موثق</option>
+                    <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>{% trans "موثق" %}</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>غير {% trans "موثق" %}</option>
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="major" class="form-select">
-                    <option value="">جميع التخصصات</option>
+                    <option value="">جميع {% trans "التخصصات" %}</option>
                     {% for major in majors %}
                     <option value="{{ major }}" {% if request.GET.major == major %}selected{% endif %}>{{ major }}</option>
                     {% endfor %}
@@ -40,13 +42,13 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">بحث <i class="fas fa-search"></i></button>
+                <button type="submit" class="btn btn-primary w-100">{% trans "بحث" %} <i class="fas fa-search"></i></button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- قائمة الخريجين -->
+<!-- قائمة {% trans "الخريجين" %} -->
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -73,9 +75,9 @@
                         <td>{{ grad.graduation_year }}</td>
                         <td>
                             {% if grad.is_verified %}
-                            <span class="badge bg-success">موثق</span>
+                            <span class="badge bg-success">{% trans "موثق" %}</span>
                             {% else %}
-                            <span class="badge bg-warning">غير موثق</span>
+                            <span class="badge bg-warning">غير {% trans "موثق" %}</span>
                             {% endif %}
                         </td>
                         <td>{{ grad.created_at|date:"Y-m-d" }}</td>
@@ -111,7 +113,7 @@
                                             <p><strong>📅 سنة التخرج:</strong> {{ grad.graduation_year }}</p>
                                             <p><strong>⭐ المعدل:</strong> {{ grad.gpa|default:"-" }}</p>
                                             <p><strong>💼 الحالة الوظيفية:</strong> {{ grad.get_current_job_status_display }}</p>
-                                            <p><strong>🏢 الشركة:</strong> {{ grad.current_company|default:"-" }}</p>
+                                            <p><strong>🏢 ال{% trans "شركة" %}:</strong> {{ grad.current_company|default:"-" }}</p>
                                         </div>
                                         <div class="col-12">
                                             <p><strong>📝 نبذة:</strong></p>

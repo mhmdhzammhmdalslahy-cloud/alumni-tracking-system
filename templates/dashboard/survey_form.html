@@ -1,5 +1,5 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -22,9 +22,9 @@
                     {{ form.timing }}
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">تاريخ الإرسال المجدول</label>
+                    <label class="form-label">تاريخ ال{% trans "إرسال" %} المجدول</label>
                     {{ form.scheduled_date }}
-                    <small class="text-muted">اتركه فارغاً للإرسال الفوري</small>
+                    <small class="text-muted">اتركه فارغاً لل{% trans "إرسال" %} الفوري</small>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-check-label ms-2">نشط</label>
@@ -38,8 +38,8 @@
             </div>
             
             <div class="d-flex gap-2">
-                <a href="{% url 'dashboard:manage_surveys' %}" class="btn btn-secondary">إلغاء</a>
-                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'dashboard:manage_surveys' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "حفظ" %}</button>
             </div>
         </form>
     </div>

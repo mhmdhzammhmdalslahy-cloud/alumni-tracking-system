@@ -1,14 +1,14 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}إدارة التخصصات الأكاديمية{% endblock %}
+{% block title %}إدارة {% trans "التخصصات" %} الأكاديمية{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-5">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">إضافة تخصص جديد</h5>
+                <h5 class="mb-0">{% trans "إضافة" %} تخصص جديد</h5>
             </div>
             <div class="card-body">
                 <form method="post">
@@ -29,7 +29,7 @@
                         <label class="form-check-label ms-2">نشط</label>
                         {{ form.is_active }}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">إضافة التخصص</button>
+                    <button type="submit" class="btn btn-primary w-100">{% trans "إضافة" %} التخصص</button>
                 </form>
             </div>
         </div>
@@ -38,7 +38,7 @@
     <div class="col-md-7">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">قائمة التخصصات</h5>
+                <h5 class="mb-0">قائمة {% trans "التخصصات" %}</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

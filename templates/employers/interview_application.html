@@ -32,8 +32,8 @@
                     <textarea name="interview_notes" class="form-control" rows="3" placeholder="تعليمات المقابلة..."></textarea>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{% url 'employer_profile' application.job.employer.pk %}" class="btn btn-secondary">إلغاء</a>
-                    <button type="submit" class="btn btn-info">تحديد المقابلة وإشعار الخريج</button>
+                    <a href="{% url 'employer_profile' application.job.employer.pk %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                    <button type="submit" class="btn btn-info">تحديد المقابلة وإشعار ال{% trans "خريج" %}</button>
                 </div>
             </form>
         </div>

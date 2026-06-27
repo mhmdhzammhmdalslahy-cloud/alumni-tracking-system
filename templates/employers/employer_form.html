@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if form.instance.pk %}تعديل{% else %}إضافة{% endif %} شركة - نظام متابعة الخريجين</title>
+    <title>{% if form.instance.pk %}{% trans "تعديل" %}{% else %}{% trans "إضافة" %}{% endif %} {% trans "شركة" %} - {% trans "نظام متابعة الخريجين" %}</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -53,9 +53,9 @@
 
 <nav class="navbar">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> نظام متابعة الخريجين</a>
+        <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
         <div class="dropdown">
-            <a href="#" class="user-dropdown text-white" data-bs-toggle="dropdown"><i class="fas fa-user-circle fa-lg"></i> حسابي</a>
+            <a href="#" class="user-dropdown text-white" data-bs-toggle="dropdown"><i class="fas fa-user-circle fa-lg"></i> {% trans "حسابي" %}</a>
         </div>
     </div>
 </nav>
@@ -64,7 +64,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="form-container">
-                <h2 class="mb-4">{% if form.instance.pk %}تعديل{% else %}إضافة{% endif %} شركة</h2>
+                <h2 class="mb-4">{% if form.instance.pk %}{% trans "تعديل" %}{% else %}{% trans "إضافة" %}{% endif %} {% trans "شركة" %}</h2>
                 
                 <!-- ===== عرض رسائل التنبيه ===== -->
                 {% if messages %}
@@ -86,7 +86,7 @@
                         <h5 class="section-title"><i class="fas fa-info-circle"></i> المعلومات الأساسية</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label required-field">اسم الشركة</label>
+                                <label class="form-label required-field">اسم ال{% trans "شركة" %}</label>
                                 {{ form.company_name }}
                             </div>
                             <div class="col-md-6 mb-3">
@@ -135,9 +135,9 @@
                         </div>
                     </div>
                     
-                    <!-- نبذة عن الشركة -->
+                    <!-- نبذة عن ال{% trans "شركة" %} -->
                     <div class="form-section">
-                        <h5 class="section-title"><i class="fas fa-file-alt"></i> نبذة عن الشركة</h5>
+                        <h5 class="section-title"><i class="fas fa-file-alt"></i> نبذة عن ال{% trans "شركة" %}</h5>
                         {{ form.about }}
                     </div>
                     
@@ -146,7 +146,7 @@
                         <h5 class="section-title"><i class="fas fa-image"></i> الشعار والصور</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">شعار الشركة</label>
+                                <label class="form-label">شعار ال{% trans "شركة" %}</label>
                                 {{ form.logo }}
                             </div>
                             <div class="col-md-6 mb-3">
@@ -173,8 +173,8 @@
                     
                     <hr>
                     <div class="d-flex justify-content-between">
-                        <a href="{% url 'employer_list' %}" class="btn btn-secondary">إلغاء</a>
-                        <button type="submit" class="btn btn-primary-custom">حفظ البيانات</button>
+                        <a href="{% url 'employer_list' %}" class="btn btn-secondary">{% trans "إلغاء" %}</a>
+                        <button type="submit" class="btn btn-primary-custom">{% trans "حفظ" %} البيانات</button>
                     </div>
                 </form>
             </div>

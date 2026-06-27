@@ -1,11 +1,11 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}سجل التدقيق{% endblock %}
+{% block title %}{% trans "سجل التدقيق" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">سجل التدقيق</h1>
+    <h1 class="h3">{% trans "سجل التدقيق" %}</h1>
 </div>
 
 <!-- فلاتر -->
@@ -17,7 +17,7 @@
                     <option value="">جميع الإجراءات</option>
                     <option value="create" {% if request.GET.action == 'create' %}selected{% endif %}>إنشاء</option>
                     <option value="update" {% if request.GET.action == 'update' %}selected{% endif %}>تحديث</option>
-                    <option value="delete" {% if request.GET.action == 'delete' %}selected{% endif %}>حذف</option>
+                    <option value="delete" {% if request.GET.action == 'delete' %}selected{% endif %}>{% trans "حذف" %}</option>
                     <option value="approve" {% if request.GET.action == 'approve' %}selected{% endif %}>موافقة</option>
                     <option value="reject" {% if request.GET.action == 'reject' %}selected{% endif %}>رفض</option>
                 </select>
@@ -26,7 +26,7 @@
                 <input type="text" name="target" class="form-control" placeholder="نوع المستهدف (graduate, employer, job...)" value="{{ request.GET.target }}">
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">بحث <i class="fas fa-search"></i></button>
+                <button type="submit" class="btn btn-primary w-100">{% trans "بحث" %} <i class="fas fa-search"></i></button>
             </div>
             <div class="col-md-3">
                 <a href="{% url 'dashboard:audit_log' %}" class="btn btn-secondary w-100">إعادة تعيين</a>

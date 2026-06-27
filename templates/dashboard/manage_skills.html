@@ -1,14 +1,14 @@
-{% load i18n %}
 {% extends 'dashboard/base_admin.html' %}
+{% load i18n %}
 
-{% block title %}إدارة المهارات{% endblock %}
+{% block title %}إدارة {% trans "المهارات" %}{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-4">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">إضافة مهارة جديدة</h5>
+                <h5 class="mb-0">{% trans "إضافة" %} مهارة جديدة</h5>
             </div>
             <div class="card-body">
                 <form method="post">
@@ -25,7 +25,7 @@
                         <label class="form-check-label ms-2">نشط</label>
                         {{ form.is_active }}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">إضافة المهارة</button>
+                    <button type="submit" class="btn btn-primary w-100">{% trans "إضافة" %} المهارة</button>
                 </form>
             </div>
         </div>
@@ -34,7 +34,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">قائمة المهارات</h5>
+                <h5 class="mb-0">قائمة {% trans "المهارات" %}</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

@@ -38,7 +38,7 @@
         }
 
         /* ============================================================
-           حاوية البث الرئيسية
+           حاوية البث {% trans "الرئيسية" %}
            ============================================================ */
         .live-container {
             display: flex;
@@ -48,7 +48,7 @@
         }
 
         /* ============================================================
-           منطقة الفيديو الرئيسية
+           منطقة الفيديو {% trans "الرئيسية" %}
            ============================================================ */
         .video-main {
             flex: 1;
@@ -1153,7 +1153,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- ============================================================ -->
-    <!-- ========== السكربتات الرئيسية ========== -->
+    <!-- ========== السكربتات {% trans "الرئيسية" %} ========== -->
     <!-- ============================================================ -->
     <script>
         // ============================================================
@@ -1331,7 +1331,7 @@
             showToast('🔴 بدء البث', 'أنت الآن على الهواء مباشرة!', 'fa-circle', 'success');
             updateParticipants();
             
-            // حفظ حالة البث في الخادم
+            // {% trans "حفظ" %} حالة البث في الخادم
             saveStreamStatus(true);
             
             console.log('📡 Peer ID:', peer.id);
@@ -1339,7 +1339,7 @@
         }
 
         // ============================================================
-        // ========== حفظ حالة البث في الخادم ==========
+        // ========== {% trans "حفظ" %} حالة البث في الخادم ==========
         // ============================================================
         function saveStreamStatus(isActive) {
             fetch(`/groups/${GROUP_ID}/stream-status/`, {
@@ -1349,11 +1349,11 @@
                     'X-CSRFToken': CSRF_TOKEN
                 },
                 body: JSON.stringify({ is_active: isActive })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ حالة البث:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} حالة البث:', err));
         }
 
         // ============================================================
-        // ========== استقبال المشاهدين (PeerJS) ==========
+        // ========== {% trans "استقبال" %} المشاهدين (PeerJS) ==========
         // ============================================================
         peer.on('call', (incomingCall) => {
             if (!isStreaming || !localStream) {
@@ -1430,7 +1430,7 @@
             updateParticipants();
             showToast('📡 جاهز', 'تم الاتصال بالخادم', 'fa-check-circle', 'success');
             
-            // حفظ Peer ID في الخادم
+            // {% trans "حفظ" %} Peer ID في الخادم
             fetch(`/groups/${GROUP_ID}/set-peer-id/`, {
                 method: 'POST',
                 headers: {
@@ -1438,7 +1438,7 @@
                     'X-CSRFToken': CSRF_TOKEN
                 },
                 body: JSON.stringify({ peer_id: id })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ Peer ID:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} Peer ID:', err));
         });
 
         // ============================================================
@@ -1454,7 +1454,7 @@
             
             showToast('❤️ إعجاب', 'أعجبك البث!', 'fa-heart', 'success');
             
-            // إرسال الإعجاب إلى الخادم
+            // {% trans "إرسال" %} الإعجاب إلى الخادم
             fetch(`/groups/${GROUP_ID}/like/`, {
                 method: 'POST',
                 headers: {
@@ -1462,7 +1462,7 @@
                     'X-CSRFToken': CSRF_TOKEN
                 },
                 body: JSON.stringify({ likes: likeCount })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ الإعجاب:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} الإعجاب:', err));
         }
         
         // تأثير طائر للإعجاب
@@ -1503,7 +1503,7 @@
             const emptyMsg = chatMessagesEl.querySelector('.text-center');
             if (emptyMsg) emptyMsg.remove();
             
-            // إضافة الرسالة
+            // {% trans "إضافة" %} الرسالة
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
@@ -1518,9 +1518,9 @@
             chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
             chatInput.value = '';
             
-            showToast('💬 تعليق', 'تم إرسال تعليقك', 'fa-comment', 'info');
+            showToast('💬 تعليق', 'تم {% trans "إرسال" %} تعليقك', 'fa-comment', 'info');
             
-            // إرسال التعليق إلى الخادم
+            // {% trans "إرسال" %} التعليق إلى الخادم
             fetch(`/groups/${GROUP_ID}/comment/`, {
                 method: 'POST',
                 headers: {
@@ -1531,7 +1531,7 @@
                     comment: text, 
                     count: commentCount 
                 })
-            }).catch(err => console.log('⚠️ لا يمكن حفظ التعليق:', err));
+            }).catch(err => console.log('⚠️ لا يمكن {% trans "حفظ" %} التعليق:', err));
         }
         
         // دالة لتأمين النص من XSS
@@ -1555,8 +1555,8 @@
                         '<i class="fas fa-microphone"></i> <span>كتم</span>';
                     this.classList.toggle('active');
                     showToast(
-                        isMuted ? '🔇 كتم' : '🔊 إلغاء الكتم',
-                        isMuted ? 'تم كتم صوتك' : 'تم إلغاء كتم صوتك',
+                        isMuted ? '🔇 كتم' : '🔊 {% trans "إلغاء" %} الكتم',
+                        isMuted ? 'تم كتم صوتك' : 'تم {% trans "إلغاء" %} كتم صوتك',
                         isMuted ? 'fa-microphone-slash' : 'fa-microphone',
                         isMuted ? 'warning' : 'info'
                     );
