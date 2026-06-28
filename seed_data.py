@@ -91,7 +91,7 @@ def get_or_create_major(name):
 # ==================== بدء التعبئة ====================
 print("🌍 بدء تعبئة قاعدة البيانات ببيانات يمنية وصور...")
 
-# 1. إنشاء التخصصات (بدون مهارات)
+# 1. إنشاء التخصصات
 print("📚 إنشاء التخصصات...")
 for major_name in majors_list:
     get_or_create_major(major_name)
@@ -108,17 +108,21 @@ for i in range(20):
     user.set_password('password123')
     user.save()
     
-    major = Major.objects.get(name=random.choice(majors_list))
+    # ✅ استخدم النص مباشرة، وليس كائن Major
+    major_name = random.choice(majors_list)
+    university = random.choice(universities)
+    city = random.choice(cities)
+    
     grad, created = Graduate.objects.get_or_create(
         user=user,
         defaults={
-            'university_id': random.choice(universities),
-            'major': major,
+            'university_id': university,
+            'major': major_name,  # ✅ نص وليس كائن
             'graduation_year': random.randint(2019, 2026),
-            'address': random.choice(cities),
+            'address': city,
             'current_job_status': random.choice(['working', 'seeking', 'freelance']),
             'is_verified': random.choice([True, False]),
-            'bio': f"خريج {major.name} من {random.choice(universities)}",
+            'bio': f"خريج {major_name} من {university}",
             'phone': f"7{random.randint(10000000, 99999999)}",
             'gpa': round(random.uniform(2.0, 4.0), 2)
         }
@@ -127,7 +131,7 @@ for i in range(20):
     if created:
         avatar_url = get_avatar_url(f"{first}+{last}")
         download_and_attach_image(grad, 'profile_picture', avatar_url)
-        print(f"   ✅ {first} {last} - {major.name}")
+        print(f"   ✅ {first} {last} - {major_name}")
 
 # 3. الشركات (15) مع شعارات
 print("🏢 إنشاء الشركات مع الشعارات...")
@@ -166,7 +170,7 @@ print("💼 إنشاء الوظائف...")
 job_count = 0
 for emp in created_employers:
     for _ in range(random.randint(1, 3)):
-        major = Major.objects.get(name=random.choice(majors_list))
+        major_name = random.choice(majors_list)
         job, created = Job.objects.get_or_create(
             employer=emp,
             title=random.choice(job_titles),
@@ -174,7 +178,7 @@ for emp in created_employers:
                 'description': f"مطلوب {random.choice(job_titles)} للعمل في {emp.company_name}.",
                 'location': emp.headquarters,
                 'job_type': random.choice(['full_time', 'part_time', 'remote']),
-                'major_required': major,
+                'major_required': major_name,  # ✅ نص وليس كائن (إذا كان CharField)
                 'salary_min': random.randint(200, 1000) * 1000,
                 'salary_max': random.randint(1000, 2000) * 1000,
                 'is_active': True,
