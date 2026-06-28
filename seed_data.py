@@ -138,12 +138,16 @@ for i in range(20):
             'gpa': round(random.uniform(2.0, 4.0), 2)
         }
     )
+    # ✅ تأكد من حفظ الخريج قبل إضافة المهارات
+    grad.save()
+    
     if created:
         for skill_name in random.sample(skills_list, k=random.randint(3, 6)):
             try:
-                grad.skills.add(SkillModel.objects.get(name=skill_name))
-            except:
-                pass
+                skill = SkillModel.objects.get(name=skill_name)
+                grad.skills.add(skill)
+            except Exception as e:
+                print(f"   ⚠️ فشل إضافة مهارة {skill_name}: {e}")
         avatar_url = get_avatar_url(f"{first}+{last}")
         download_and_attach_image(grad, 'profile_picture', avatar_url)
         print(f"   ✅ {first} {last} - {major.name}")
@@ -165,10 +169,11 @@ for comp in companies_data:
         defaults={
             'company_name': comp['name'],
             'industry': comp['industry'],
-            'city': comp['city'],
-            'description': comp['desc'],
+            'headquarters': comp['city'],      # ✅ استخدام الحقل الصحيح
+            'about': comp['desc'],              # ✅ استخدام الحقل الصحيح
+            'address': comp['city'],
             'is_verified': True,
-            'website': f"www.{comp['name'].replace(' ', '').lower()}.com"
+            'website': f"www.{comp['name'].replace(' ', '').replace('(','').replace(')','').lower()}.com"
         }
     )
     if created:
@@ -190,7 +195,7 @@ for emp in created_employers:
             title=random.choice(job_titles),
             defaults={
                 'description': f"مطلوب {random.choice(job_titles)} للعمل في {emp.company_name}.",
-                'location': emp.city,
+                'location': emp.headquarters,   # ✅ استخدام headquarters
                 'job_type': random.choice(['full_time', 'part_time', 'remote']),
                 'major_required': major,
                 'salary_min': random.randint(200, 1000) * 1000,
@@ -216,7 +221,9 @@ for i, text in enumerate(success_stories_texts):
             title=title,
             defaults={
                 'content': text,
-                'is_approved': True,
+                'status': 'approved',           # ✅ الحقل الصحيح بدلاً من is_approved
+                'is_active': True,
+                'created_by': grad.user,
                 'created_at': timezone.now() - timedelta(days=random.randint(1, 365))
             }
         )
