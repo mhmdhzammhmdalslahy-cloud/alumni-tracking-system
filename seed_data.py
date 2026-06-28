@@ -15,6 +15,12 @@ from graduates.models import Graduate
 from employers.models import Employer
 from jobs.models import Job
 from dashboard.models import Major, SuccessStory
+from django.db.models.signals import post_save
+from dashboard.signals import send_job_notifications  # استيراد الإشارة
+
+# ==================== تعطيل الإشارات المؤقتاً ====================
+print("🔕 تعطيل إرسال الإشعارات البريدية أثناء التعبئة...")
+post_save.disconnect(send_job_notifications, sender=Job)
 
 # ==================== دوال تحميل الصور ====================
 def download_and_attach_image(instance, field_name, url):
@@ -173,21 +179,16 @@ for comp in companies_data:
         created_employers.append(emp)
         print(f"   ✅ {comp['name']}")
 
-# 4. الوظائف (باستخدام الحقول الصحيحة)
+# 4. الوظائف (مع تعطيل الإشارات)
 print("💼 إنشاء الوظائف...")
 job_count = 0
 for emp in created_employers:
     for _ in range(random.randint(1, 3)):
         title = random.choice(job_titles)
-        # اختيار نوع الوظيفة
         job_type = random.choice(['full_time', 'part_time', 'remote', 'internship'])
-        # مستوى الخبرة
         experience_level = random.choice(['fresh', 'junior', 'mid', 'senior', 'lead'])
-        # المهارات المطلوبة (نص)
         required_skills = ', '.join(random.sample(['Python', 'Java', 'JavaScript', 'SQL', 'Django', 'React', 'Node.js', 'تحليل بيانات', 'إدارة مشاريع', 'التواصل'], k=3))
-        # وصف الوظيفة
         description = f"مطلوب {title} للعمل في {emp.company_name}."
-        # تاريخ انتهاء التقديم (بعد 30-90 يوم)
         deadline = timezone.now() + timedelta(days=random.randint(30, 90))
         
         job, created = Job.objects.get_or_create(
