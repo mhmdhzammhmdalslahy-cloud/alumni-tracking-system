@@ -3,16 +3,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView  # ✅ إضافة هذا السطر
+from django.contrib.auth.views import LoginView  # ✅ أضف هذا
 from graduates.views import home
 from . import views
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # ✅ تغيير الصفحة الرئيسية إلى صفحة تسجيل الدخول
-    path('', LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('home/', home, name='home'),  # تبقى الصفحة الرئيسية بعد تسجيل الدخول
+    path('', LoginView.as_view(template_name='accounts/login.html'), name='login'),  # ✅ تم التعديل
+    path('home/', home, name='home'),
     path('graduates/', include('graduates.urls')),
     path('accounts/', include('accounts.urls')),
     path('employers/', include('employers.urls')),
