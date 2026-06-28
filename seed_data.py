@@ -96,9 +96,9 @@ print("📚 إنشاء التخصصات...")
 for major_name in majors_list:
     get_or_create_major(major_name)
 
-# 2. الخريجين (20) مع صور - مع تجنب تكرار الجامعة
+# 2. الخريجين (20) مع صور
 print("🎓 إنشاء الخريجين مع الصور...")
-used_universities = []  # لتتبع الجامعات المستخدمة
+used_universities = []
 
 for i in range(20):
     first = random.choice(first_names_male if i < 10 else first_names_female)
@@ -112,10 +112,8 @@ for i in range(20):
     
     major_name = random.choice(majors_list)
     
-    # ✅ اختيار جامعة غير مستخدمة (لتجنب التكرار)
     available_universities = [u for u in universities if u not in used_universities]
     if not available_universities:
-        # إذا نفذت الجامعات، استخدم أي جامعة مع إضافة رقم عشوائي
         university = random.choice(universities) + f" ({i+1})"
     else:
         university = random.choice(available_universities)
@@ -126,7 +124,7 @@ for i in range(20):
     grad, created = Graduate.objects.get_or_create(
         user=user,
         defaults={
-            'university_id': university,  # ✅ جامعة فريدة
+            'university_id': university,
             'major': major_name,
             'graduation_year': random.randint(2019, 2026),
             'address': city,
@@ -175,24 +173,42 @@ for comp in companies_data:
         created_employers.append(emp)
         print(f"   ✅ {comp['name']}")
 
-# 4. الوظائف
+# 4. الوظائف (باستخدام الحقول الصحيحة)
 print("💼 إنشاء الوظائف...")
 job_count = 0
 for emp in created_employers:
     for _ in range(random.randint(1, 3)):
-        major_name = random.choice(majors_list)
+        title = random.choice(job_titles)
+        # اختيار نوع الوظيفة
+        job_type = random.choice(['full_time', 'part_time', 'remote', 'internship'])
+        # مستوى الخبرة
+        experience_level = random.choice(['fresh', 'junior', 'mid', 'senior', 'lead'])
+        # المهارات المطلوبة (نص)
+        required_skills = ', '.join(random.sample(['Python', 'Java', 'JavaScript', 'SQL', 'Django', 'React', 'Node.js', 'تحليل بيانات', 'إدارة مشاريع', 'التواصل'], k=3))
+        # وصف الوظيفة
+        description = f"مطلوب {title} للعمل في {emp.company_name}."
+        # تاريخ انتهاء التقديم (بعد 30-90 يوم)
+        deadline = timezone.now() + timedelta(days=random.randint(30, 90))
+        
         job, created = Job.objects.get_or_create(
             employer=emp,
-            title=random.choice(job_titles),
+            title=title,
             defaults={
-                'description': f"مطلوب {random.choice(job_titles)} للعمل في {emp.company_name}.",
+                'job_type': job_type,
+                'experience_level': experience_level,
                 'location': emp.headquarters,
-                'job_type': random.choice(['full_time', 'part_time', 'remote']),
-                'major_required': major_name,
                 'salary_min': random.randint(200, 1000) * 1000,
                 'salary_max': random.randint(1000, 2000) * 1000,
+                'is_salary_negotiable': random.choice([True, False]),
+                'required_skills': required_skills,
+                'preferred_skills': ', '.join(random.sample(['مهارات تواصل', 'قيادة', 'عمل جماعي', 'حل مشكلات', 'تخطيط'], k=2)),
+                'description': description,
+                'responsibilities': f"المسؤوليات: {random.choice(['إدارة المشاريع', 'تطوير البرمجيات', 'تحليل البيانات', 'التسويق', 'المحاسبة'])}",
+                'benefits': f"المزايا: {random.choice(['تأمين صحي', 'مرونة في العمل', 'إجازات مدفوعة', 'تدريب مستمر'])}",
+                'deadline': deadline,
                 'is_active': True,
-                'posted_at': timezone.now() - timedelta(days=random.randint(1, 30))
+                'is_filled': False,
+                'is_live': True,
             }
         )
         if created:
