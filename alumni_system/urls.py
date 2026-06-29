@@ -10,7 +10,8 @@ from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', LoginView.as_view(template_name='accounts/login.html'), name='login'),  # ✅ تم التعديل
+    # ✅ الصفحة الرئيسية = صفحة تسجيل الدخول
+    path('', LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('home/', home, name='home'),
     path('graduates/', include('graduates.urls')),
     path('accounts/', include('accounts.urls')),
