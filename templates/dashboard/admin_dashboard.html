@@ -2,29 +2,29 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}لوحة التحكم - الإدارة{% endblock %}
+{% block title %}{% trans "لوحة التحكم - الإدارة" %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <!-- ====== رأس الصفحة + زر العودة ====== -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+<div class="container-fluid px-2 px-md-4">
+    <!-- رأس الصفحة -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
             <h1 class="h3 fw-bold mb-0">
-                <i class="fas fa-chart-pie text-primary me-2"></i> لوحة التحكم
+                <i class="fas fa-chart-pie text-primary me-2"></i> {% trans "لوحة التحكم" %}
             </h1>
-            <p class="text-muted small mt-1">نظرة عامة على أداء المنصة وإحصائياتها</p>
+            <p class="text-muted small mt-1">{% trans "نظرة عامة على أداء المنصة وإحصائياتها" %}</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="fas fa-arrow-right me-2"></i> العودة للرئيسية
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-3 px-md-4 btn-sm">
+                <i class="fas fa-arrow-right me-1"></i> {% trans "العودة للرئيسية" %}
             </a>
-            <span class="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
+            <span class="badge bg-light text-dark px-3 py-2 d-flex align-items-center small">
                 <i class="far fa-calendar-alt me-1"></i> {{ now|date:"Y-m-d" }}
             </span>
         </div>
     </div>
 
-    <!-- ====== تنبيهات النظام ====== -->
+    <!-- تنبيهات النظام -->
     {% if alerts %}
     <div class="row mb-4">
         <div class="col-12">
@@ -32,11 +32,11 @@
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <i class="fas fa-bell text-warning"></i>
-                        <h6 class="fw-bold mb-0">تنبيهات النظام</h6>
+                        <h6 class="fw-bold mb-0">{% trans "تنبيهات النظام" %}</h6>
                     </div>
                     <div class="row g-2">
                         {% for alert in alerts %}
-                        <div class="col-md-4 col-sm-6">
+                        <div class="col-12 col-sm-6 col-md-4">
                             <div class="alert alert-{{ alert.type }} rounded-3 mb-0 d-flex align-items-center gap-2 p-2">
                                 <i class="fas {{ alert.icon }}"></i>
                                 <div class="small flex-grow-1">
@@ -44,7 +44,7 @@
                                     <span class="text-muted d-block small">{{ alert.message }}</span>
                                 </div>
                                 {% if alert.link %}
-                                <a href="{{ alert.link }}" class="btn btn-sm btn-outline-{{ alert.type }} rounded-pill">عرض</a>
+                                <a href="{{ alert.link }}" class="btn btn-sm btn-outline-{{ alert.type }} rounded-pill">{% trans "عرض" %}</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -56,7 +56,7 @@
     </div>
     {% endif %}
 
-    <!-- ====== بطاقات الإحصائيات ====== -->
+    <!-- بطاقات الإحصائيات -->
     <div class="row g-3 g-md-4 mb-4">
         <div class="col-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden stat-card">
@@ -72,7 +72,7 @@
                     </div>
                     <div class="mt-2 mt-md-3">
                         <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+12%</span>
-                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">{% trans "عن الشهر الماضي" %}</span>
                     </div>
                 </div>
                 <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #1A5F7A, #2ecc71);"></div>
@@ -92,7 +92,7 @@
                     </div>
                     <div class="mt-2 mt-md-3">
                         <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+8%</span>
-                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">{% trans "عن الشهر الماضي" %}</span>
                     </div>
                 </div>
                 <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #27ae60, #2ecc71);"></div>
@@ -103,7 +103,7 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted small fw-semibold text-uppercase">{% trans "الوظائف" %} النشطة</span>
+                            <span class="text-muted small fw-semibold text-uppercase">{% trans "الوظائف" %} {% trans "النشطة" %}</span>
                             <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_jobs }}</h2>
                         </div>
                         <div class="stat-icon bg-warning-soft rounded-3 p-2 p-md-3">
@@ -112,7 +112,7 @@
                     </div>
                     <div class="mt-2 mt-md-3">
                         <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+5%</span>
-                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">{% trans "عن الشهر الماضي" %}</span>
                     </div>
                 </div>
                 <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #f39c12, #f1c40f);"></div>
@@ -123,7 +123,7 @@
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted small fw-semibold text-uppercase">طلبات التوظيف</span>
+                            <span class="text-muted small fw-semibold text-uppercase">{% trans "طلبات التوظيف" %}</span>
                             <h2 class="fw-bold mb-0 mt-1 fs-2 fs-md-1">{{ total_applications }}</h2>
                         </div>
                         <div class="stat-icon bg-info-soft rounded-3 p-2 p-md-3">
@@ -132,7 +132,7 @@
                     </div>
                     <div class="mt-2 mt-md-3">
                         <span class="badge bg-success-subtle text-success small"><i class="fas fa-arrow-up me-1"></i>+15%</span>
-                        <span class="text-muted small ms-2 d-none d-sm-inline">عن الشهر الماضي</span>
+                        <span class="text-muted small ms-2 d-none d-sm-inline">{% trans "عن الشهر الماضي" %}</span>
                     </div>
                 </div>
                 <div class="stat-progress" style="height: 4px; background: linear-gradient(90deg, #3498db, #5dade2);"></div>
@@ -140,14 +140,14 @@
         </div>
     </div>
 
-    <!-- ====== طلبات التحقق المعلقة ====== -->
+    <!-- طلبات التحقق المعلقة -->
     <div class="row g-3 g-md-4 mb-4">
         <div class="col-12 col-md-6">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold small">
-                            <i class="fas fa-user-clock text-danger me-2"></i> طلبات توثيق {% trans "الخريجين" %}
+                            <i class="fas fa-user-clock text-danger me-2"></i> {% trans "طلبات توثيق الخريجين" %}
                         </h6>
                         <span class="badge bg-danger rounded-pill px-3 py-2">{{ pending_graduates }}</span>
                     </div>
@@ -156,15 +156,15 @@
                     {% if pending_graduates > 0 %}
                         <div class="text-center py-3">
                             <h2 class="display-4 fw-bold text-danger">{{ pending_graduates }}</h2>
-                            <p class="text-muted small">طلب توثيق معلق</p>
+                            <p class="text-muted small">{% trans "طلب توثيق معلق" %}</p>
                             <a href="{% url 'dashboard:manage_graduates' %}?status=pending" class="btn btn-danger rounded-pill px-4">
-                                <i class="fas fa-chevron-left me-1"></i> مراجعة
+                                <i class="fas fa-chevron-left me-1"></i> {% trans "مراجعة" %}
                             </a>
                         </div>
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p class="text-muted mb-0">✅ لا توجد طلبات</p>
+                            <p class="text-muted mb-0">✅ {% trans "لا توجد طلبات" %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -175,7 +175,7 @@
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold small">
-                            <i class="fas fa-building-clock text-warning me-2"></i> طلبات توثيق {% trans "الشركات" %}
+                            <i class="fas fa-building-clock text-warning me-2"></i> {% trans "طلبات توثيق الشركات" %}
                         </h6>
                         <span class="badge bg-warning rounded-pill px-3 py-2">{{ pending_employers }}</span>
                     </div>
@@ -184,15 +184,15 @@
                     {% if pending_employers > 0 %}
                         <div class="text-center py-3">
                             <h2 class="display-4 fw-bold text-warning">{{ pending_employers }}</h2>
-                            <p class="text-muted small">طلب توثيق معلق</p>
+                            <p class="text-muted small">{% trans "طلب توثيق معلق" %}</p>
                             <a href="{% url 'dashboard:manage_employers' %}?status=pending" class="btn btn-warning rounded-pill px-4">
-                                <i class="fas fa-chevron-left me-1"></i> مراجعة
+                                <i class="fas fa-chevron-left me-1"></i> {% trans "مراجعة" %}
                             </a>
                         </div>
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p class="text-muted mb-0">✅ لا توجد طلبات</p>
+                            <p class="text-muted mb-0">✅ {% trans "لا توجد طلبات" %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -200,7 +200,7 @@
         </div>
     </div>
 
-    <!-- ====== {% trans "نسبة التوظيف" %} وأكثر {% trans "التخصصات" %} طلباً + أعلى {% trans "الشركات" %} ====== -->
+    <!-- نسبة التوظيف والتخصصات والشركات -->
     <div class="row g-3 g-md-4 mb-4">
         <div class="col-12 col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
@@ -212,11 +212,11 @@
                         <div class="progress-circle" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#2ecc71 {{ employment_rate }}%, #e9ecef 0%); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
                             <div class="bg-white rounded-circle" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
                                 <span class="display-6 fw-bold text-success">{{ employment_rate }}%</span>
-                                <small class="text-muted">موظفين</small>
+                                <small class="text-muted">{% trans "موظفين" %}</small>
                             </div>
                         </div>
                     </div>
-                    <p class="text-muted small mb-0">من إجمالي {{ total_graduates }} {% trans "خريج" %}</p>
+                    <p class="text-muted small mb-0">{% trans "من إجمالي" %} {{ total_graduates }} {% trans "خريج" %}</p>
                     <div class="progress mt-2" style="height: 6px;">
                         <div class="progress-bar bg-success" style="width: {{ employment_rate }}%; border-radius: 10px;"></div>
                     </div>
@@ -226,7 +226,7 @@
         <div class="col-12 col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
-                    <h6 class="mb-0 fw-bold small"><i class="fas fa-graduation-cap text-primary me-2"></i> {% trans "التخصصات" %} الأكثر طلباً</h6>
+                    <h6 class="mb-0 fw-bold small"><i class="fas fa-graduation-cap text-primary me-2"></i> {% trans "التخصصات الأكثر طلباً" %}</h6>
                 </div>
                 <div class="card-body px-3 px-md-4 pb-4">
                     {% if popular_majors %}
@@ -237,7 +237,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-center text-muted py-3 small">لا توجد تخصصات</p>
+                        <p class="text-center text-muted py-3 small">{% trans "لا توجد تخصصات" %}</p>
                     {% endif %}
                 </div>
             </div>
@@ -245,7 +245,7 @@
         <div class="col-12 col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
-                    <h6 class="mb-0 fw-bold small"><i class="fas fa-trophy text-warning me-2"></i> أعلى {% trans "الشركات" %} توظيفاً</h6>
+                    <h6 class="mb-0 fw-bold small"><i class="fas fa-trophy text-warning me-2"></i> {% trans "أعلى الشركات توظيفاً" %}</h6>
                 </div>
                 <div class="card-body px-3 px-md-4 pb-4">
                     {% if top_employers %}
@@ -256,21 +256,21 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-center text-muted py-3 small">لا توجد شركات</p>
+                        <p class="text-center text-muted py-3 small">{% trans "لا توجد شركات" %}</p>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ====== قصص نجاح {% trans "قيد المراجعة" %} + آخر النشاطات ====== -->
+    <!-- قصص نجاح قيد المراجعة + آخر النشاطات -->
     <div class="row g-3 g-md-4 mb-4">
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold small">
-                            <i class="fas fa-star text-warning me-2"></i> قصص نجاح {% trans "قيد المراجعة" %}
+                            <i class="fas fa-star text-warning me-2"></i> {% trans "قصص نجاح قيد المراجعة" %}
                         </h6>
                         <span class="badge bg-warning rounded-pill px-3 py-2">{{ pending_stories_count }}</span>
                     </div>
@@ -281,10 +281,10 @@
                             <table class="table table-hover align-middle small">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>العنوان</th>
-                                        <th class="d-none d-sm-table-cell">ال{% trans "خريج" %}</th>
-                                        <th class="d-none d-md-table-cell">التاريخ</th>
-                                        <th>الإجراءات</th>
+                                        <th>{% trans "العنوان" %}</th>
+                                        <th class="d-none d-sm-table-cell">{% trans "الخريج" %}</th>
+                                        <th class="d-none d-md-table-cell">{% trans "التاريخ" %}</th>
+                                        <th>{% trans "الإجراءات" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -295,10 +295,10 @@
                                         <td class="d-none d-md-table-cell">{{ story.created_at|date:"Y-m-d" }}</td>
                                         <td>
                                             <div class="d-flex gap-1">
-                                                <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-sm btn-success rounded-pill px-2" onclick="return confirm('قبول القصة؟')">
+                                                <a href="{% url 'dashboard:approve_success_story' story.id %}" class="btn btn-sm btn-success rounded-pill px-2" onclick="return confirm('{% trans "قبول القصة؟" %}')">
                                                     <i class="fas fa-check"></i>
                                                 </a>
-                                                <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-sm btn-danger rounded-pill px-2" onclick="return confirm('رفض القصة؟')">
+                                                <a href="{% url 'dashboard:reject_success_story' story.id %}" class="btn btn-sm btn-danger rounded-pill px-2" onclick="return confirm('{% trans "رفض القصة؟" %}')">
                                                     <i class="fas fa-times"></i>
                                                 </a>
                                             </div>
@@ -316,7 +316,7 @@
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-star fa-3x text-warning opacity-25 mb-3"></i>
-                            <p class="text-muted small mb-0">✨ لا توجد قصص {% trans "قيد المراجعة" %}</p>
+                            <p class="text-muted small mb-0">✨ {% trans "لا توجد قصص قيد المراجعة" %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -326,7 +326,7 @@
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <h6 class="mb-0 fw-bold small">
-                        <i class="fas fa-history text-info me-2"></i> آخر النشاطات
+                        <i class="fas fa-history text-info me-2"></i> {% trans "آخر النشاطات" %}
                     </h6>
                 </div>
                 <div class="card-body px-3 px-md-4 pb-4">
@@ -351,7 +351,7 @@
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
-                            <p class="text-muted small mb-0">لا توجد نشاطات حديثة</p>
+                            <p class="text-muted small mb-0">{% trans "لا توجد نشاطات حديثة" %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -360,7 +360,7 @@
     </div>
 </div>
 
-<!-- ====== ستايل إضافي للجوال ====== -->
+<!-- ستايلات إضافية للجوال -->
 <style>
     @media (max-width: 576px) {
         .stat-icon { width: 44px; height: 44px; }
@@ -370,8 +370,11 @@
         .alert { font-size: 0.8rem; padding: 8px 12px; }
         .table-responsive .btn { padding: 4px 8px; font-size: 0.7rem; }
         .list-group-item { padding: 8px 0; }
+        .btn-outline-secondary { font-size: 0.8rem; padding: 4px 12px; }
+        .badge { font-size: 0.7rem; }
+        .card-body { padding: 16px !important; }
     }
-    .stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .stat-card { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
     .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.08) !important; }
     .stat-icon { transition: 0.3s; }
     .stat-card:hover .stat-icon { transform: scale(1.05); }
@@ -381,5 +384,18 @@
     .bg-info-soft { background: rgba(52, 152, 219, 0.10); }
     .bg-success-subtle { background: rgba(46, 204, 113, 0.15); color: #1a8a4a; }
     .progress-circle { display: inline-flex; align-items: center; justify-content: center; position: relative; }
+    /* تحسين RTL للجداول */
+    [dir="rtl"] .table th, [dir="rtl"] .table td {
+        text-align: right;
+    }
+    [dir="rtl"] .list-group-item {
+        text-align: right;
+    }
+    [dir="rtl"] .btn .fas.fa-arrow-right {
+        transform: rotate(180deg);
+    }
+    [dir="rtl"] .badge .fas.fa-arrow-up {
+        transform: rotate(90deg);
+    }
 </style>
 {% endblock %}
