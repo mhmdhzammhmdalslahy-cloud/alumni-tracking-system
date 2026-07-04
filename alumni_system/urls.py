@@ -3,15 +3,32 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView  # ✅ أضف هذا
+from django.contrib.auth.views import LoginView
 from graduates.views import home
 from . import views
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # ============================================================
     # ✅ الصفحة الرئيسية = صفحة تسجيل الدخول
+    # ============================================================
     path('', LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    
+    # ============================================================
+    # ✅ Allauth (تسجيل جوجل، نسيت كلمة المرور)
+    # ============================================================
+    path('auth/', include('allauth.urls')),
+    
+    # ============================================================
+    # ✅ 2FA (معلق مؤقتاً حتى يتم حل المشكلة)
+    # ============================================================
+    # path('2fa/', include('two_factor.urls')),
+    
+    # ============================================================
+    # ✅ تطبيقات المشروع
+    # ============================================================
     path('home/', home, name='home'),
     path('graduates/', include('graduates.urls')),
     path('accounts/', include('accounts.urls')),

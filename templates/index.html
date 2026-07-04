@@ -4,8 +4,9 @@
     {% load static %}
     {% load i18n %}
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>{% trans "نظام متابعة الخريجين" %}</title>    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>{% trans "نظام متابعة الخريجين" %}</title>
+
     <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1A5F7A">
@@ -24,189 +25,360 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
-    
+
     <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    
-    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="all">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" media="all">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     <style>
-/* تنسيق قائمة الإشعارات - تصميم عصري ومربع (للتطبيق الفوري) */
-.notification-dropdown-menu {
-    position: absolute !important;
-    right: 0 !important;
-    left: auto !important;
-    width: 320px !important;
-    max-width: 85vw !important;
-    background: #ffffff !important;
-    border-radius: 28px !important;
-    border: none !important;
-    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2) !important;
-    overflow: hidden !important;
-    margin-top: 12px !important;
-}
-.notification-header {
-    background: linear-gradient(135deg, #1A5F7A, #0d3b4f) !important;
-    padding: 18px 20px !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-}
-.notification-header h6 {
-    margin: 0 !important;
-    font-weight: 800 !important;
-    font-size: 1.05rem !important;
-    color: white !important;
-}
-.notification-header .badge {
-    background: #F39C12 !important;
-    color: #1A5F7A !important;
-    font-weight: 800 !important;
-    padding: 5px 14px !important;
-    border-radius: 60px !important;
-}
-.notification-list {
-    max-height: 420px !important;
-    overflow-y: auto !important;
-}
-.notification-item {
-    padding: 14px 18px !important;
-    border-bottom: 1px solid #f0f2f5 !important;
-    display: flex !important;
-    gap: 14px !important;
-    align-items: flex-start !important;
-    text-decoration: none !important;
-    transition: 0.2s !important;
-}
-.notification-item:hover {
-    background-color: #fefcf5 !important;
-    transform: translateX(-3px) !important;
-}
-.notification-item.unread {
-    background-color: #fffaf0 !important;
-    border-right: 4px solid #F39C12 !important;
-}
-.notification-icon-circle {
-    width: 44px !important;
-    height: 44px !important;
-    background: linear-gradient(145deg, #eef2ff, #e6ecf5) !important;
-    border-radius: 20px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #1A5F7A !important;
-    font-size: 1.2rem !important;
-}
-.notification-item:hover .notification-icon-circle {
-    background: linear-gradient(145deg, #F39C12, #e67e22) !important;
-    color: white !important;
-}
-.notification-content {
-    flex: 1 !important;
-}
-.notification-title {
-    font-weight: 800 !important;
-    font-size: 0.85rem !important;
-    margin-bottom: 5px !important;
-    color: #1e2a3a !important;
-}
-.notification-message {
-    font-size: 0.75rem !important;
-    color: #5a6e7c !important;
-    margin-bottom: 5px !important;
-}
-.notification-time {
-    font-size: 0.65rem !important;
-    color: #98a6b3 !important;
-}
-.notification-dot {
-    width: 9px !important;
-    height: 9px !important;
-    background: #F39C12 !important;
-    border-radius: 50% !important;
-    margin-top: 10px !important;
-    animation: pulse 1.5s infinite !important;
-}
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 0.7; }
-    70% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(0.95); opacity: 0.7; }
-}
-.notification-footer {
-    text-align: center !important;
-    padding: 14px !important;
-    background: #fafcff !important;
-    border-top: 1px solid #edf2f7 !important;
-}
-.notification-footer a {
-    font-size: 0.8rem !important;
-    font-weight: 700 !important;
-    color: #1A5F7A !important;
-    text-decoration: none !important;
-}
-.notification-footer a:hover {
-    text-decoration: underline !important;
-}
-body.dark-mode .notification-dropdown-menu {
-    background: #1e293b !important;
-    border: 1px solid #2d3a4e !important;
-}
-body.dark-mode .notification-header {
-    background: linear-gradient(135deg, #0d3b4f, #0a2e3f) !important;
-}
-body.dark-mode .notification-item {
-    background: #1e293b !important;
-    border-bottom-color: #2d3a4e !important;
-}
-body.dark-mode .notification-item:hover {
-    background-color: #2a3a4e !important;
-}
-body.dark-mode .notification-item.unread {
-    background-color: #2a241a !important;
-}
-body.dark-mode .notification-icon-circle {
-    background: #0f172a !important;
-    color: #F39C12 !important;
-}
-body.dark-mode .notification-title {
-    color: #f1f5f9 !important;
-}
-body.dark-mode .notification-message {
-    color: #cbd5e1 !important;
-}
-body.dark-mode .notification-time {
-    color: #94a3b8 !important;
-}
-body.dark-mode .notification-footer {
-    background: #0f172a !important;
-    border-top-color: #2d3a4e !important;
-}
-</style>
+        /* ========== تحسينات عامة ========== */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            overflow-x: hidden;
+            background: #f8fafc;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* تحسين مناطق اللمس */
+        a, button, .dropdown-item, .nav-link, .notification-item, .stat-box, .graduate-card, .job-card, .success-card {
+            min-height: 44px;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        /* تسريع الحركات */
+        .stat-box, .graduate-card, .job-card, .success-card {
+            will-change: transform;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-box:active, .graduate-card:active, .job-card:active, .success-card:active {
+            transform: scale(0.97);
+        }
+
+        /* ====== القائمة الجانبية (ثابتة وظاهرة، مثل التصميم الأصلي) ====== */
+        .sidebar {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+        .sidebar-title {
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #1A5F7A;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar .nav-link {
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .nav-link:hover {
+            background: #f1f5f9;
+        }
+        .sidebar .nav-link.active {
+            background: #1A5F7A;
+            color: #fff;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ====== تنسيق الإشعارات ====== */
+        .notification-dropdown-menu {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            width: 320px !important;
+            max-width: 85vw !important;
+            background: #ffffff !important;
+            border-radius: 28px !important;
+            border: none !important;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2) !important;
+            overflow: hidden !important;
+            margin-top: 12px !important;
+        }
+        .notification-header {
+            background: linear-gradient(135deg, #1A5F7A, #0d3b4f) !important;
+            padding: 18px 20px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+        .notification-header h6 {
+            margin: 0 !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem !important;
+            color: white !important;
+        }
+        .notification-header .badge {
+            background: #F39C12 !important;
+            color: #1A5F7A !important;
+            font-weight: 800 !important;
+            padding: 5px 14px !important;
+            border-radius: 60px !important;
+        }
+        .notification-list {
+            max-height: 420px !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .notification-item {
+            padding: 14px 18px !important;
+            border-bottom: 1px solid #f0f2f5 !important;
+            display: flex !important;
+            gap: 14px !important;
+            align-items: flex-start !important;
+            text-decoration: none !important;
+            transition: 0.2s !important;
+        }
+        .notification-item:active {
+            transform: scale(0.98);
+        }
+        .notification-item.unread {
+            background-color: #fffaf0 !important;
+            border-right: 4px solid #F39C12 !important;
+        }
+        .notification-icon-circle {
+            width: 44px !important;
+            height: 44px !important;
+            background: linear-gradient(145deg, #eef2ff, #e6ecf5) !important;
+            border-radius: 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #1A5F7A !important;
+            font-size: 1.2rem !important;
+        }
+        .notification-content {
+            flex: 1 !important;
+        }
+        .notification-title {
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            color: #1e2a3a !important;
+        }
+        .notification-message {
+            font-size: 0.75rem !important;
+            color: #5a6e7c !important;
+        }
+        .notification-time {
+            font-size: 0.65rem !important;
+            color: #98a6b3 !important;
+        }
+        .notification-dot {
+            width: 9px !important;
+            height: 9px !important;
+            background: #F39C12 !important;
+            border-radius: 50% !important;
+            animation: pulse 1.5s infinite !important;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        .notification-footer {
+            text-align: center !important;
+            padding: 14px !important;
+            background: #fafcff !important;
+            border-top: 1px solid #edf2f7 !important;
+        }
+
+        /* ====== تحسينات البطاقات ====== */
+        .stat-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 16px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .graduate-card, .job-card, .success-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 16px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        /* ====== زر العودة للأعلى ====== */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1A5F7A;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.2s;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .scroll-top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .scroll-top:active {
+            transform: scale(0.9);
+        }
+
+        /* ====== تحسينات الجوال (القائمة تظهر بشكل أفقي/شبكة) ====== */
+        @media (max-width: 767.98px) {
+            /* القائمة الجانبية تتحول إلى شريط أفقي قابل للتمرير أو شبكة */
+            .sidebar {
+                background: transparent;
+                box-shadow: none;
+                padding: 0;
+                margin-bottom: 16px;
+            }
+            .sidebar-title {
+                display: none; /* نخفي عنوان "القائمة" لتوفير مساحة */
+            }
+            .sidebar .nav {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 6px;
+                background: #fff;
+                padding: 10px;
+                border-radius: 20px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+                justify-content: center;
+            }
+            .sidebar .nav-link {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+                background: #f8fafc;
+                border-radius: 50px;
+                color: #1e293b;
+                flex: 0 0 auto;
+                min-height: 38px;
+            }
+            .sidebar .nav-link i {
+                font-size: 0.8rem;
+                margin-left: 4px;
+            }
+            .sidebar .nav-link.active {
+                background: #1A5F7A;
+                color: #fff;
+            }
+
+            /* تحسين شريط البحث */
+            .search-bar {
+                flex: 1;
+                max-width: 150px;
+            }
+            .search-bar .form-control {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+
+            /* تحسين الإحصائيات */
+            .stat-box h3 {
+                font-size: 1.3rem;
+            }
+            .stat-box p {
+                font-size: 0.7rem;
+            }
+
+            /* الإشعارات */
+            .notification-dropdown-menu {
+                width: 90vw !important;
+                right: 5% !important;
+                left: 5% !important;
+            }
+
+            /* إخفاء اسم المستخدم الطويل */
+            .user-dropdown span {
+                display: none;
+            }
+        }
+
+        /* ====== الوضع الداكن ====== */
+        body.dark-mode .sidebar .nav {
+            background: #1e293b;
+        }
+        body.dark-mode .sidebar .nav-link {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+        body.dark-mode .sidebar .nav-link.active {
+            background: #1A5F7A;
+            color: #fff;
+        }
+        body.dark-mode .stat-box,
+        body.dark-mode .graduate-card,
+        body.dark-mode .job-card,
+        body.dark-mode .success-card {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        body.dark-mode .notification-dropdown-menu {
+            background: #1e293b !important;
+            border: 1px solid #2d3a4e !important;
+        }
+        body.dark-mode .notification-item {
+            background: #1e293b !important;
+            border-bottom-color: #2d3a4e !important;
+        }
+        body.dark-mode .notification-item.unread {
+            background-color: #2a241a !important;
+        }
+        body.dark-mode .notification-title {
+            color: #f1f5f9 !important;
+        }
+        body.dark-mode .notification-message {
+            color: #cbd5e1 !important;
+        }
+        body.dark-mode .notification-footer {
+            background: #0f172a !important;
+            border-top-color: #2d3a4e !important;
+        }
+    </style>
 </head>
 
 <body>
-    <button class="menu-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i> {% trans "القائمة" %}
-    </button>
-
-    <!-- Navbar -->
+    <!-- Navbar (بدون زر القائمة لأنها ظاهرة) -->
     <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="/"><i class="fas fa-graduation-cap"></i> {% trans "نظام متابعة الخريجين" %}</a>
             
             <form class="search-bar d-flex" action="{% url 'search_all' %}" method="get">
-                <input class="form-control" type="search" name="q" placeholder="{% trans "ابحث عن خريج، تخصص، شركة..." %}">
+                <input class="form-control" type="search" name="q" placeholder="{% trans "ابحث عن خريج، تخصص، شركة..." %}" aria-label="بحث">
                 <button class="btn btn-warning ms-2" type="submit"><i class="fas fa-search"></i></button>
             </form>
             
-            <div class="d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center gap-2 gap-md-4">
                 <!-- أيقونة الإشعارات -->
                 <div class="dropdown">
-                    <a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="notification-icon position-relative" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false" aria-label="الإشعارات">
                         <i class="fas fa-bell fa-lg"></i>
                         {% if unread_notifications_count > 0 %}
                         <span class="notification-badge">{{ unread_notifications_count }}</span>
@@ -245,7 +417,7 @@ body.dark-mode .notification-footer {
                     </div>
                 </div>
 
-                <!-- ====== 🌍 أيقونة اللغة (مدمجة في الـ Navbar) ====== -->
+                <!-- أيقونة اللغة -->
                 <div class="dropdown d-inline-block">
                     <a href="#" class="text-white text-decoration-none d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans "تغيير اللغة" %}" style="padding: 4px 8px; border-radius: 50px; transition: 0.3s;">
                         <i class="fas fa-globe fa-lg"></i>
@@ -280,9 +452,9 @@ body.dark-mode .notification-footer {
 
                 <!-- قائمة المستخدم -->
                 <div class="dropdown">
-                    <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown">
+                    <a href="#" class="user-dropdown d-flex align-items-center gap-2 text-white text-decoration-none" data-bs-toggle="dropdown" aria-label="القائمة الشخصية">
                         <i class="fas fa-user-circle fa-lg"></i>
-                        <span>{{ user.first_name|default:user.username }}</span>
+                        <span class="d-none d-sm-inline">{{ user.first_name|default:user.username }}</span>
                         <i class="fas fa-chevron-down fa-xs"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
@@ -302,9 +474,10 @@ body.dark-mode .notification-footer {
         </div>
     </nav>
 
-    <!-- باقي محتوى الصفحة -->
+    <!-- المحتوى الرئيسي -->
     <div class="container my-4">
         <div class="row">
+            <!-- القائمة الجانبية (تظهر دائماً، وتتحول لشبكة في الجوال) -->
             <div class="col-lg-3">
                 <div class="sidebar">
                     <h5 class="sidebar-title"><i class="fas fa-bars"></i> {% trans "القائمة" %}</h5>
@@ -319,7 +492,7 @@ body.dark-mode .notification-footer {
             </div>
             
             <div class="col-lg-9">
-                <!-- Slider -->
+                <!-- Slider (Swiper) -->
                 <div class="swiper mySwiper mb-4">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
@@ -392,9 +565,9 @@ body.dark-mode .notification-footer {
                 <div class="row g-3">
                     {% for graduate in latest_graduates %}
                     <div class="col-md-4 col-6 mb-3">
-                        <div class="graduate-card text-center" onclick="location.href='{% url 'graduate_profile' graduate.id %}'">
+                        <div class="graduate-card text-center" onclick="location.href='{% url 'graduate_profile' graduate.id %}'" role="button" tabindex="0">
                             <div class="graduate-image-wrapper">
-                                <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" class="graduate-avatar">
+                                <img src="{% if graduate.profile_picture %}{{ graduate.profile_picture.url }}{% else %}https://randomuser.me/api/portraits/men/1.jpg{% endif %}" class="graduate-avatar" loading="lazy" alt="{{ graduate.user.get_full_name }}">
                                 <i class="fas fa-graduation-cap graduate-icon"></i>
                             </div>
                             <h6 class="mt-2">{{ graduate.user.get_full_name|default:graduate.user.username }}</h6>
@@ -417,7 +590,7 @@ body.dark-mode .notification-footer {
                 <div class="row g-3">
                     {% for job in latest_jobs %}
                     <div class="col-md-4 col-6 mb-3">
-                        <div class="job-card text-center" onclick="location.href='{% url 'jobs:job_detail' job.id %}'">
+                        <div class="job-card text-center" onclick="location.href='{% url 'jobs:job_detail' job.id %}'" role="button" tabindex="0">
                             <i class="fas {% if job.job_type == 'full_time' %}fa-briefcase{% elif job.job_type == 'remote' %}fa-laptop-house{% else %}fa-code{% endif %} fa-2x text-primary"></i>
                             <h6 class="mt-2">{{ job.title }}</h6>
                             <p class="text-muted small">{{ job.employer.company_name }} - {{ job.location }}</p>
@@ -447,7 +620,7 @@ body.dark-mode .notification-footer {
                     <div class="col-md-4 col-6 mb-4">
                         <div class="card success-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
                             {% if story.image %}
-                            <img src="{{ story.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            <img src="{{ story.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" loading="lazy" alt="{{ story.graduate.user.get_full_name }}">
                             {% else %}
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
                                 <i class="fas fa-quote-right fa-3x text-primary opacity-50"></i>
@@ -517,89 +690,91 @@ body.dark-mode .notification-footer {
         </div>
     </footer>
 
-    <div class="scroll-top" id="scrollTop">
+    <!-- زر العودة للأعلى -->
+    <div class="scroll-top" id="scrollTop" role="button" aria-label="العودة للأعلى">
         <i class="fas fa-arrow-up"></i>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script>
-        // ✅ دالة تغيير اللغة
-        function setLanguage(lang) {
-            document.cookie = "django_language=" + lang + "; path=/";
-            location.reload();
-        }
+    <!-- ========== JavaScript (مؤخر لتحسين السرعة) ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
-        var swiper = new Swiper('.mySwiper', {
-            loop: true,
-            autoplay: { delay: 5000, disableOnInteraction: false },
-            pagination: { el: '.swiper-pagination', clickable: true },
-            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // دالة تغيير اللغة
+            window.setLanguage = function(lang) {
+                document.cookie = "django_language=" + lang + "; path=/";
+                location.reload();
+            };
+
+            // تهيئة Swiper
+            if (typeof Swiper !== 'undefined') {
+                var swiper = new Swiper('.mySwiper', {
+                    loop: true,
+                    autoplay: { delay: 5000, disableOnInteraction: false },
+                    pagination: { el: '.swiper-pagination', clickable: true },
+                    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                    lazy: true,
+                    watchSlidesProgress: false,
+                });
+            }
+
+            // الوضع الداكن
+            const darkToggle = document.getElementById('darkModeToggle');
+            if (darkToggle) {
+                darkToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                });
+            }
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // زر العودة للأعلى
+            const scrollBtn = document.getElementById('scrollTop');
+            let ticking = false;
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        if (window.scrollY > 300) {
+                            scrollBtn.classList.add('show');
+                        } else {
+                            scrollBtn.classList.remove('show');
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            scrollBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // طلب إذن الإشعارات
+            if ('Notification' in window && Notification.permission === 'default') {
+                setTimeout(function() {
+                    Notification.requestPermission();
+                }, 5000);
+            }
         });
-        
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        darkModeToggle?.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        });
-        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-        
-        const scrollTop = document.getElementById('scrollTop');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) scrollTop.classList.add('show');
-            else scrollTop.classList.remove('show');
-        });
-        scrollTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        
-        // تسجيل Service Worker
+
+        // Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/static/sw.js')
                     .then(function(reg) {
-                        console.log('✅ Service Worker registered successfully:', reg);
+                        console.log('✅ Service Worker registered:', reg);
                     })
                     .catch(function(err) {
-                        console.log('❌ Service Worker registration failed:', err);
+                        console.log('❌ Service Worker failed:', err);
                     });
             });
         }
-
-        // فتح وإغلاق القائمة الجانبية على الهواتف
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.querySelector('.sidebar');
-        
-        if (menuToggle && sidebar) {
-            menuToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('open');
-            });
-            
-            document.addEventListener('click', function(event) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('open');
-                }
-            });
-        }
-
-        // طلب إذن الإشعارات
-        if ('Notification' in window) {
-            Notification.requestPermission().then(function(perm) {
-                if (perm === 'granted') {
-                    console.log('✅ الإشعارات مفعلة');
-                }
-            });
-        }
-        
-        function showNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, { body: body, icon: '/static/favicon.ico' });
-            }
-        }
-        
-        setTimeout(() => {
-            showNotification('{% trans "مرحباً بك" %}', '{% trans "نتمنى لك تجربة ممتعة على منصة متابعة الخريجين" %}');
-        }, 3000);
     </script>
+
     {% include 'includes/chat_widget.html' %}
 </body>
 </html>

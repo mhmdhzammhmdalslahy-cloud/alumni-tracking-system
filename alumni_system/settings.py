@@ -47,6 +47,19 @@ INSTALLED_APPS = [
     'dashboard',
     'groups',
     'chatbot',
+    
+    # ========== ✅ إضافات جديدة ==========
+    # Allauth (تسجيل الدخول عبر Google - نسيت كلمة المرور)
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    
+    # المصادقة الثنائية (2FA)
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
+    'two_factor',
 ]
 
 
@@ -59,12 +72,16 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # يمكنك الاحتفاظ به أو حذفه
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # ✅ إضافة OTPMiddleware بعد AuthenticationMiddleware
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # ✅ Allauth middleware
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 
@@ -85,6 +102,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'dashboard.context_processors.notifications_processor',
+                # ✅ Allauth context processors
+                'allauth.account.context_processors.account',
+                'allauth.socialaccount.context_processors.socialaccount',
             ],
         },
     },
@@ -116,31 +136,25 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # ============================================================
-# ========== إعدادات اللغة والوقت (تم الإصلاح) ==========
+# ========== إعدادات اللغة والوقت ==========
 # ============================================================
 LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Aden'
 USE_I18N = True
-USE_L10N = True          # ✅ لتنسيق الأرقام والتواريخ بالعربية
+USE_L10N = True
 USE_TZ = True
 
-# ========== تعدد اللغات ==========
 LANGUAGES = [
     ('ar', 'العربية'),
     ('en', 'English'),
 ]
 
 LOCALE_PATHS = [
-    BASE_DIR / 'locale',  # ✅ تم التعديل: BASE_DI → BASE_DIR
+    BASE_DIR / 'locale',
 ]
 
-# ✅ إجبار اللغة العربية عبر Cookie
 LANGUAGE_COOKIE_NAME = 'django_language'
-LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365  # سنة كاملة
-
-# ✅ تم حذف السطرين التاليين لأنهما يسببان خطأ AppRegistryNotReady:
-# from django.utils.translation import activate
-# activate('ar')
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
 
 
 # ============================================================
@@ -150,6 +164,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MAX_AGE = 31536000
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -172,15 +187,11 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 # ============================================================
 # ========== تسجيل الدخول والخروج ==========
 # ============================================================
-# ============================================================
-# ========== تسجيل الدخول والخروج ==========
-# ============================================================
-# ============================================================
-# ========== تسجيل الدخول والخروج ==========
-# ============================================================
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'   # ✅ تم التعديل: الآن بعد تسجيل الدخول يذهب مباشرة إلى لوحة التحكم
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+
+
 # ============================================================
 # ========== النماذج الافتراضية ==========
 # ============================================================
@@ -227,12 +238,56 @@ DEFAULT_FROM_EMAIL = f'نظام متابعة الخريجين <{EMAIL_HOST_USER}
 
 
 # ============================================================
+# ========== ✅ إعدادات Allauth (Google Login, Reset Password) ==========
+# ============================================================
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+# ✅ إعدادات Allauth الجديدة (تجنب التحذيرات)
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_RATE_LIMITS = {
+    'login_failed': '5/300s',  # 5 محاولات كل 5 دقائق
+}
+
+# إعدادات Google OAuth
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
+            'key': ''
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'METHOD': 'oauth2'
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
+# ============================================================
+# ========== ✅ إعدادات المصادقة الثنائية (2FA) ==========
+# ============================================================
+TWO_FACTOR_PATCH_ADMIN = True
+
+
+# ============================================================
 # ========== ✅ إعدادات Celery (معلقة مؤقتاً) ==========
 # ============================================================
 # CELERY_BROKER_URL = 'redis://localhost:6379/0'
 # CELERY_ACCEPT_CONTENT = ['json']
 # CELERY_TASK_SERIALIZER = 'json'
 # CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 
 # ============================================================
 # ========== ✅ إعدادات WebPush (معلقة مؤقتاً) ==========

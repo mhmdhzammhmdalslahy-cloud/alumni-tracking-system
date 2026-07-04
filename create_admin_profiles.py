@@ -16,3 +16,6 @@ for user in User.objects.filter(is_superuser=True):
         print(f"✅ تم إنشاء AdminProfile للمشرف: {user.username}")
     else:
         print(f"ℹ️ AdminProfile موجود مسبقاً للمشرف: {user.username}")
+
+
+

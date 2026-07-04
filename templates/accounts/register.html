@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load i18n %}
+{% load socialaccount %}
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -168,6 +169,60 @@
             color: #1A5F7A;
         }
         
+        /* ✅ زر تسجيل الدخول عبر Google */
+        .btn-google {
+            background: #db4437;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:hover {
+            background: #c23321;
+            transform: scale(1.02);
+            color: white;
+        }
+        
+        .btn-google i {
+            font-size: 20px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .divider::before {
+            margin-right: 10px;
+        }
+        
+        .divider::after {
+            margin-left: 10px;
+        }
+        
+        .divider span {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
         /* رسائل التنبيه */
         .alert-custom {
             padding: 12px 15px;
@@ -273,7 +328,7 @@
                 {% endfor %}
             {% endif %}
             
-            <form method="post">
+            <form method="post" action="{% url 'account_signup' %}">
                 {% csrf_token %}
                 
                 <div class="input-group-custom">
@@ -307,6 +362,15 @@
                     <i class="fas fa-user-plus"></i> {% trans "إنشاء حساب" %}
                 </button>
                 
+                <!-- ✅ زر تسجيل الدخول عبر Google -->
+                <div class="divider">
+                    <span>{% trans "أو" %}</span>
+                </div>
+                
+                <a href="{% provider_login_url 'google' %}" class="btn-google">
+                    <i class="fab fa-google"></i> {% trans "سجل عبر Google" %}
+                </a>
+                
                 <div class="features">
                     <div class="feature-item">
                         <i class="fas fa-chart-line"></i>
@@ -324,7 +388,7 @@
                 
                 <div class="login-link">
                     <i class="fas fa-arrow-right"></i>
-                    <a href="{% url 'login' %}"> لديك حساب بالفعل؟ سجل دخولك هنا</a>
+                    <a href="{% url 'account_login' %}"> لديك حساب بالفعل؟ سجل دخولك هنا</a>
                 </div>
             </form>
         </div>
@@ -332,10 +396,9 @@
 </div>
 
 <script>
-    // تأثير كتابة تلقائي
-    const text = "انضم إلى أكثر من 1000 {% trans "خريج" %}";
-    let i = 0;
-    // يمكن {% trans "إضافة" %} تأثيرات إضافية هنا
+    // تأثير كتابة تلقائي (اختياري)
+    const text = "انضم إلى أكثر من 1000 خريج";
+    // يمكن إضافة تأثيرات إضافية هنا
 </script>
 </body>
 </html>
