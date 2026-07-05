@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'dashboard',
     'groups',
     'chatbot',
-    'university',
 ]
 
 
@@ -100,9 +99,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'dashboard.context_processors.notifications_processor',
-                # ✅ Allauth context processors
-                'allauth.account.context_processors.account',
-                # 'allauth.socialaccount.context_processors.socialaccount',  # ❌ معطل
             ],
         },
     },

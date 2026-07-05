@@ -36,7 +36,6 @@ urlpatterns = [
     path('jobs/', include('jobs.urls')),
     path('surveys/', include('surveys.urls')),
     path('dashboard/', include('dashboard.urls')),
-    path('university/', include('university.urls')),  # ✅ تمت إضافة مسار الجامعة
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='application/xml')),
     path('search/', views.search_all, name='search_all'),
