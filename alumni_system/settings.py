@@ -19,12 +19,14 @@ ALLOWED_HOSTS = ['*']
 # ========== التطبيقات المثبتة ==========
 # ============================================================
 INSTALLED_APPS = [
+    # Django default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # ✅ مطلوب لـ Allauth
     
     # Third party apps
     'rest_framework',
@@ -34,9 +36,17 @@ INSTALLED_APPS = [
     'django_filters',
     'whitenoise.runserver_nostatic',
     
-    # Celery & WebPush (معلقين مؤقتاً)
-    # 'django_celery_beat',
-    # 'webpush',
+    # ✅ Allauth (للحسابات فقط - تم تعطيل socialaccount)
+    'allauth',
+    'allauth.account',
+    # 'allauth.socialaccount',  # ❌ معطل مؤقتاً
+    # 'allauth.socialaccount.providers.google',  # ❌ معطل مؤقتاً
+    
+    # ✅ المصادقة الثنائية (2FA)
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
+    'two_factor',
     
     # Local apps
     'accounts',
@@ -48,20 +58,6 @@ INSTALLED_APPS = [
     'groups',
     'chatbot',
     'university',
-
-    # ========== ✅ إضافات جديدة ==========
-    # Allauth (تسجيل الدخول عبر Google - نسيت كلمة المرور)
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    
-    # المصادقة الثنائية (2FA)
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_static',
-    'two_factor',
-
 ]
 
 
@@ -78,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # ✅ إضافة OTPMiddleware بعد AuthenticationMiddleware
+    # ✅ OTPMiddleware بعد AuthenticationMiddleware
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -104,9 +100,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'dashboard.context_processors.notifications_processor',
-                # ✅ المسار الصحيح لـ Allauth (مع .account في النهاية)
-                'allauth.account.context_processors.account', 
-                'allauth.socialaccount.context_processors.socialaccount',
+                # ✅ Allauth context processors
+                'allauth.account.context_processors.account',
+                # 'allauth.socialaccount.context_processors.socialaccount',  # ❌ معطل
             ],
         },
     },
@@ -259,21 +255,21 @@ ACCOUNT_RATE_LIMITS = {
     'login_failed': '5/300s',  # 5 محاولات كل 5 دقائق
 }
 
-# إعدادات Google OAuth
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
-            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
-            'key': ''
-        },
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'METHOD': 'oauth2'
-    }
-}
+# ❌ تم تعطيل Google OAuth مؤقتاً
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'APP': {
+#             'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+#             'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
+#             'key': ''
+#         },
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'},
+#         'METHOD': 'oauth2'
+#     }
+# }
 
-SOCIALACCOUNT_LOGIN_ON_GET = True
+# SOCIALACCOUNT_LOGIN_ON_GET = True  # ❌ معطل
 
 
 # ============================================================
