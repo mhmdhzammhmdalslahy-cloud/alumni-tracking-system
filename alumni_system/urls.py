@@ -36,6 +36,7 @@ urlpatterns = [
     path('jobs/', include('jobs.urls')),
     path('surveys/', include('surveys.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('university/', include('university.urls')),  # ✅ تمت إضافة مسار الجامعة
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='application/xml')),
     path('search/', views.search_all, name='search_all'),
@@ -44,7 +45,6 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('setlang/<str:language_code>/', views.set_language, name='set_language'),
     path('i18n/', include('django.conf.urls.i18n')),
-    path('university/', include('university.urls')),
 ]
 
 if settings.DEBUG:
