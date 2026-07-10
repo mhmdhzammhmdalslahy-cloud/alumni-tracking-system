@@ -473,12 +473,12 @@
                 <div class="sidebar">
                     <h5 class="sidebar-title"><i class="fas fa-bars"></i> {% trans "القائمة" %}</h5>
                     <div class="nav flex-column">
-                        <a class="nav-link active" href="/"><i class="fas fa-home"></i> {% trans "الرئيسية" %}</a>
+                        <a class="nav-link active" href="{% url 'home' %}"><i class="fas fa-home"></i> {% trans "الرئيسية" %}</a>
                         <a class="nav-link" href="{% url 'graduate_list' %}"><i class="fas fa-users"></i> {% trans "الخريجين" %}</a>
                         <a class="nav-link" href="{% url 'employer_list' %}"><i class="fas fa-building"></i> {% trans "الشركات" %}</a>
                         <a class="nav-link" href="{% url 'jobs:job_list' %}"><i class="fas fa-briefcase"></i> {% trans "الوظائف" %}</a>
                         <!-- ✅ تم حذف رابط الجامعة نهائياً -->
-                        <a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> {% trans "لوحة الإدارة" %}</a>
+<a class="nav-link" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-crown"></i> {% trans "لوحة الإدارة" %}</a>
                     </div>
                 </div>
             </div>
@@ -518,7 +518,7 @@
                 <!-- إحصائيات المنصة -->
                 <div class="section-header mt-2">
                     <h5 class="section-title">📊 {% trans "إحصائيات المنصة" %}</h5>
-                </div>
+                </div>                        
                 <div class="row g-3">
                     <div class="col-md-3 col-6">
                         <div class="stat-box text-center">
@@ -541,13 +541,18 @@
                             <p>{% trans "وظيفة" %}</p>
                         </div>
                     </div>
-                    <div class="col-md-3 col-6">
-                        <div class="stat-box text-center">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                            <h3>{{ employment_rate|default:"0" }}%</h3>
-                            <p>{% trans "نسبة التوظيف" %}</p>
-                        </div>
-                    </div>
+                   <div class="col-md-3 col-6">
+    <div class="stat-box text-center">
+        <i class="fas fa-chart-line fa-2x text-success"></i>
+        <h3>{{ employment_rate|floatformat:1 }}%</h3>
+        <p>{% trans "نسبة التوظيف" %}</p>
+        <small class="text-muted d-block mt-1" style="font-size: 0.65rem;">
+            <i class="fas fa-user-check me-1"></i> 
+            {{ employed_graduates|default:0 }} {% trans "موظف" %} 
+            / {{ total_graduates|default:0 }} {% trans "خريج" %}
+        </small>
+    </div>
+</div>
                 </div>
                 
                 <!-- أحدث الخريجين -->

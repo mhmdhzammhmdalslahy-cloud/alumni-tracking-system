@@ -136,15 +136,20 @@ def admin_dashboard(request):
             'link': '/dashboard/pending-requests/'
         })
     
-    # ============================================================
+           # ============================================================
     # 4. دوال مساعدة لحساب البيانات
     # ============================================================
     def calculate_employment_rate():
         total = Graduate.objects.count()
         if total == 0:
             return 0
-        working = Graduate.objects.filter(current_job_status='working').count()
-        return round((working / total) * 100, 1)
+        # ✅ التصحيح: استخدام current_job_status بدلاً من employment_status
+        employed = Graduate.objects.filter(current_job_status='working').count()
+        return round((employed / total) * 100, 1)
+    
+    def get_employed_graduates_count():
+        """✅ دالة لحساب عدد الخريجين الموظفين"""
+        return Graduate.objects.filter(current_job_status='working').count()
     
     def get_popular_majors():
         return Graduate.objects.values('major').annotate(count=Count('id')).order_by('-count')[:5]
@@ -166,7 +171,6 @@ def admin_dashboard(request):
             months.append(month.strftime('%B'))
             counts.append(count)
         return {'months': months[::-1], 'counts': counts[::-1]}
-    
     # ============================================================
     # 5. جلب البيانات الإضافية
     # ============================================================
@@ -203,6 +207,8 @@ def admin_dashboard(request):
         
         # البيانات الخاصة بالنشاطات
         'employment_rate': calculate_employment_rate(),
+         'employed_graduates': get_employed_graduates_count(),
+        'total_graduates': total_graduates,
         'popular_majors': popular_majors,
         'top_employers': top_employers,
         'monthly_jobs': monthly_jobs,

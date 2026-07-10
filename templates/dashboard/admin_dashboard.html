@@ -6,24 +6,8 @@
 
 {% block content %}
 <div class="container-fluid px-2 px-md-4">
-    <!-- رأس الصفحة -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h1 class="h3 fw-bold mb-0">
-                <i class="fas fa-chart-pie text-primary me-2"></i> {% trans "لوحة التحكم" %}
-            </h1>
-            <p class="text-muted small mt-1">{% trans "نظرة عامة على أداء المنصة وإحصائياتها" %}</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-3 px-md-4 btn-sm">
-                <i class="fas fa-arrow-right me-1"></i> {% trans "العودة للرئيسية" %}
-            </a>
-            <span class="badge bg-light text-dark px-3 py-2 d-flex align-items-center small">
-                <i class="far fa-calendar-alt me-1"></i> {{ now|date:"Y-m-d" }}
-            </span>
-        </div>
-    </div>
-
+    
+    <!-- باقي المحتوى كما هو -->
     <!-- تنبيهات النظام -->
     {% if alerts %}
     <div class="row mb-4">
@@ -200,49 +184,34 @@
         </div>
     </div>
 
-    <!-- نسبة التوظيف والتخصصات والشركات -->
+    <!-- نسبة التوظيف والشركات -->
     <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <h6 class="mb-0 fw-bold small"><i class="fas fa-chart-line text-success me-2"></i> {% trans "نسبة التوظيف" %}</h6>
                 </div>
                 <div class="card-body px-3 px-md-4 pb-4 text-center">
                     <div class="position-relative d-inline-block mb-3">
-                        <div class="progress-circle" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#2ecc71 {{ employment_rate }}%, #e9ecef 0%); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <div class="bg-white rounded-circle" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                                <span class="display-6 fw-bold text-success">{{ employment_rate }}%</span>
+                        <div class="progress-circle" style="width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(#2ecc71 {{ employment_rate }}%, #e9ecef 0%); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <div class="bg-white rounded-circle shadow-sm" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <span class="display-5 fw-bold text-success">{{ employment_rate|floatformat:1 }}%</span>
                                 <small class="text-muted">{% trans "موظفين" %}</small>
                             </div>
                         </div>
                     </div>
-                    <p class="text-muted small mb-0">{% trans "من إجمالي" %} {{ total_graduates }} {% trans "خريج" %}</p>
-                    <div class="progress mt-2" style="height: 6px;">
-                        <div class="progress-bar bg-success" style="width: {{ employment_rate }}%; border-radius: 10px;"></div>
+                    <p class="text-muted small mb-1">
+                        <i class="fas fa-user-check text-success me-1"></i> 
+                        <strong>{{ employed_graduates|default:0 }}</strong> {% trans "موظف" %} 
+                        {% trans "من إجمالي" %} <strong>{{ total_graduates|default:0 }}</strong> {% trans "خريج" %}
+                    </p>
+                    <div class="progress mt-3" style="height: 8px; border-radius: 10px; background: #e9ecef;">
+                        <div class="progress-bar bg-success" style="width: {{ employment_rate }}%; border-radius: 10px; transition: width 1s ease;"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
-                    <h6 class="mb-0 fw-bold small"><i class="fas fa-graduation-cap text-primary me-2"></i> {% trans "التخصصات الأكثر طلباً" %}</h6>
-                </div>
-                <div class="card-body px-3 px-md-4 pb-4">
-                    {% if popular_majors %}
-                        {% for major in popular_majors|slice:":5" %}
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
-                            <span class="small">{{ major.major }}</span>
-                            <span class="badge bg-primary rounded-pill px-3">{{ major.count }}</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-center text-muted py-3 small">{% trans "لا توجد تخصصات" %}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
                     <h6 class="mb-0 fw-bold small"><i class="fas fa-trophy text-warning me-2"></i> {% trans "أعلى الشركات توظيفاً" %}</h6>
@@ -256,7 +225,10 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-center text-muted py-3 small">{% trans "لا توجد شركات" %}</p>
+                        <div class="text-center py-4">
+                            <i class="fas fa-building fa-3x text-muted opacity-25 mb-3"></i>
+                            <p class="text-muted small mb-0">{% trans "لا توجد شركات" %}</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -310,7 +282,9 @@
                         </div>
                         {% if pending_success_stories|length > 5 %}
                         <div class="text-center mt-2">
-                            <a href="{% url 'dashboard:pending_requests' %}" class="small">{% trans "عرض الكل" %} <i class="fas fa-arrow-left"></i></a>
+                            <a href="{% url 'dashboard:pending_requests' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4">
+                                {% trans "عرض الكل" %} <i class="fas fa-arrow-left me-1"></i>
+                            </a>
                         </div>
                         {% endif %}
                     {% else %}
@@ -325,29 +299,45 @@
         <div class="col-12 col-lg-6">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header bg-transparent border-0 pt-4 px-3 px-md-4">
-                    <h6 class="mb-0 fw-bold small">
-                        <i class="fas fa-history text-info me-2"></i> {% trans "آخر النشاطات" %}
-                    </h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold small">
+                            <i class="fas fa-history text-info me-2"></i> {% trans "آخر النشاطات" %}
+                        </h6>
+                        <span class="badge bg-info rounded-pill px-3 py-2">{{ recent_activities|length }}</span>
+                    </div>
                 </div>
                 <div class="card-body px-3 px-md-4 pb-4">
                     {% if recent_activities %}
                         <div class="list-group list-group-flush">
                             {% for activity in recent_activities|slice:":7" %}
-                            <div class="list-group-item d-flex align-items-center gap-3 border-0 px-0 py-2">
-                                <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                                    <i class="fas {% if activity.action == 'create' %}fa-plus text-success{% elif activity.action == 'delete' %}fa-trash text-danger{% elif activity.action == 'approve' %}fa-check text-primary{% elif activity.action == 'reject' %}fa-times text-warning{% else %}fa-edit text-info{% endif %}"></i>
+                            <div class="list-group-item d-flex align-items-center gap-3 border-0 px-0 py-3 border-bottom border-light">
+                                <div class="activity-icon rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: {% if activity.action == 'approve' %}rgba(46, 204, 113, 0.12){% elif activity.action == 'reject' %}rgba(231, 76, 60, 0.12){% elif activity.action == 'create' %}rgba(52, 152, 219, 0.12){% elif activity.action == 'delete' %}rgba(231, 76, 60, 0.12){% else %}rgba(243, 156, 18, 0.12){% endif %};">
+                                    <i class="fas {% if activity.action == 'approve' %}fa-check-circle text-success{% elif activity.action == 'reject' %}fa-times-circle text-danger{% elif activity.action == 'create' %}fa-plus-circle text-primary{% elif activity.action == 'delete' %}fa-trash-alt text-danger{% else %}fa-edit text-warning{% endif %} fa-lg"></i>
                                 </div>
-                                <div class="flex-grow-1 small">
-                                    <div class="fw-semibold">{{ activity.get_action_display }}</div>
-                                    <div class="text-muted">{{ activity.target_type }} - {{ activity.details.name|default:activity.target_id }}</div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="fw-semibold small">{{ activity.get_action_display }}</span>
+                                        <span class="badge bg-light text-dark rounded-pill px-2 py-1 small">{{ activity.target_type }}</span>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ activity.details.name|default:activity.target_id }}
+                                    </div>
                                 </div>
-                                <div class="text-muted small">{{ activity.created_at|timesince }}</div>
+                                <div class="text-muted small text-nowrap" style="font-size: 0.7rem;">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ activity.created_at|timesince }}
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
-                        <div class="text-center mt-2">
-                            <a href="{% url 'dashboard:audit_log' %}" class="small">{% trans "عرض الكل" %} <i class="fas fa-arrow-left"></i></a>
+                        {% if recent_activities|length > 7 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'dashboard:audit_log' %}" class="btn btn-sm btn-outline-info rounded-pill px-4">
+                                {% trans "عرض الكل" %} <i class="fas fa-arrow-left me-1"></i>
+                            </a>
                         </div>
+                        {% endif %}
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
@@ -360,12 +350,69 @@
     </div>
 </div>
 
-<!-- ستايلات إضافية للجوال -->
+<!-- ستايلات إضافية -->
 <style>
+    /* ====== تنسيقات البطاقات الإحصائية ====== */
+    .stat-card {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.08) !important;
+    }
+    .stat-icon {
+        transition: 0.3s;
+    }
+    .stat-card:hover .stat-icon {
+        transform: scale(1.05);
+    }
+    
+    /* ====== ألوان الخلفيات ====== */
+    .bg-primary-soft { background: rgba(26, 95, 122, 0.10); }
+    .bg-success-soft { background: rgba(46, 204, 113, 0.10); }
+    .bg-warning-soft { background: rgba(243, 156, 18, 0.10); }
+    .bg-info-soft { background: rgba(52, 152, 219, 0.10); }
+    .bg-success-subtle { background: rgba(46, 204, 113, 0.15); color: #1a8a4a; }
+    
+    /* ====== دائرة النسبة ====== */
+    .progress-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    /* ====== تنسيق قائمة النشاطات ====== */
+    .activity-icon {
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+    }
+    .list-group-item:hover .activity-icon {
+        transform: scale(1.08);
+    }
+    .list-group-item {
+        transition: background 0.2s ease;
+    }
+    .list-group-item:hover {
+        background: rgba(201, 169, 78, 0.04);
+    }
+    
+    /* ====== تنسيق البطاقات ====== */
+    .card {
+        border-radius: 20px !important;
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-header {
+        border-bottom: 2px solid rgba(201, 169, 78, 0.15);
+    }
+    
+    /* ====== تحسينات الجوال ====== */
     @media (max-width: 576px) {
         .stat-icon { width: 44px; height: 44px; }
         .stat-icon i { font-size: 1.2rem !important; }
         .display-6 { font-size: 1.5rem; }
+        .display-5 { font-size: 1.8rem; }
         .fs-2 { font-size: 1.6rem !important; }
         .alert { font-size: 0.8rem; padding: 8px 12px; }
         .table-responsive .btn { padding: 4px 8px; font-size: 0.7rem; }
@@ -373,29 +420,71 @@
         .btn-outline-secondary { font-size: 0.8rem; padding: 4px 12px; }
         .badge { font-size: 0.7rem; }
         .card-body { padding: 16px !important; }
+        .activity-icon { width: 32px !important; height: 32px !important; }
+        .activity-icon i { font-size: 0.9rem !important; }
     }
-    .stat-card { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
-    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.08) !important; }
-    .stat-icon { transition: 0.3s; }
-    .stat-card:hover .stat-icon { transform: scale(1.05); }
-    .bg-primary-soft { background: rgba(26, 95, 122, 0.10); }
-    .bg-success-soft { background: rgba(46, 204, 113, 0.10); }
-    .bg-warning-soft { background: rgba(243, 156, 18, 0.10); }
-    .bg-info-soft { background: rgba(52, 152, 219, 0.10); }
-    .bg-success-subtle { background: rgba(46, 204, 113, 0.15); color: #1a8a4a; }
-    .progress-circle { display: inline-flex; align-items: center; justify-content: center; position: relative; }
-    /* تحسين RTL للجداول */
+    
+    @media (min-width: 577px) and (max-width: 768px) {
+        .card-body { padding: 20px !important; }
+    }
+    
+    /* ====== RTL تنسيقات ====== */
     [dir="rtl"] .table th, [dir="rtl"] .table td {
         text-align: right;
     }
     [dir="rtl"] .list-group-item {
         text-align: right;
     }
-    [dir="rtl"] .btn .fas.fa-arrow-right {
+    [dir="rtl"] .btn .fas.fa-arrow-right,
+    [dir="rtl"] .btn .fas.fa-arrow-left {
         transform: rotate(180deg);
     }
     [dir="rtl"] .badge .fas.fa-arrow-up {
         transform: rotate(90deg);
     }
+    [dir="rtl"] .progress-circle {
+        transform: scaleX(-1);
+    }
+    [dir="rtl"] .progress-circle .bg-white {
+        transform: scaleX(-1);
+    }
+    
+    /* ====== تأثيرات إضافية ====== */
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* ====== تنسيق البادج ====== */
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    /* ====== تحسين التباين ====== */
+    .text-muted {
+        color: #6c757d !important;
+    }
+    
+    /* ====== أنيميشن بسيط ====== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .card {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
 </style>
 {% endblock %}
