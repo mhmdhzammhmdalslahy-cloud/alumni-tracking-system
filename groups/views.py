@@ -22,9 +22,11 @@ from dashboard.models import Notification
 @login_required
 def group_list(request):
     """عرض جميع المجموعات المتاحة للخريجين"""
-    groups = Group.objects.filter(is_active=True, status='approved').order_by('-created_at')
+    if request.user.is_staff:
+        groups = Group.objects.filter(is_active=True).order_by('-created_at')
+    else:
+        groups = Group.objects.filter(is_active=True, status='approved').order_by('-created_at')
     
-    # إضافة حالة العضوية لكل مجموعة
     try:
         graduate = request.user.graduate_profile
         for group in groups:
@@ -33,8 +35,6 @@ def group_list(request):
         pass
     
     return render(request, 'groups/group_list.html', {'groups': groups})
-
-
 # ============================================================
 # ========== إدارة المجموعات الأساسية ==========
 # ============================================================

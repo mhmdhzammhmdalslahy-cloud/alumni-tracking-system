@@ -450,15 +450,15 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                         {% if user.is_authenticated %}
-                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-id-card ms-2"></i> {% trans "ملفي الشخصي" %}</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> {% trans "تسجيل خروج" %}</a></li>
-                        {% else %}
-                            <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt ms-2"></i> {% trans "تسجيل دخول" %}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus ms-2"></i> {% trans "إنشاء حساب" %}</a></li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> {% trans "الوضع الداكن" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-id-card ms-2"></i> {% trans "ملفي الشخصي" %}</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt ms-2"></i> {% trans "تسجيل خروج" %}</a></li>
+{% else %}
+<li><a class="dropdown-item" href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt ms-2"></i> {% trans "تسجيل دخول" %}</a></li>
+<li><a class="dropdown-item" href="{% url 'accounts:register' %}"><i class="fas fa-user-plus ms-2"></i> {% trans "إنشاء حساب" %}</a></li>
+{% endif %}
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" href="#" id="darkModeToggle"><i class="fas fa-moon ms-2"></i> {% trans "الوضع الداكن" %}</a></li>
                     </ul>
                 </div>
             </div>

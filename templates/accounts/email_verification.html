@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رمز تأكيد الحساب</title>
+    <style>
+        body { font-family: 'Cairo', Arial, sans-serif; background: #f4f6f9; padding: 40px 20px; }
+        .container { max-width: 500px; margin: auto; background: white; border-radius: 20px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .header { text-align: center; border-bottom: 2px solid #C9A94E; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { color: #1A3A5C; font-weight: 800; }
+        .header .sub { color: #C9A94E; font-size: 14px; letter-spacing: 2px; }
+        .code-box { background: #f8f9fa; border-radius: 15px; padding: 20px; text-align: center; margin: 20px 0; border: 2px dashed #C9A94E; }
+        .code-box .code { font-size: 36px; font-weight: 800; color: #1A3A5C; letter-spacing: 10px; }
+        .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9ecef; font-size: 12px; color: #6c7a8a; }
+        .footer span { color: #C9A94E; font-weight: 700; }
+        .btn { display: inline-block; background: linear-gradient(135deg, #1A3A5C, #0d3b4f); color: white; padding: 10px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 10px; }
+        .btn:hover { background: linear-gradient(135deg, #C9A94E, #b8973a); color: #1A3A5C; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🔐 جامعة إقليم سبأ</h2>
+            <div class="sub">نظام متابعة الخريجين</div>
+        </div>
+        
+        <p>مرحباً <strong>{{ user.get_full_name|default:user.username }}</strong>،</p>
+        <p>شكراً لتسجيلك في نظام متابعة الخريجين - جامعة إقليم سبأ.</p>
+        <p>لإكمال عملية التسجيل، يرجى إدخال رمز التأكيد التالي:</p>
+        
+        <div class="code-box">
+            <div class="code">{{ code }}</div>
+        </div>
+        
+        <p style="font-size: 13px; color: #6c7a8a;">
+            <i class="fas fa-clock"></i> هذا الرمز صالح لمدة 10 دقائق فقط.
+        </p>
+        
+        <div style="text-align: center;">
+            <a href="http://127.0.0.1:8000/accounts/verify/{{ user.id }}/" class="btn">تأكيد الحساب الآن</a>
+        </div>
+        
+        <div class="footer">
+            <span>جامعة إقليم سبأ</span> © {% now "Y" %} - جميع الحقوق محفوظة
+        </div>
+    </div>
+</body>
+</html>

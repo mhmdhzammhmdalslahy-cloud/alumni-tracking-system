@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans "التسجيل" %} - {% trans "جامعة إقليم سبأ" %}</title>
+    <title>{% trans "تسجيل دخول" %} - {% trans "جامعة إقليم سبأ" %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 20px;
             position: relative;
             overflow: hidden;
         }
@@ -38,182 +38,179 @@
             background: rgba(201, 169, 78, 0.03);
             animation: float 12s infinite ease-in-out;
         }
-        .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; right: -100px; animation-delay: 0s; }
-        .circle:nth-child(2) { width: 200px; height: 200px; bottom: 50px; left: -80px; animation-delay: 3s; }
-        .circle:nth-child(3) { width: 150px; height: 150px; bottom: 30%; right: 10%; animation-delay: 6s; }
-        .circle:nth-child(4) { width: 350px; height: 350px; top: 40%; left: -150px; animation-delay: 2s; }
+        .circle:nth-child(1) { width: 400px; height: 400px; top: -150px; right: -150px; animation-delay: 0s; }
+        .circle:nth-child(2) { width: 300px; height: 300px; bottom: 50px; left: -100px; animation-delay: 3s; }
+        .circle:nth-child(3) { width: 200px; height: 200px; bottom: 30%; right: 10%; animation-delay: 6s; }
+        .circle:nth-child(4) { width: 500px; height: 500px; top: 40%; left: -200px; animation-delay: 2s; }
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(10deg); }
+            50% { transform: translateY(-40px) rotate(10deg); }
         }
         
-        .register-card {
+        .login-card {
             position: relative;
             z-index: 1;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            max-width: 420px;
+            border-radius: 25px;
+            padding: 40px 35px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            max-width: 450px;
             width: 100%;
             border: 1px solid rgba(201, 169, 78, 0.15);
             transition: transform 0.3s ease;
             text-align: center;
             margin: auto;
-            max-height: 98vh;
-            overflow-y: auto;
         }
-        .register-card:hover { transform: translateY(-3px); }
+        .login-card:hover { transform: translateY(-5px); }
         
-        /* شريط التمرير الجميل */
-        .register-card::-webkit-scrollbar {
-            width: 4px;
-        }
-        .register-card::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .register-card::-webkit-scrollbar-thumb {
-            background: #C9A94E;
-            border-radius: 10px;
-        }
-        
-        .register-icon {
+        .login-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        .register-icon i {
-            font-size: 40px;
+        .login-icon i {
+            font-size: 55px;
             color: #C9A94E;
             background: linear-gradient(135deg, #1A3A5C, #0d3b4f);
-            padding: 15px;
+            padding: 20px;
             border-radius: 50%;
-            width: 70px;
-            height: 70px;
+            width: 90px;
+            height: 90px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 20px rgba(26, 58, 92, 0.3);
-            border: 2px solid rgba(201, 169, 78, 0.2);
+            box-shadow: 0 8px 30px rgba(26, 58, 92, 0.3);
+            border: 3px solid rgba(201, 169, 78, 0.2);
             animation: pulse 3s infinite;
         }
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(26,58,92,0.3); }
-            50% { transform: scale(1.03); box-shadow: 0 6px 30px rgba(201,169,78,0.2); }
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(26,58,92,0.3); }
+            50% { transform: scale(1.03); box-shadow: 0 8px 40px rgba(201,169,78,0.2); }
         }
         
-        .register-card h3 {
+        .login-card h3 {
             font-weight: 800;
             color: #1A3A5C;
-            font-size: 20px;
-            margin-bottom: 2px;
+            font-size: 26px;
+            margin-bottom: 5px;
+            text-align: center;
         }
-        .register-card .subtitle {
+        .login-card .subtitle {
             color: #6c7a8a;
-            font-size: 12px;
-            margin-bottom: 12px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .university-name {
-            font-size: 10px;
+            font-size: 12px;
             color: #C9A94E;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 22px;
+            text-align: center;
         }
-        .university-name i { margin-left: 4px; }
+        .university-name i { margin-left: 6px; }
         
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 18px;
             text-align: center;
         }
         .form-group label {
             display: block;
             font-weight: 600;
             color: #1A3A5C;
-            margin-bottom: 3px;
-            font-size: 11px;
+            margin-bottom: 6px;
+            font-size: 13px;
             text-align: center;
         }
         .form-group label i {
             color: #C9A94E;
-            margin-left: 4px;
+            margin-left: 6px;
         }
         .form-control {
             width: 100%;
             border-radius: 50px;
-            padding: 8px 16px;
+            padding: 12px 20px;
             border: 2px solid #e9ecef;
             background: #f8f9fa;
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
             transition: all 0.3s ease;
         }
         .form-control:focus {
             border-color: #C9A94E;
-            box-shadow: 0 0 0 3px rgba(201, 169, 78, 0.12);
+            box-shadow: 0 0 0 4px rgba(201, 169, 78, 0.12);
             background: white;
             outline: none;
         }
         .form-control::placeholder {
             color: #adb5bd;
             text-align: center;
-            font-size: 12px;
         }
         
-        .btn-register {
+        .btn-login {
             background: linear-gradient(135deg, #1A3A5C, #0d3b4f);
             color: white;
             border: none;
             border-radius: 50px;
-            padding: 10px;
+            padding: 13px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 16px;
             width: 100%;
             transition: all 0.3s ease;
             cursor: pointer;
             margin-top: 5px;
             text-align: center;
         }
-        .btn-register:hover {
+        .btn-login:hover {
             background: linear-gradient(135deg, #C9A94E, #b8973a);
             color: #1A3A5C;
             transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(201, 169, 78, 0.3);
+            box-shadow: 0 8px 25px rgba(201, 169, 78, 0.3);
         }
-        .btn-register i { margin-left: 6px; }
+        .btn-login i { margin-left: 8px; }
         
-        .login-link {
+        .forgot-password {
             text-align: center;
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 1px solid #e9ecef;
+            margin: 10px 0 18px;
         }
-        .login-link a {
+        .forgot-password a {
             color: #1A3A5C;
             text-decoration: none;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             transition: 0.3s;
         }
-        .login-link a:hover { color: #C9A94E; }
-        .login-link a i { margin-left: 4px; }
+        .forgot-password a:hover { color: #C9A94E; text-decoration: underline; }
+        
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #e9ecef;
+        }
+        .signup-link a {
+            color: #1A3A5C;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .signup-link a:hover { color: #C9A94E; }
+        .signup-link a i { margin-left: 6px; }
         
         .alert {
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 18px;
             text-align: center;
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 10px 15px;
         }
         
         @media (max-width: 576px) {
-            .register-card { padding: 18px 16px; max-width: 100%; }
-            .register-icon i { width: 55px; height: 55px; font-size: 30px; padding: 12px; }
-            .register-card h3 { font-size: 18px; }
-            .form-control { padding: 6px 12px; font-size: 12px; }
-            .btn-register { padding: 8px; font-size: 13px; }
+            .login-card { padding: 25px 20px; }
+            .login-icon i { width: 70px; height: 70px; font-size: 40px; padding: 15px; }
+            .login-card h3 { font-size: 22px; }
         }
     </style>
 </head>
@@ -227,13 +224,13 @@
 </div>
 
 <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-    <div class="register-card">
-        <div class="register-icon">
-            <i class="fas fa-user-plus"></i>
+    <div class="login-card">
+        <div class="login-icon">
+            <i class="fas fa-graduation-cap"></i>
         </div>
         
-        <h3>{% trans "إنشاء حساب جديد" %}</h3>
-        <p class="subtitle">{% trans "انضم إلى عائلة جامعة إقليم سبأ" %}</p>
+        <h3>{% trans "تسجيل دخول" %}</h3>
+        <p class="subtitle">{% trans "مرحباً بعودتك" %}</p>
         <div class="university-name">
             <i class="fas fa-university"></i> {% trans "جامعة إقليم سبأ" %}
         </div>
@@ -247,34 +244,26 @@
             {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'accounts:register' %}">
+        <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label><i class="fas fa-user"></i> {% trans "اسم المستخدم" %}</label>
-                <input type="text" name="username" class="form-control" placeholder="{% trans 'أدخل اسم المستخدم' %}" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-signature"></i> {% trans "الاسم الكامل" %}</label>
-                <input type="text" name="first_name" class="form-control" placeholder="{% trans 'أدخل الاسم الكامل' %}" required>
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> {% trans "البريد الإلكتروني" %}</label>
-                <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                <label><i class="fas fa-user"></i> {% trans "اسم المستخدم أو البريد الإلكتروني" %}</label>
+                <input type="text" name="username" class="form-control" placeholder="{% trans 'أدخل اسم المستخدم أو البريد' %}" required>
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> {% trans "كلمة المرور" %}</label>
                 <input type="password" name="password" class="form-control" placeholder="{% trans 'أدخل كلمة المرور' %}" required>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-check-circle"></i> {% trans "تأكيد كلمة المرور" %}</label>
-                <input type="password" name="password_confirm" class="form-control" placeholder="{% trans 'أعد كتابة كلمة المرور' %}" required>
+            <div class="forgot-password">
+                <a href="{% url 'password_reset' %}"><i class="fas fa-key"></i> {% trans "نسيت كلمة المرور؟" %}</a>
             </div>
-            <button type="submit" class="btn-register"><i class="fas fa-user-plus"></i> {% trans "إنشاء حساب" %}</button>
+            <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> {% trans "دخول" %}</button>
         </form>
 
-        <div class="login-link">
-            <a href="{% url 'accounts:login' %}">
-                <i class="fas fa-sign-in-alt"></i> {% trans "لديك حساب؟ سجل الدخول" %}
+        <div class="signup-link">
+            <!-- ✅ تم التعديل: استخدام accounts:register -->
+            <a href="{% url 'accounts:register' %}">
+                <i class="fas fa-user-plus"></i> {% trans "ليس لديك حساب؟ سجل الآن" %}
             </a>
         </div>
     </div>

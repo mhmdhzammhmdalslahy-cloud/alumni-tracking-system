@@ -90,7 +90,16 @@ def admin_dashboard(request):
     pending_stories_count = SuccessStory.objects.filter(status='pending').count()
     pending_groups_count = Group.objects.filter(status='pending', is_active=True).count()
     
-    # جلب قصص النجاح المعلقة (للعرض)
+    # ✅ إضافة إحصائيات المجموعات
+    total_groups = Group.objects.filter(is_active=True).count()
+    total_group_members = Group.objects.aggregate(total=Count('members'))['total'] or 0
+    pending_groups = Group.objects.filter(status='pending', is_active=True)
+    approved_groups = Group.objects.filter(status='approved', is_active=True)
+    
+    # ✅ إحصائيات قصص النجاح
+    total_stories = SuccessStory.objects.filter(status='approved').count()
+    approved_stories = SuccessStory.objects.filter(status='approved')
+    pending_stories_count = SuccessStory.objects.filter(status='pending').count()
     pending_success_stories = SuccessStory.objects.filter(status='pending')
     
     # ============================================================
@@ -136,19 +145,17 @@ def admin_dashboard(request):
             'link': '/dashboard/pending-requests/'
         })
     
-           # ============================================================
+    # ============================================================
     # 4. دوال مساعدة لحساب البيانات
     # ============================================================
     def calculate_employment_rate():
         total = Graduate.objects.count()
         if total == 0:
             return 0
-        # ✅ التصحيح: استخدام current_job_status بدلاً من employment_status
         employed = Graduate.objects.filter(current_job_status='working').count()
         return round((employed / total) * 100, 1)
     
     def get_employed_graduates_count():
-        """✅ دالة لحساب عدد الخريجين الموظفين"""
         return Graduate.objects.filter(current_job_status='working').count()
     
     def get_popular_majors():
@@ -171,16 +178,12 @@ def admin_dashboard(request):
             months.append(month.strftime('%B'))
             counts.append(count)
         return {'months': months[::-1], 'counts': counts[::-1]}
+    
     # ============================================================
     # 5. جلب البيانات الإضافية
     # ============================================================
-    # 5.1 أعلى الشركات توظيفاً
     top_employers = get_top_employers()
-    
-    # 5.2 آخر النشاطات (من AuditLog)
     recent_activities = AuditLog.objects.select_related('admin__user').order_by('-created_at')[:10]
-    
-    # 5.3 البيانات الأخرى المطلوبة في القالب
     recent_graduates = Graduate.objects.all().order_by('-created_at')[:5]
     recent_employers = Employer.objects.all().order_by('-created_at')[:5]
     recent_applications = JobApplication.objects.all().order_by('-applied_at')[:5]
@@ -191,13 +194,26 @@ def admin_dashboard(request):
     # 6. تجهيز السياق (Context) للإرسال إلى القالب
     # ============================================================
     context = {
-        # الإحصائيات الأساسية
+        # ====== الإحصائيات الأساسية ======
         'total_graduates': total_graduates,
         'total_employers': total_employers,
         'total_jobs': total_jobs,
         'total_applications': total_applications,
         
-        # الطلبات المعلقة
+        # ====== إحصائيات المجموعات ======
+        'total_groups': total_groups,
+        'total_group_members': total_group_members,
+        'pending_groups': pending_groups,
+        'approved_groups': approved_groups,
+        'pending_groups_count': pending_groups_count,
+        
+        # ====== إحصائيات قصص النجاح ======
+        'total_stories': total_stories,
+        'approved_stories': approved_stories,
+        'pending_stories_count': pending_stories_count,
+        'pending_success_stories': pending_success_stories,
+        
+        # ====== الطلبات المعلقة ======
         'pending_graduates': pending_graduates_count,
         'pending_employers': pending_employers_count,
         'pending_graduates_count': pending_graduates_count,
@@ -205,10 +221,9 @@ def admin_dashboard(request):
         'pending_stories_count': pending_stories_count,
         'pending_groups_count': pending_groups_count,
         
-        # البيانات الخاصة بالنشاطات
+        # ====== البيانات الخاصة بالنشاطات ======
         'employment_rate': calculate_employment_rate(),
-         'employed_graduates': get_employed_graduates_count(),
-        'total_graduates': total_graduates,
+        'employed_graduates': get_employed_graduates_count(),
         'popular_majors': popular_majors,
         'top_employers': top_employers,
         'monthly_jobs': monthly_jobs,
@@ -216,16 +231,14 @@ def admin_dashboard(request):
         'recent_employers': recent_employers,
         'recent_applications': recent_applications,
         
-        # قصص النجاح
-        'pending_success_stories': pending_success_stories,
-        
-        # ✅ الإضافات الجديدة
+        # ====== الإضافات الجديدة ======
         'alerts': alerts,
         'recent_activities': recent_activities,
-        'now': timezone.now(),  # للاستخدام في القالب (التاريخ الحالي)
+        'now': timezone.now(),
     }
     
     return render(request, 'dashboard/admin_dashboard.html', context)
+
 
 # ========== إدارة الخريجين ==========
 
@@ -269,24 +282,18 @@ def manage_graduates(request):
 @admin_required
 def verify_graduate(request, pk):
     graduate = get_object_or_404(Graduate, pk=pk)
-    
-    # محاولة جلب طلب توثيق معلق
     verification = VerificationRequest.objects.filter(graduate=graduate, status='pending').first()
     
-    # إذا لم يكن هناك طلب معلق، قم بإنشائه تلقائياً
     if not verification:
-        # إنشاء طلب توثيق جديد للخريج
         verification = VerificationRequest.objects.create(
             graduate=graduate,
             student_university_number=graduate.university_id,
-            uploaded_document='',  # يمكن تركه فارغاً أو تعيين قيمة افتراضية
+            uploaded_document='',
             status='pending'
         )
         messages.info(request, f'📝 تم إنشاء طلب توثيق تلقائي للخريج {graduate.user.get_full_name()}')
-        # إعادة التوجيه إلى نفس الصفحة لتحديث النموذج
         return redirect('dashboard:verify_graduate', pk=graduate.pk)
     
-    # إذا كان الطلب موجوداً، تابع العملية كالمعتاد
     if request.method == 'POST':
         form = VerificationReviewForm(request.POST)
         if form.is_valid():
@@ -299,42 +306,29 @@ def verify_graduate(request, pk):
                 graduate.save()
                 messages.success(request, f'✅ تم توثيق حساب {graduate.user.get_full_name()} بنجاح')
                 
-                # ========== إرسال رسالة ترحيب ==========
-                # 1. إشعار داخلي (في قاعدة البيانات)
                 Notification.objects.create(
                     recipient=graduate.user,
                     title='🎉 مرحباً بك في نظام متابعة الخريجين',
-                    message=f'أهلاً {graduate.user.get_full_name()}، تم توثيق حسابك بنجاح. يمكنك الآن الاستفادة من جميع خدمات المنصة.',
+                    message=f'أهلاً {graduate.user.get_full_name()}، تم توثيق حسابك بنجاح.',
                     notification_type='welcome',
                     link=f'/graduates/{graduate.id}/'
                 )
                 
-                # 2. بريد إلكتروني ترحيبي
                 try:
                     send_mail(
                         subject='🎉 مرحباً بك في نظام متابعة الخريجين',
                         message=f"""أهلاً {graduate.user.get_full_name()},
 
-تم توثيق حسابك بنجاح في نظام متابعة الخريجين. يمكنك الآن:
-
-- ✅ عرض وتحديث ملفك الشخصي
-- ✅ التقدم للوظائف المتاحة
-- ✅ المشاركة في المجموعات والمنتديات
-- ✅ إضافة قصص نجاح
-- ✅ استقبال إشعارات الوظائف الجديدة
-
-نتمنى لك تجربة ممتعة!
+تم توثيق حسابك بنجاح في نظام متابعة الخريجين.
 
 فريق نظام متابعة الخريجين
 """,
                         from_email=settings.DEFAULT_FROM_EMAIL,
                         recipient_list=[graduate.user.email],
-                        fail_silently=True,  # لا يظهر خطأ إذا فشل الإرسال
+                        fail_silently=True,
                     )
                 except Exception as e:
-                    # تسجيل الخطأ في السجلات (اختياري)
-                    print(f"⚠️ فشل إرسال البريد الترحيبي لـ {graduate.user.email}: {e}")
-                # ========== نهاية رسالة الترحيب ==========
+                    print(f"⚠️ فشل إرسال البريد الترحيبي: {e}")
                 
             else:
                 verification.status = 'rejected'
@@ -379,6 +373,8 @@ def verify_graduate(request, pk):
         form = VerificationReviewForm()
     
     return render(request, 'dashboard/verify_graduate.html', {'graduate': graduate, 'verification': verification, 'form': form})
+
+
 # ========== إدارة الشركات ==========
 
 @admin_required
@@ -481,13 +477,13 @@ def manage_surveys(request):
     page_number = request.GET.get('page', 1)
     surveys_page = paginator.get_page(page_number)
     
-    # ✅ إضافة عدد الاستبيانات المنشورة وغير المنشورة (اختياري)
     context = {
         'surveys': surveys_page,
         'published_count': Survey.objects.filter(is_published=True).count(),
         'unpublished_count': Survey.objects.filter(is_published=False).count(),
     }
     return render(request, 'dashboard/manage_surveys.html', context)
+
 
 @admin_required
 def create_survey(request):
@@ -648,8 +644,6 @@ def system_settings(request):
         return redirect('dashboard:admin_dashboard')
     
     settings = SystemSetting.objects.all()
-    
-    # ✅ تحويل الإعدادات إلى dict للاستخدام في القالب
     settings_dict = {s.key: s for s in settings}
     
     if request.method == 'POST':
@@ -660,7 +654,6 @@ def system_settings(request):
                 setting.updated_by = request.user.admin_profile
                 setting.save()
         
-        # ✅ حفظ الإعدادات الجديدة إذا لم تكن موجودة
         contact_keys = ['contact_phone', 'contact_email', 'contact_address', 'contact_whatsapp']
         for key in contact_keys:
             if key in request.POST:
@@ -681,9 +674,11 @@ def system_settings(request):
     
     context = {
         'settings': settings,
-        'settings_dict': settings_dict,  # ✅ تمرير الـ dict للقالب
+        'settings_dict': settings_dict,
     }
     return render(request, 'dashboard/system_settings.html', context)
+
+
 # ========== إدارة المشرفين ==========
 
 @admin_required
@@ -764,7 +759,7 @@ def audit_log(request):
     return render(request, 'dashboard/audit_log.html', {'logs': logs_page})
 
 
-# ========== إدارة التخصصات والمهارات (نسخة واحدة فقط) ==========
+# ========== إدارة التخصصات والمهارات ==========
 
 @admin_required
 def manage_majors(request):
@@ -804,7 +799,7 @@ def manage_skills(request):
     return render(request, 'dashboard/manage_skills.html', {'skills': skills, 'form': form})
 
 
-# ========== صلاحيات الخريج (تعديل/حذف ملفه فقط) ==========
+# ========== صلاحيات الخريج ==========
 
 class GraduateUpdateView(LoginRequiredMixin, UpdateView):
     model = Graduate
@@ -980,69 +975,10 @@ def toggle_user_status(request, user_id):
     messages.success(request, f'✅ تم {status_text} حساب {user.get_full_name() or user.username} بنجاح.')
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:admin_dashboard'))
 
-# ========== دوال الموافقة على المجموعات ==========
 
-@admin_required
-def approve_group(request, pk):
-    """✅ قبول مجموعة (تصبح ظاهرة للخريجين)"""
-    group = get_object_or_404(Group, pk=pk)
-    group.status = 'approved'
-    group.is_active = True
-    group.save()
-    
-    # إشعار لمنشئ المجموعة
-    if group.created_by:
-        Notification.objects.create(
-            recipient=group.created_by,
-            title='✅ تم قبول مجموعتك',
-            message=f'تمت الموافقة على مجموعتك "{group.name}" وأصبحت متاحة للخريجين.',
-            notification_type='success',
-            link=f'/groups/{group.id}/'
-        )
-    
-    messages.success(request, f'✅ تم قبول مجموعة "{group.name}" بنجاح.')
-    return redirect('dashboard:pending_requests')
+# ========== دوال الموافقة على المجموعات (مكررة - احتفظ بواحدة) ==========
 
-
-@admin_required
-def reject_group(request, pk):
-    """❌ رفض مجموعة مع إشعار للمنشئ"""
-    group = get_object_or_404(Group, pk=pk)
-    group.status = 'rejected'
-    group.is_active = False
-    group.save()
-    
-    # إشعار لمنشئ المجموعة
-    if group.created_by:
-        Notification.objects.create(
-            recipient=group.created_by,
-            title='❌ تم رفض مجموعتك',
-            message=f'عذراً، تم رفض مجموعتك "{group.name}". يمكنك التواصل مع الإدارة لمعرفة السبب.',
-            notification_type='danger',
-            link='/groups/'
-        )
-    
-    messages.warning(request, f'❌ تم رفض مجموعة "{group.name}".')
-    return redirect('dashboard:pending_requests')
-
-@admin_required
-def approve_graduate(request, pk):
-    graduate = get_object_or_404(Graduate, pk=pk)
-    graduate.is_active = True
-    graduate.is_verified = True
-    graduate.save()
-    
-    # إشعار للخريج
-    Notification.objects.create(
-        recipient=graduate.user,
-        title='✅ تم قبول تسجيلك',
-        message=f'تم قبول طلب تسجيلك كخريج في منصة متابعة الخريجين.',
-        notification_type='success',
-        link=f'/graduates/{graduate.id}/'
-    )
-    
-    messages.success(request, f'✅ تم قبول الخريج {graduate.user.get_full_name()} بنجاح.')
-    return redirect('dashboard:pending_requests')
+# تم دمجها أعلاه، يمكن حذف هذه الدوال المكررة
 
 
 @admin_required
@@ -1052,7 +988,6 @@ def approve_graduate(request, pk):
     graduate.is_verified = True
     graduate.save()
     
-    # إشعار للخريج
     Notification.objects.create(
         recipient=graduate.user,
         title='✅ تم قبول تسجيلك',
@@ -1080,12 +1015,11 @@ def update_notification_preferences(request):
         messages.success(request, '✅ تم تحديث تفضيلات الإشعارات بنجاح.')
     return redirect('graduate_profile', pk=graduate.pk)
 
+
 @admin_required
 def publish_survey(request, survey_id):
-    """نشر استبيان (إرسال إشعارات للخريجين)"""
     survey = get_object_or_404(Survey, id=survey_id, is_active=True)
     
-    # ✅ إرسال إشعار لجميع الخريجين
     graduates = Graduate.objects.filter(is_active=True)
     notification_count = 0
     
@@ -1099,7 +1033,6 @@ def publish_survey(request, survey_id):
         )
         notification_count += 1
         
-        # ✅ إرسال بريد إلكتروني (اختياري)
         if grad.user.email:
             send_mail(
                 f'📝 استبيان جديد: {survey.title}',
@@ -1109,7 +1042,6 @@ def publish_survey(request, survey_id):
                 fail_silently=True
             )
     
-    # ✅ ✅ ✅ أهم جزء: تحديث حالة النشر
     survey.is_published = True
     survey.published_at = timezone.now()
     survey.save()
@@ -1117,9 +1049,9 @@ def publish_survey(request, survey_id):
     messages.success(request, f'✅ تم نشر الاستبيان "{survey.title}" وإشعار {notification_count} خريج.')
     return redirect('dashboard:manage_surveys')
 
+
 @admin_required
 def get_dashboard_stats(request):
-    """إحصائيات لوحة التحكم (API)"""
     from graduates.models import Graduate
     from employers.models import Employer
     from jobs.models import Job, JobApplication
@@ -1133,10 +1065,8 @@ def get_dashboard_stats(request):
     working = Graduate.objects.filter(is_verified=True, current_job_status='working').count()
     employment_rate = round((working / total_graduates) * 100, 1) if total_graduates > 0 else 0
     
-    # توزيع الخريجين حسب التخصص
     majors = Graduate.objects.filter(is_verified=True).values('major').annotate(count=Count('id')).order_by('-count')[:5]
     
-    # طلبات التوظيف حسب الشهر (آخر 6 أشهر)
     from django.utils import timezone
     from datetime import timedelta
     monthly_applications = []
@@ -1161,9 +1091,9 @@ def get_dashboard_stats(request):
         'monthly_applications': monthly_applications[::-1],
     })
 
+
 @admin_required
 def export_excel(request):
-    """تصدير بيانات الخريجين إلى Excel"""
     import pandas as pd
     from graduates.models import Graduate
     
@@ -1187,9 +1117,9 @@ def export_excel(request):
     df.to_excel(response, index=False, engine='openpyxl')
     return response
 
+
 @admin_required
 def export_pdf(request):
-    """تصدير تقرير إلى PDF"""
     from graduates.models import Graduate
     
     graduates = Graduate.objects.filter(is_verified=True).select_related('user')[:20]
@@ -1201,7 +1131,6 @@ def export_pdf(request):
     p = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     
-    # عنوان
     p.setFont("Helvetica-Bold", 16)
     p.drawString(2*cm, height-2*cm, "تقرير الخريجين")
     
