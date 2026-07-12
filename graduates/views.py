@@ -10,6 +10,34 @@ from .forms import GraduateForm, VerificationForm
 from .filters import GraduateFilter
 from .verification import verify_university_id
 from dashboard.models import SuccessStory
+from groups.models import Group
+
+# ============================================================
+# ✅ ديكور مخصص للتحقق من صلاحيات المشرف
+# ============================================================
+def is_admin(user):
+    """التحقق من أن المستخدم لديه صلاحيات إدارية"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    try:
+        if hasattr(user, 'admin_profile') and user.admin_profile.is_active:
+            return user.admin_profile.admin_level in ['super_admin', 'admin']
+    except:
+        pass
+    return False
+
+def admin_required(view_func):
+    """ديكور للتحقق من صلاحيات المشرف قبل تنفيذ الـ View"""
+    def wrapper(request, *args, **kwargs):
+        if is_admin(request.user):
+            return view_func(request, *args, **kwargs)
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.error(request, "غير مصرح لك بالوصول إلى هذه الصفحة.")
+        return redirect('home')
+    return wrapper
 
 
 class GraduateListView(ListView):
@@ -19,7 +47,6 @@ class GraduateListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        # ✅ فقط الخريجين الموثقين (is_verified=True)
         queryset = Graduate.objects.filter(is_verified=True).order_by('-created_at')
 
         search_query = self.request.GET.get('search', '')
@@ -54,8 +81,6 @@ class GraduateProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # ✅ الاستبيانات المتاحة
-        
         answered_ids = SurveyResponse.objects.filter(graduate=self.object).values_list('survey_id', flat=True)
         available_surveys = Survey.objects.filter(is_active=True, is_published=True).exclude(id__in=answered_ids)
         context['available_surveys'] = available_surveys
@@ -71,7 +96,6 @@ class GraduateCreateView(CreateView):
     def form_valid(self, form):
         if self.request.user.is_authenticated:
             form.instance.user = self.request.user
-            # ✅ الخريج الجديد يكون غير موثق حتى يوافق عليه المشرف
             form.instance.is_verified = False
             response = super().form_valid(form)
             messages.success(self.request, '✅ تم إضافة الخريج بنجاح! سيتم مراجعة طلبك من قبل الإدارة.')
@@ -165,7 +189,6 @@ def verify_graduate(request):
 def search_graduates(request):
     query = request.GET.get('q', '')
     if query:
-        # ✅ فقط الخريجين الموثقين في نتائج البحث
         graduates = Graduate.objects.filter(
             Q(user__first_name__icontains=query) |
             Q(user__last_name__icontains=query) |
@@ -185,7 +208,6 @@ def home(request):
     from jobs.models import Job
     from dashboard.models import SuccessStory
 
-    # ✅ إحصائيات تعتمد فقط على الخريجين الموثقين
     total_graduates = Graduate.objects.filter(is_verified=True).count()
     total_employers = Employer.objects.filter(is_verified=True).count()
     total_jobs = Job.objects.filter(is_active=True).count()
@@ -198,31 +220,23 @@ def home(request):
         'total_employers': total_employers,
         'total_jobs': total_jobs,
         'employment_rate': employment_rate,
-        # ✅ أحدث الخريجين الموثقين فقط
         'latest_graduates': Graduate.objects.filter(is_verified=True).order_by('-created_at')[:6],
         'latest_jobs': Job.objects.filter(is_active=True).order_by('-created_at')[:6],
         'success_stories': SuccessStory.objects.filter(status='approved', is_active=True)[:3],
     }
     return render(request, 'index.html', context)
 
-# ============================================================
-# ====== تحديث تفضيلات الإشعارات ======
-# ============================================================
 
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def update_notification_preferences(request):
-    """تحديث تفضيلات الإشعارات للخريج"""
     if request.method == 'POST':
-        # التحقق من وجود ملف خريج
         if not hasattr(request.user, 'graduate_profile'):
             messages.error(request, '⚠️ يرجى إكمال ملفك الشخصي أولاً.')
             return redirect('graduate_create')
         
         graduate = request.user.graduate_profile
-        
-        # تحديث الإعداد (checkbox يعطي 'on' إذا كان محدداً)
         receive_email = request.POST.get('receive_email_notifications') == 'on'
         graduate.receive_email_notifications = receive_email
         graduate.save()
@@ -230,7 +244,26 @@ def update_notification_preferences(request):
         messages.success(request, '✅ تم تحديث تفضيلات الإشعارات بنجاح!')
         return redirect('graduate_profile', pk=graduate.pk)
     
-    # إذا لم يكن POST، إعادة التوجيه إلى الملف الشخصي
     if hasattr(request.user, 'graduate_profile'):
         return redirect('graduate_profile', pk=request.user.graduate_profile.pk)
     return redirect('graduate_create')
+
+
+@admin_required
+def delete_group(request, pk):
+    """حذف مجموعة"""
+    group = get_object_or_404(Group, pk=pk)
+    group_name = group.name
+    group.delete()
+    messages.success(request, f'✅ تم حذف المجموعة "{group_name}" بنجاح.')
+    return redirect('dashboard:admin_dashboard')
+
+
+@admin_required
+def delete_success_story(request, pk):
+    """حذف قصة نجاح"""
+    story = get_object_or_404(SuccessStory, pk=pk)
+    story_title = story.title
+    story.delete()
+    messages.success(request, f'✅ تم حذف القصة "{story_title}" بنجاح.')
+    return redirect('dashboard:admin_dashboard')

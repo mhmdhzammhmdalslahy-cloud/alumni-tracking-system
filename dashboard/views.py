@@ -1148,3 +1148,33 @@ def export_pdf(request):
     buffer.close()
     response.write(pdf)
     return response
+
+
+# ============================================================
+# ========== حذف قصة نجاح ==========
+# ============================================================
+
+@admin_required
+def delete_success_story(request, pk):
+    """حذف قصة نجاح"""
+    from .models import SuccessStory
+    story = get_object_or_404(SuccessStory, pk=pk)
+    story_title = story.title
+    story.delete()
+    messages.success(request, f'✅ تم حذف القصة "{story_title}" بنجاح.')
+    return redirect('dashboard:admin_dashboard')
+
+
+# ============================================================
+# ========== حذف مجموعة ==========
+# ============================================================
+
+@admin_required
+def delete_group(request, pk):
+    """حذف مجموعة"""
+    from groups.models import Group
+    group = get_object_or_404(Group, pk=pk)
+    group_name = group.name
+    group.delete()
+    messages.success(request, f'✅ تم حذف المجموعة "{group_name}" بنجاح.')
+    return redirect('dashboard:admin_dashboard')

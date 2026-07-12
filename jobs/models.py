@@ -1,4 +1,31 @@
 from django.db import models
+
+from django.core.validators import RegexValidator
+
+# ============================================================
+# ✅ Validators مركزية لجميع الحقول
+# ============================================================
+letters_validator = RegexValidator(
+    r'^[\u0621-\u064A\u0660-\u0669a-zA-Z\s]+$',
+    'يسمح بالحروف فقط'
+)
+numbers_validator = RegexValidator(
+    r'^\d+$',
+    'يسمح بالأرقام فقط'
+)
+both_validator = RegexValidator(
+    r'^[\u0621-\u064A\u0660-\u0669a-zA-Z0-9\s]+$',
+    'يسمح بالحروف والأرقام فقط'
+)
+phone_validator = RegexValidator(
+    r'^(0|7|9)\d{8,9}$',
+    'رقم الهاتف يجب أن يبدأ بـ 0 أو 7 أو 9'
+)
+university_validator = RegexValidator(
+    r'^\d+$',
+    'الرقم الجامعي أرقام فقط'
+)
+
 from employers.models import Employer
 from graduates.models import Graduate
 

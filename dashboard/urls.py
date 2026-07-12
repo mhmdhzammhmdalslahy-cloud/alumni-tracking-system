@@ -58,6 +58,7 @@ urlpatterns = [
     path('success-stories/', views.success_stories_list, name='success_stories_list'),
     path('success-story/approve/<int:pk>/', views.approve_success_story, name='approve_success_story'),
     path('success-story/reject/<int:pk>/', views.reject_success_story, name='reject_success_story'),
+    path('success-story/<int:pk>/delete/', views.delete_success_story, name='delete_success_story'),  # ✅ حذف قصة
     
     # ====== الموافقات المركزية (Pending Requests) ======
     path('pending-requests/', views.pending_requests, name='pending_requests'),
@@ -65,6 +66,7 @@ urlpatterns = [
     # ====== الموافقة على المجموعات ======
     path('group/<int:pk>/approve/', views.approve_group, name='approve_group'),
     path('group/<int:pk>/reject/', views.reject_group, name='reject_group'),
+    path('group/<int:pk>/delete/', views.delete_group, name='delete_group'),  # ✅ حذف مجموعة
     
     # ====== الموافقة على الخريجين ======
     path('approve-graduate/<int:pk>/', views.approve_graduate, name='approve_graduate'),
