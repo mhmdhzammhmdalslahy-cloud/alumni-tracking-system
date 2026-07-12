@@ -100,6 +100,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'dashboard.context_processors.notifications_processor',
             ],
+            # ✅ إضافة فلتر التحقق المخصص
+            'libraries': {
+                'validation_filters': 'templatetags.validation_filters',
+            }
         },
     },
 ]
