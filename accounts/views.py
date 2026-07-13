@@ -9,8 +9,6 @@ from django.shortcuts import render
 from .models import NormalUser, Profile, EmailVerification
 from .utils import send_verification_email
 import secrets
-from django.core.mail import send_mail
-from django.conf import settings
 
 
 def login_view(request):
@@ -33,7 +31,7 @@ def login_view(request):
                     verification, created = EmailVerification.objects.get_or_create(user=user)
                     code = verification.generate_code()
                     send_verification_email(user, code)
-                    return redirect('accounts:verify_email', user_id=user.id)
+                    return redirect('accounts:verify_email', user_id=user.id)  # ✅ تم التعديل
             except Profile.DoesNotExist:
                 # إنشاء بروفايل إذا لم يكن موجوداً
                 profile = Profile.objects.create(user=user, is_email_verified=False)
@@ -110,11 +108,9 @@ def register_view(request):
         messages.success(request, f'✅ تم إرسال رمز التأكيد إلى بريدك الإلكتروني ({email})')
         
         # ✅ استخدام الرابط المباشر بدلاً من redirect
-        return redirect(f'/accounts/verify/{user.id}/')
+        return redirect(f'/accounts/verify/{user.id}/')  # ← هذا هو الحل
     
     return render(request, 'accounts/register.html')
-
-
 # ============================================================
 # ✅ دوال التحقق عبر البريد الإلكتروني
 # ============================================================
@@ -127,12 +123,12 @@ def verify_email_view(request, user_id):
         profile = Profile.objects.get(user=user)
     except (User.DoesNotExist, EmailVerification.DoesNotExist, Profile.DoesNotExist):
         messages.error(request, '❌ رابط غير صالح')
-        return redirect('accounts:register')
+        return redirect('accounts:register')  # ✅ تم التعديل
     
     # ✅ إذا كان المستخدم قد تحقق بالفعل
     if profile.is_email_verified:
         messages.info(request, '✅ تم التحقق من بريدك الإلكتروني مسبقاً')
-        return redirect('accounts:login')
+        return redirect('accounts:login')  # ✅ تم التعديل
     
     # ✅ إذا انتهت صلاحية الرمز
     if verification.is_expired():
@@ -170,39 +166,7 @@ def verify_email_view(request, user_id):
             profile.save()
             
             messages.success(request, '🎉 تم تأكيد حسابك بنجاح! يمكنك تسجيل الدخول الآن.')
-            
-            # ============================================================
-            # ✅ إرسال رسالة ترحيب عبر البريد الإلكتروني
-            # ============================================================
-            try:
-                send_mail(
-                    subject='🎉 مرحباً بك في نظام متابعة الخريجين',
-                    message=f"""أهلاً {user.get_full_name() or user.username},
-
-تم تفعيل حسابك بنجاح في نظام متابعة الخريجين - جامعة إقليم سبأ.
-
-يمكنك الآن:
-✅ تسجيل الدخول إلى حسابك
-✅ تحديث ملفك الشخصي
-✅ استكشاف الوظائف المتاحة
-✅ الانضمام إلى مجموعات الخريجين
-✅ مشاركة قصص نجاحك
-
-نتمنى لك تجربة ممتعة!
-
----
-فريق نظام متابعة الخريجين
-جامعة إقليم سبأ
-""",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
-                print(f"📧 تم إرسال رسالة ترحيب إلى {user.email}")
-            except Exception as e:
-                print(f"⚠️ فشل إرسال رسالة الترحيب: {e}")
-            
-            return redirect('accounts:login')
+            return redirect('accounts:login')  # ✅ تم التعديل
         else:
             # ✅ زيادة عدد المحاولات الفاشلة
             verification.increment_attempts()
@@ -228,19 +192,19 @@ def resend_verification_code(request, user_id):
         profile = Profile.objects.get(user=user)
     except (User.DoesNotExist, EmailVerification.DoesNotExist, Profile.DoesNotExist):
         messages.error(request, '❌ مستخدم غير موجود')
-        return redirect('accounts:register')
+        return redirect('accounts:register')  # ✅ تم التعديل
     
     # ✅ إذا كان المستخدم قد تحقق بالفعل
     if profile.is_email_verified:
         messages.info(request, '✅ حسابك مفعل بالفعل')
-        return redirect('accounts:login')
+        return redirect('accounts:login')  # ✅ تم التعديل
     
     # ✅ توليد رمز جديد وإرساله
     code = verification.generate_code()
     send_verification_email(user, code)
     
     messages.success(request, f'✅ تم إرسال رمز تأكيد جديد إلى بريدك الإلكتروني ({user.email})')
-    return redirect('accounts:verify_email', user_id=user_id)
+    return redirect('accounts:verify_email', user_id=user_id)  # ✅ تم التعديل
 
 
 @login_required
