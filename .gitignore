@@ -48,3 +48,8 @@ staticfiles/
 add_i18n.py
 translate_texts.py
 translate.bat
+
+# إخفاء ملف .env
+.env
+.env.local
+.env.production
