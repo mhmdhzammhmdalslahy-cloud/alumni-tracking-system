@@ -304,15 +304,16 @@ TWO_FACTOR_PATCH_ADMIN = True
 # ============================================================
 try:
     from django.contrib.sites.models import Site
-    from django.apps import apps
     
-    if apps.ready:
-        site, created = Site.objects.get_or_create(id=1)
-        site.domain = 'alumni-system.onrender.com'
-        site.name = 'نظام متابعة الخريجين'
-        site.save()
-        print(f"✅ تم تحديث النطاق: {site.domain}")
-    else:
-        print("⚠️ التطبيقات لم تتحمّل بعد، سيتم تحديث النطاق عند التشغيل")
+    # حذف جميع المواقع الحالية
+    Site.objects.all().delete()
+    
+    # إنشاء الموقع الصحيح
+    site = Site.objects.create(
+        id=1,
+        domain='alumni-tracking-system-bga6.onrender.com',
+        name='نظام متابعة الخريجين'
+    )
+    print(f"✅ تم تحديث النطاق: {site.domain}")
 except Exception as e:
     print(f"⚠️ لم يتم تحديث النطاق: {e}")
