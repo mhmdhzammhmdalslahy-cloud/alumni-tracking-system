@@ -300,7 +300,7 @@ TWO_FACTOR_PATCH_ADMIN = True
 
 
 # ============================================================
-# ========== ✅ إعدادات النطاق (Domain) ==========
+# ========== ✅ إعدادات النطاق (Domain) لـ Render ==========
 # ============================================================
 try:
     from django.contrib.sites.models import Site
@@ -308,10 +308,10 @@ try:
     
     if apps.ready:
         site, created = Site.objects.get_or_create(id=1)
-        site.domain = 'alumni-system.onrender.com'    # ✅ رابط Render
+        site.domain = 'alumni-system.onrender.com'
         site.name = 'نظام متابعة الخريجين'
         site.save()
-        print("✅ تم تحديث النطاق بنجاح!")
+        print(f"✅ تم تحديث النطاق: {site.domain}")
     else:
         print("⚠️ التطبيقات لم تتحمّل بعد، سيتم تحديث النطاق عند التشغيل")
 except Exception as e:
