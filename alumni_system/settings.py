@@ -243,33 +243,50 @@ SIMPLE_JWT = {
 
 
 # ============================================================
-# ========== ✅ إعدادات البريد الإلكتروني (SendGrid) ==========
+# ========== ✅ إعدادات البريد الإلكتروني (نهائي) ==========
 # ============================================================
-import os
 
-# ✅ استخدام SendGrid على Render
-if os.environ.get('RENDER'):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'apikey'
-    EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')
-    DEFAULT_FROM_EMAIL = 'noreply@alumni-system.com'
-    EMAIL_TIMEOUT = 60
+# ✅ طريقة موثوقة للكشف عن Render
+IS_RENDER = os.environ.get('RENDER', False) or 'RENDER' in os.environ
+
+# ✅ استخدام متغير EMAIL_BACKEND من البيئة (أولوية قصوى)
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+
+if EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+    # ✅ Console Backend (للاختبار - لا يرسل بريداً فعلياً)
+    print("📧 استخدام Console Email Backend (للاختبار)")
+    
+elif IS_RENDER:
+    # ✅ على Render: استخدام SendGrid
     print("📧 Render: استخدام SendGrid SMTP")
-else:
-    # محلياً: استخدام Gmail
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
+    EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'apikey')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@alumni-system.com')
+    
+    # ✅ التحقق من وجود كلمة المرور
+    if not EMAIL_HOST_PASSWORD:
+        print("⚠️ تحذير: EMAIL_HOST_PASSWORD غير مضبوط! استخدم Console Backend كبديل.")
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    
+else:
+    # ✅ محلياً: استخدام Gmail
+    print("📧 محلي: استخدام Gmail SMTP")
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = f'نظام متابعة الخريجين <{EMAIL_HOST_USER}>'
-    EMAIL_TIMEOUT = 60
-    print("📧 محلي: استخدام Gmail SMTP")
 
+# ✅ إعدادات إضافية
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', 60))
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE = None
 
 # ============================================================
 # ========== ✅ إعدادات Allauth (Google Login, Reset Password) ==========
