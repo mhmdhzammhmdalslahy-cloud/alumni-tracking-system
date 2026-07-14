@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
+import dj_database_url  # ✅ إضافة المكتبة
 
 # تحميل المتغيرات من ملف .env
 load_dotenv()
@@ -112,14 +113,32 @@ WSGI_APPLICATION = 'alumni_system.wsgi.application'
 
 
 # ============================================================
-# ========== قاعدة البيانات ==========
+# ========== ✅ قاعدة البيانات (PostgreSQL / SQLite) ==========
 # ============================================================
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import dj_database_url
+
+# ✅ استخدام PostgreSQL إذا كان DATABASE_URL موجوداً، وإلا استخدم SQLite
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    # ✅ استخدام PostgreSQL على Render
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+    print("🐘 استخدام قاعدة بيانات PostgreSQL")
+else:
+    # ✅ استخدام SQLite محلياً
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    print("📁 استخدام قاعدة بيانات SQLite")
 
 
 # ============================================================
@@ -237,7 +256,7 @@ if os.environ.get('RENDER'):
     EMAIL_HOST_USER = 'apikey'
     EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')
     DEFAULT_FROM_EMAIL = 'noreply@alumni-system.com'
-    EMAIL_TIMEOUT = 60  # ✅ زيادة المهلة إلى 60 ثانية
+    EMAIL_TIMEOUT = 60
     print("📧 Render: استخدام SendGrid SMTP")
 else:
     # محلياً: استخدام Gmail
