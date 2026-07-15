@@ -240,38 +240,26 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
-
-
 # ============================================================
-# ========== ✅ إعدادات البريد الإلكتروني (نهائي) ==========
+# ========== ✅ إعدادات البريد الإلكتروني (SendGrid) ==========
 # ============================================================
 
 import os
 
-# ✅ استخدام Console Backend بشكل افتراضي (يعمل دائماً بدون أخطاء)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.sendgrid.net')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'apikey')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '4alslah4@gmail.com')
+EMAIL_TIMEOUT = 60
 
-# ✅ محاولة استخدام SendGrid فقط إذا كانت جميع المتغيرات موجودة
-if all([
-    os.getenv('EMAIL_HOST'),
-    os.getenv('EMAIL_HOST_USER'),
-    os.getenv('EMAIL_HOST_PASSWORD'),
-    os.getenv('EMAIL_PORT'),
-]):
-    try:
-        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-        EMAIL_HOST = os.getenv('EMAIL_HOST')
-        EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-        EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-        EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-        EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-        DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@alumni-system.com')
-        print("📧 استخدام SendGrid SMTP (إذا كان يعمل)")
-    except Exception as e:
-        print(f"⚠️ فشل إعداد SendGrid: {e}")
-        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+if not EMAIL_HOST_PASSWORD:
+    print("⚠️ تحذير: EMAIL_HOST_PASSWORD غير مضبوط! استخدم Console Backend.")
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    print("📧 استخدام Console Email Backend (للاختبار)")
+    print("📧 استخدام SendGrid SMTP للإرسال الفعلي")
 
 # ============================================================
 # ========== ✅ إعدادات Allauth (Google Login, Reset Password) ==========
